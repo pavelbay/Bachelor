@@ -50,7 +50,7 @@ class DrawingView(context: Context, private var mPaint: Paint) : View(context) {
         mY = y
     }
 
-    private fun touch_move(x: Float, y: Float) {
+    private fun touchMove(x: Float, y: Float) {
         val dx = Math.abs(x - mX)
         val dy = Math.abs(y - mY)
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
@@ -82,7 +82,7 @@ class DrawingView(context: Context, private var mPaint: Paint) : View(context) {
                 invalidate()
             }
             MotionEvent.ACTION_MOVE -> {
-                touch_move(x, y)
+                touchMove(x, y)
                 invalidate()
             }
             MotionEvent.ACTION_UP -> {
