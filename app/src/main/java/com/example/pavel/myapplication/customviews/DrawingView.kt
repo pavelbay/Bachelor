@@ -2,14 +2,18 @@ package com.example.pavel.myapplication.customviews
 
 import android.content.Context
 import android.graphics.*
+import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 
 
-class DrawingView(context: Context, private var mPaint: Paint) : View(context) {
+class DrawingView @JvmOverloads constructor(
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
     var mWidth: Int = 0
     var mHeight: Int = 0
+    var paint: Paint? = null
     private var mBitmap: Bitmap? = null
     private var mCanvas: Canvas? = null
     private val mPath: Path = Path()
@@ -39,7 +43,7 @@ class DrawingView(context: Context, private var mPaint: Paint) : View(context) {
         super.onDraw(canvas)
 
         canvas.drawBitmap(mBitmap, 0F, 0F, mBitmapPaint)
-        canvas.drawPath(mPath, mPaint)
+        canvas.drawPath(mPath, paint)
         canvas.drawPath(circlePath, circlePaint)
     }
 
@@ -67,7 +71,7 @@ class DrawingView(context: Context, private var mPaint: Paint) : View(context) {
         mPath.lineTo(mX, mY)
         circlePath.reset()
         // commit the path to our offscreen
-        mCanvas!!.drawPath(mPath, mPaint)
+        mCanvas?.drawPath(mPath, paint)
         // kill this so we don't double draw
         mPath.reset()
     }
