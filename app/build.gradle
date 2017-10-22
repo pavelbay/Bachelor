@@ -58,6 +58,10 @@ dependencies {
 
 //    retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+
+//    сolor picker
+    implementation 'com.pes.materialcolorpicker:library:1.2.0'
+    implementation 'com.android.support:design:26.1.0'
 }
 repositories {
     mavenCentral()

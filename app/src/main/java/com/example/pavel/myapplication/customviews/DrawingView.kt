@@ -47,7 +47,7 @@ class DrawingView @JvmOverloads constructor(
         canvas.drawPath(circlePath, circlePaint)
     }
 
-    private fun touch_start(x: Float, y: Float) {
+    private fun touchStart(x: Float, y: Float) {
         mPath.reset()
         mPath.moveTo(x, y)
         mX = x
@@ -82,7 +82,7 @@ class DrawingView @JvmOverloads constructor(
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                touch_start(x, y)
+                touchStart(x, y)
                 invalidate()
             }
             MotionEvent.ACTION_MOVE -> {
