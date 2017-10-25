@@ -2,6 +2,7 @@ package com.example.pavel.myapplication.customviews
 
 import android.content.Context
 import android.graphics.*
+import android.os.Bundle
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View

@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         mPaint.strokeCap = Cap.ROUND
         mPaint.strokeWidth = 12F
 
+        mDrawingView.isSaveEnabled = true
         mDrawingView.paint = mPaint
         val colorPicker = ColorPicker(this, Color.alpha(DEFAULT_COLOR), Color.red(DEFAULT_COLOR), Color.green(DEFAULT_COLOR), Color.blue(DEFAULT_COLOR))
         colorPicker.setCallback { color ->
@@ -67,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         val fragmentTransaction = fragmentManager.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
 
-        val colorPickerDialog = ColorPickerDialogFragment.newInstance(R.layout.layout_color_picker, R.id.color_picker_ok_button, DEFAULT_COLOR)
+        val colorPickerDialog = ColorPickerDialogFragment.newInstance(R.layout.layout_color_picker, R.id.color_picker_ok_button, mPaint.color)
         colorPickerDialog.show(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
     }
 
@@ -76,8 +77,6 @@ class MainActivity : AppCompatActivity() {
         previousFragment?.let {
             fragmentTransaction?.remove(previousFragment)
         }
-
-        fragmentTransaction?.addToBackStack(null)
     }
 
     @Subscribe
