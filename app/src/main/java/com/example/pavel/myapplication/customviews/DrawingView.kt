@@ -3,7 +3,10 @@ package com.example.pavel.myapplication.customviews
 import android.content.Context
 import android.graphics.*
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 
@@ -35,13 +38,16 @@ class DrawingView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        mCanvas = Canvas(mBitmap)
+        if (mBitmap == null) {
+            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+            mCanvas = Canvas(mBitmap)
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
+        Log.d("Deb", "OnDraw")
 
         canvas.drawBitmap(mBitmap, 0F, 0F, mBitmapPaint)
         canvas.drawPath(mPath, paint)
@@ -98,7 +104,48 @@ class DrawingView @JvmOverloads constructor(
         return true
     }
 
+    override fun onSaveInstanceState(): Parcelable {
+        val bundle = super.onSaveInstanceState()
+        val savedState = SavedState(bundle)
+        savedState.mBitmap = this.mBitmap
+        return savedState
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state is SavedState) {
+            super.onRestoreInstanceState(state.superState)
+            this.mBitmap = state.mBitmap
+            Log.d("Deb", "Bitmap restored")
+        } else {
+            super.onRestoreInstanceState(state)
+        }
+    }
+
     companion object {
         private val TOUCH_TOLERANCE = 4f
+    }
+
+    internal class SavedState : BaseSavedState {
+        var mBitmap: Bitmap? = null
+
+        constructor(bundle: Parcelable) : super(bundle)
+
+        private constructor(parcel: Parcel) : super(parcel) {
+            mBitmap = parcel.readParcelable(Parcelable::class.java.classLoader)
+        }
+
+        companion object {
+            @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(source: Parcel): SavedState = SavedState(source)
+                override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+            }
+        }
+
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {
+            super.writeToParcel(dest, flags)
+            dest.writeParcelable(mBitmap, flags)
+        }
     }
 }
