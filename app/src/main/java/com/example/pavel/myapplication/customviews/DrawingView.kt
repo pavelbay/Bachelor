@@ -2,14 +2,20 @@ package com.example.pavel.myapplication.customviews
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import com.example.pavel.myapplication.R
 
+private const val DEFAULT_STROKE_WIDTH = 12F
+private const val ERASER_STROKE_WIDTH = 50F
 
 class DrawingView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -17,7 +23,7 @@ class DrawingView @JvmOverloads constructor(
 
     var mWidth: Int = 0
     var mHeight: Int = 0
-    var paint: Paint? = null
+    var paint: Paint = Paint()
     private var mBitmap: Bitmap? = null
     private var mCanvas: Canvas? = null
     private val mPath: Path = Path()
@@ -34,6 +40,13 @@ class DrawingView @JvmOverloads constructor(
         circlePaint.style = Paint.Style.STROKE
         circlePaint.strokeJoin = Paint.Join.MITER
         circlePaint.strokeWidth = 4f
+
+        paint.isAntiAlias = true
+        paint.isDither = true
+        paint.style = Paint.Style.STROKE
+        paint.strokeJoin = Paint.Join.ROUND
+        paint.strokeCap = Paint.Cap.ROUND
+        paint.strokeWidth = DEFAULT_STROKE_WIDTH
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -52,6 +65,17 @@ class DrawingView @JvmOverloads constructor(
         canvas.drawBitmap(mBitmap, 0F, 0F, mBitmapPaint)
         canvas.drawPath(mPath, paint)
         canvas.drawPath(circlePath, circlePaint)
+    }
+
+    fun setColor(color: Int) {
+        paint.color = color
+    }
+
+    fun getColor(): Int = paint.color
+
+    fun enableEraser() {
+        paint.color = ContextCompat.getColor(context, R.color.white)
+        paint.strokeWidth = ERASER_STROKE_WIDTH
     }
 
     private fun touchStart(x: Float, y: Float) {

@@ -8,6 +8,8 @@ import android.graphics.Paint.Join
 import android.os.Bundle
 import android.support.annotation.ColorInt
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import com.example.pavel.myapplication.R
 import com.example.pavel.myapplication.events.ColorPickerEvents
 import com.example.pavel.myapplication.fragments.ColorPickerDialogFragment
@@ -21,30 +23,35 @@ private const val COLOR_PICKER_DIALOG_TAG = "color_picker_dialog_tag"
 
 class MainActivity : AppCompatActivity() {
 
-    private val mPaint = Paint()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mPaint.isAntiAlias = true
-        mPaint.isDither = true
-        mPaint.color = DEFAULT_COLOR
-        mPaint.style = Paint.Style.STROKE
-        mPaint.strokeJoin = Join.ROUND
-        mPaint.strokeCap = Cap.ROUND
-        mPaint.strokeWidth = 12F
-
-        mDrawingView.isSaveEnabled = true
-        mDrawingView.paint = mPaint
+        mDrawingView.setColor(DEFAULT_COLOR)
         val colorPicker = ColorPicker(this, Color.alpha(DEFAULT_COLOR), Color.red(DEFAULT_COLOR), Color.green(DEFAULT_COLOR), Color.blue(DEFAULT_COLOR))
         colorPicker.setCallback { color ->
-            mPaint.color = color
+            mDrawingView.setColor(color)
             colorPicker.dismiss()
         }
         mFloatingActionButton.setOnClickListener {
             //            colorPicker.show()
             showColorPickerDialog()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.eraser -> {
+                mDrawingView.enableEraser()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -68,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         val fragmentTransaction = fragmentManager.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
 
-        val colorPickerDialog = ColorPickerDialogFragment.newInstance(R.layout.layout_color_picker, R.id.color_picker_ok_button, mPaint.color)
+        val colorPickerDialog = ColorPickerDialogFragment.newInstance(R.layout.layout_color_picker, R.id.color_picker_ok_button, mDrawingView.getColor())
         colorPickerDialog.show(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
     }
 
@@ -88,6 +95,6 @@ class MainActivity : AppCompatActivity() {
 
     @Subscribe
     fun onColorSelectedEvent(colorSelectedEvent: ColorPickerEvents.ColorSelectedEvent) {
-        mPaint.color = colorSelectedEvent.color
+        mDrawingView.setColor(colorSelectedEvent.color)
     }
 }
