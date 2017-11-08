@@ -67,6 +67,12 @@ dependencies {
 
 //    event bus
     implementation 'org.greenrobot:eventbus:3.0.0'
+
+//    koin
+    // Koin for Android
+    implementation 'org.koin:koin-android:0.5.2'
+// If you need Koin for your tests
+    testCompile 'org.koin:koin-test:0.5.2'
 }
 repositories {
     mavenCentral()

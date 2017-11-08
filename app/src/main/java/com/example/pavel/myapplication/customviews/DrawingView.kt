@@ -2,9 +2,6 @@ package com.example.pavel.myapplication.customviews
 
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
-import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
@@ -159,7 +156,8 @@ class DrawingView @JvmOverloads constructor(
         }
 
         companion object {
-            @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState = SavedState(source)
                 override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
             }
