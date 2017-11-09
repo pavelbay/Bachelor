@@ -4,4 +4,8 @@
     <item android:id="@+id/eraser"
         android:title="@string/menu_eraser_title"
         app:showAsAction="never" />
+
+    <item android:id="@+id/save_to_gallery"
+        android:title="@string/menu_save_to_gallery"
+        app:showAsAction="never" />
 </menu>

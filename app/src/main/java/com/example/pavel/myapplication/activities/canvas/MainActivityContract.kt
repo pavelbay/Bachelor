@@ -11,6 +11,7 @@ interface MainActivityContract {
     }
 
     interface Presenter : BasePresenter<View> {
-
+        fun saveToGallery()
+        fun publishSketch()
     }
 }
