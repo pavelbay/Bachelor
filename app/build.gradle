@@ -58,6 +58,12 @@ dependencies {
 
 //    retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+
+
+//    OkHttp
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
 
 //    сolor picker
     implementation 'com.pes.materialcolorpicker:library:1.2.0'
@@ -73,6 +79,12 @@ dependencies {
     implementation 'org.koin:koin-android:0.5.2'
 // If you need Koin for your tests
     testCompile 'org.koin:koin-test:0.5.2'
+
+//    rxJava
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+// Because RxAndroid releases are few and far between, it is recommended you also
+// explicitly depend on RxJava's latest version for bug fixes and new features.
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.5'
 }
 repositories {
     mavenCentral()

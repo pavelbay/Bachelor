@@ -1,10 +1,7 @@
-package com.example.pavel.myapplication.activities
+package com.example.pavel.myapplication.activities.canvas
 
 import android.app.FragmentTransaction
 import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Paint.Cap
-import android.graphics.Paint.Join
 import android.os.Bundle
 import android.support.annotation.ColorInt
 import android.support.v7.app.AppCompatActivity
@@ -28,11 +25,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mDrawingView.setColor(DEFAULT_COLOR)
-        val colorPicker = ColorPicker(this, Color.alpha(DEFAULT_COLOR), Color.red(DEFAULT_COLOR), Color.green(DEFAULT_COLOR), Color.blue(DEFAULT_COLOR))
-        colorPicker.setCallback { color ->
-            mDrawingView.setColor(color)
-            colorPicker.dismiss()
-        }
+//        val colorPicker = ColorPicker(this, Color.alpha(DEFAULT_COLOR), Color.red(DEFAULT_COLOR), Color.green(DEFAULT_COLOR), Color.blue(DEFAULT_COLOR))
+//        colorPicker.setCallback { color ->
+//            mDrawingView.setColor(color)
+//            colorPicker.dismiss()
+//        }
         mFloatingActionButton.setOnClickListener {
             //            colorPicker.show()
             showColorPickerDialog()
