@@ -7,6 +7,7 @@ import com.example.pavel.myapplication.rx.SchedulerProvider
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.module.AndroidModule
+import org.koin.dsl.context.Context
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -25,6 +26,12 @@ class CanvasModule : AndroidModule() {
     companion object {
         const val CTX_CANVAS_ACTIVITY = "CanvasActivity"
         const val SERVER_URL = "lbs.f4.htw-berlin.de"
+    }
+}
+
+class FileStoreModule : AndroidModule() {
+    override fun context() = applicationContext {
+        provide {  }
     }
 }
 
