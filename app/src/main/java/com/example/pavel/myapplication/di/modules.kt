@@ -7,11 +7,10 @@ import com.example.pavel.myapplication.rx.SchedulerProvider
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.module.AndroidModule
-import org.koin.dsl.context.Context
 import retrofit2.Retrofit
-import java.util.concurrent.TimeUnit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 
 fun appModules() = listOf(CanvasModule(), RemoteDataSourceModule(), RxModule())
@@ -31,7 +30,7 @@ class CanvasModule : AndroidModule() {
 
 class FileStoreModule : AndroidModule() {
     override fun context() = applicationContext {
-        provide {  }
+        provide { }
     }
 }
 
