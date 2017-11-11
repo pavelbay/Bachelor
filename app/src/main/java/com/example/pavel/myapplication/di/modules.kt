@@ -1,9 +1,13 @@
 package com.example.pavel.myapplication.di
 
+import android.graphics.Bitmap
 import com.example.pavel.myapplication.activities.canvas.MainActivityContract
 import com.example.pavel.myapplication.activities.canvas.MainActivityPresenter
 import com.example.pavel.myapplication.rx.ApplicationSchedulerProvider
 import com.example.pavel.myapplication.rx.SchedulerProvider
+import com.example.pavel.myapplication.storage.FileStoreFactory
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.module.AndroidModule
@@ -13,12 +17,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 
-fun appModules() = listOf(CanvasModule(), RemoteDataSourceModule(), RxModule())
+const val BITMAP_FILESTORE = "BitmpalFileStore"
+
+fun appModules() = listOf(CanvasModule(), RemoteDataSourceModule(), RxModule(), GsonModule(), FileStoreFactoryModule())
 
 class CanvasModule : AndroidModule() {
     override fun context() = applicationContext {
         context(name = CTX_CANVAS_ACTIVITY) {
-            provide { MainActivityPresenter() } bind (MainActivityContract.Presenter::class)
+            provide { MainActivityPresenter(get(BITMAP_FILESTORE)) } bind (MainActivityContract.Presenter::class)
+
+            provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get())}
         }
     }
 
@@ -28,9 +36,15 @@ class CanvasModule : AndroidModule() {
     }
 }
 
-class FileStoreModule : AndroidModule() {
+class GsonModule : AndroidModule() {
     override fun context() = applicationContext {
-        provide { }
+        provide { createGson() }
+    }
+}
+
+class FileStoreFactoryModule : AndroidModule() {
+    override fun context() = applicationContext {
+        provide { FileStoreFactory(get(), get()) }
     }
 }
 
@@ -43,6 +57,16 @@ class RemoteDataSourceModule : AndroidModule() {
         // TODO: implement this later
 //        provide { createWebService<WeatherDatasource>(get(), getProperty(CanvasModule.SERVER_URL)) }
     }
+}
+
+fun createFileStoreForBitmap(fileStoreFactory: FileStoreFactory) = fileStoreFactory.create<Bitmap>()
+
+fun createGson(): Gson {
+    return GsonBuilder()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .setLenient()
+            .create()
 }
 
 fun createOkHttpClient(): OkHttpClient {

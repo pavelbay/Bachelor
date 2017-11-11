@@ -1,6 +1,9 @@
 package com.example.pavel.myapplication.storage
 
-class FileStoreImpl<T> : FileStore<T> {
+import android.content.Context
+import com.google.gson.Gson
+
+class FileStoreImpl<T>(val context: Context, val gson: Gson) : FileStore<T> {
 
     override fun readType(): T? {
 
