@@ -59,7 +59,7 @@ class RemoteDataSourceModule : AndroidModule() {
     }
 }
 
-fun createFileStoreForBitmap(fileStoreFactory: FileStoreFactory) = fileStoreFactory.create<Bitmap>()
+fun createFileStoreForBitmap(fileStoreFactory: FileStoreFactory) = fileStoreFactory.create(Bitmap::class.java)
 
 fun createGson(): Gson {
     return GsonBuilder()
