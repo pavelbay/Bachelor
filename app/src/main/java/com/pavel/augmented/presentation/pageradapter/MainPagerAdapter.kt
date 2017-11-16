@@ -19,4 +19,12 @@ class MainPagerAdapter(fragmentManager: FragmentManager, private val names: Arra
     }
 
     fun getPositionForTitle(title: String) = names.indexOf(title)
+
+    fun getTitleForPosition(position: Int): String? {
+        return if (position >= 0 && position < names.size) {
+            names[position]
+        } else {
+            null
+        }
+    }
 }

@@ -22,10 +22,13 @@ class MainActivity : AppCompatActivity() {
         main_view_pager.adapter = pagerAdapter
         main_view_pager.setOnTouchListener({ _, _ -> true })
 
+        supportActionBar?.title = pagerAdapter.getTitleForPosition(main_view_pager.currentItem)
+
         bottom_navigation_view.setOnNavigationItemSelectedListener { item ->
             val index = pagerAdapter.getPositionForTitle(item.title.toString())
             if (index != -1) {
                 main_view_pager.currentItem = pagerAdapter.getPositionForTitle(item.title.toString())
+                supportActionBar?.title = pagerAdapter.getTitleForPosition(main_view_pager.currentItem)
                 return@setOnNavigationItemSelectedListener true
             }
 
