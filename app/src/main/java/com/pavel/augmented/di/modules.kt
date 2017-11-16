@@ -1,15 +1,15 @@
 package com.pavel.augmented.di
 
 import android.graphics.Bitmap
-import com.pavel.augmented.presentation.canvas.CanvasContract
-import com.pavel.augmented.presentation.canvas.CanvasPresenter
-import com.pavel.augmented.rx.ApplicationSchedulerProvider
-import com.pavel.augmented.rx.SchedulerProvider
-import com.pavel.augmented.storage.FileStoreFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.pavel.augmented.presentation.MainActivity
+import com.pavel.augmented.presentation.canvas.CanvasContract
+import com.pavel.augmented.presentation.canvas.CanvasPresenter
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
+import com.pavel.augmented.rx.ApplicationSchedulerProvider
+import com.pavel.augmented.rx.SchedulerProvider
+import com.pavel.augmented.storage.FileStoreFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.module.AndroidModule
@@ -18,8 +18,6 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-
-const val BITMAP_FILESTORE = "BitmpalFileStore"
 
 fun appModules() = listOf(AppModule(), RemoteDataSourceModule(), RxModule(), GsonModule(), FileStoreFactoryModule())
 
@@ -30,7 +28,7 @@ class AppModule : AndroidModule() {
 
             context(name = CTX_CANVAS_FRAGMENT) {
                 provide { CanvasPresenter(get(BITMAP_FILESTORE)) } bind (CanvasContract.Presenter::class)
-                provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get())}
+                provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
             }
 
             context(name = CTX_MAP_FRAGMENT) {
@@ -49,6 +47,7 @@ class AppModule : AndroidModule() {
         const val CTX_CANVAS_FRAGMENT = "CanvasFragment"
         const val CTX_GALERIE_FRAGMENT = "GalerieFragment"
         const val CTX_MAP_FRAGMENT = "MapFragment"
+        const val BITMAP_FILESTORE = "BitmpalFileStore"
         const val SERVER_URL = "lbs.f4.htw-berlin.de"
     }
 }
