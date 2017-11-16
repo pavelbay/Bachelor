@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_galerie"
+        android:title="@string/menu_item_galerie"
+        android:icon="@drawable/ic_panorama_black" />
+    <item android:id="@+id/action_canvas"
+        android:title="@string/menu_item_canvas"
+        android:icon="@drawable/ic_gesture_black" />
+    <item android:id="@+id/action_map"
+        android:title="@string/menu_item__map"
+        android:icon="@drawable/ic_map_black" />
+</menu>

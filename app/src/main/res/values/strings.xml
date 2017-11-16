@@ -4,4 +4,13 @@
     <!-- menu main activity -->
     <string name="menu_eraser_title">Löschen</string>
     <string name="menu_save_to_gallery">In die Gallerie speichern</string>
+
+    <string name="menu_item_galerie">Galerie</string>
+    <string name="menu_item_canvas">Canvas</string>
+    <string name="menu_item__map">Karte</string>
+    <string-array name="main_view_pager_items">
+        <item>@string/menu_item_galerie</item>
+        <item>@string/menu_item_canvas</item>
+        <item>@string/menu_item__map</item>
+    </string-array>
 </resources>

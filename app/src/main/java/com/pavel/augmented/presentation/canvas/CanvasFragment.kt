@@ -1,49 +1,46 @@
-package com.pavel.augmented.activities.canvas
+package com.pavel.augmented.presentation.canvas
 
-import android.app.FragmentTransaction
 import android.graphics.Color
 import android.os.Bundle
 import android.support.annotation.ColorInt
-import android.view.Menu
-import android.view.MenuItem
+import android.support.v4.app.FragmentTransaction
+import android.view.*
 import com.pavel.augmented.R
-import com.pavel.augmented.di.CanvasModule
+import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.ColorPickerEvents
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.layout_canvas_fragment.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import org.koin.android.contextaware.ContextAwareActivity
+import org.koin.android.contextaware.ContextAwareFragment
 import org.koin.android.ext.android.inject
 
-@ColorInt private const val DEFAULT_COLOR = Color.GREEN
-private const val COLOR_PICKER_DIALOG_TAG = "color_picker_dialog_tag"
+class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
+    override val contextName = AppModule.CTX_CANVAS_FRAGMENT
 
-class MainActivity : ContextAwareActivity(), MainActivityContract.View {
+    override val presenter by inject<CanvasContract.Presenter>()
 
-    override val contextName = CanvasModule.CTX_CANVAS_ACTIVITY
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        setHasOptionsMenu(true)
+        return inflater?.inflate(R.layout.layout_canvas_fragment, container, false)
+    }
 
-    override val presenter by inject<MainActivityContract.Presenter>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         drawing_view.setColor(DEFAULT_COLOR)
-//        val colorPicker = ColorPicker(this, Color.alpha(DEFAULT_COLOR), Color.red(DEFAULT_COLOR), Color.green(DEFAULT_COLOR), Color.blue(DEFAULT_COLOR))
-//        colorPicker.setCallback { color ->
-//            mDrawingView.setColor(color)
-//            colorPicker.dismiss()
-//        }
         main_activity_floating_action_button.setOnClickListener {
-            //            colorPicker.show()
             displayDialog()
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
+    override fun onResume() {
+        super.onResume()
+
+        presenter.view = this
+        presenter.start()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.main_menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -63,11 +60,13 @@ class MainActivity : ContextAwareActivity(), MainActivityContract.View {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
 
-        presenter.view = this
-        presenter.start()
+    override fun displayDialog() {
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
+
+        val colorPickerDialog = ColorPickerDialogFragment.newInstance(R.layout.layout_color_picker, R.id.color_picker_ok_button, drawing_view.getColor())
+        colorPickerDialog.show(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
     }
 
     override fun onStart() {
@@ -84,14 +83,6 @@ class MainActivity : ContextAwareActivity(), MainActivityContract.View {
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this)
         }
-    }
-
-    override fun displayDialog() {
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
-
-        val colorPickerDialog = ColorPickerDialogFragment.newInstance(R.layout.layout_color_picker, R.id.color_picker_ok_button, drawing_view.getColor())
-        colorPickerDialog.show(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
     }
 
     private fun removeDialogIfExists(fragmentTransaction: FragmentTransaction?, tag: String) {
@@ -113,3 +104,5 @@ class MainActivity : ContextAwareActivity(), MainActivityContract.View {
         drawing_view.setColor(colorSelectedEvent.color)
     }
 }
+@ColorInt private const val DEFAULT_COLOR = Color.GREEN
+private const val COLOR_PICKER_DIALOG_TAG = "color_picker_dialog_tag"
