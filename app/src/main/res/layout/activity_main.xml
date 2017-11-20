@@ -7,7 +7,7 @@
     android:background="@color/white"
     tools:context="com.pavel.augmented.presentation.MainActivity">
 
-    <android.support.v4.view.ViewPager
+    <com.pavel.augmented.customviews.NonSwipeableViewPager
         android:id="@+id/main_view_pager"
         android:layout_width="383dp"
         android:layout_height="458dp"
@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-    </android.support.v4.view.ViewPager>
+    </com.pavel.augmented.customviews.NonSwipeableViewPager>
 
     <android.support.design.widget.BottomNavigationView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"

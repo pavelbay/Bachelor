@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
         getKoin().setProperty(FRAGMENT_NAMES_KEY, resources.getStringArray(R.array.main_view_pager_items))
 
         main_view_pager.adapter = pagerAdapter
-        main_view_pager.setOnTouchListener({ _, _ -> true })
 
         supportActionBar?.title = pagerAdapter.getTitleForPosition(main_view_pager.currentItem)
 
