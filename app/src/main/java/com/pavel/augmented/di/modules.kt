@@ -27,7 +27,7 @@ class AppModule : AndroidModule() {
             provide { MainPagerAdapter(getProperty(MainActivity.FRAGMENT_MANAGER_KEY), getProperty(MainActivity.FRAGMENT_NAMES_KEY)) }
 
             context(name = CTX_CANVAS_FRAGMENT) {
-                provide { CanvasPresenter(get(BITMAP_FILESTORE)) } bind (CanvasContract.Presenter::class)
+                provide { CanvasPresenter(get(BITMAP_FILESTORE), get()) } bind (CanvasContract.Presenter::class)
                 provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
             }
 

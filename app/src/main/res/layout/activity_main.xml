@@ -9,8 +9,8 @@
 
     <com.pavel.augmented.customviews.NonSwipeableViewPager
         android:id="@+id/main_view_pager"
-        android:layout_width="383dp"
-        android:layout_height="458dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">

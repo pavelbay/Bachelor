@@ -13,4 +13,7 @@
         <item>@string/menu_item_canvas</item>
         <item>@string/menu_item__map</item>
     </string-array>
+
+    <!-- canvas fragment-->
+    <string name="message_saved_to_gallery">Gespeichert!</string>
 </resources>

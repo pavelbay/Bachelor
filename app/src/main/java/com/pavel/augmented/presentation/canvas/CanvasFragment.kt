@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.annotation.ColorInt
 import android.support.v4.app.FragmentTransaction
 import android.view.*
+import android.widget.Toast
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.ColorPickerEvents
@@ -60,6 +61,7 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
         }
     }
 
+    override fun displayMessageSavedToGallery() = Toast.makeText(context, getString(R.string.message_saved_to_gallery), Toast.LENGTH_SHORT).show()
 
     override fun displayDialog() {
         val fragmentTransaction = fragmentManager.beginTransaction()

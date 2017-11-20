@@ -9,6 +9,8 @@ interface CanvasContract {
     interface View : BaseView<Presenter> {
 
         fun displayDialog()
+
+        fun displayMessageSavedToGallery()
     }
 
     interface Presenter : BasePresenter<View> {
