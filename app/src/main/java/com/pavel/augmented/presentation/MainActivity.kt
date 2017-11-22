@@ -1,16 +1,19 @@
 package com.pavel.augmented.presentation
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import com.pavel.augmented.R
+import com.pavel.augmented.di.AppModule.Companion.CTX_CANVAS_ACTIVITY
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.android.contextaware.ContextAwareActivity
 import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ContextAwareActivity() {
 
-    private val pagerAdapter: MainPagerAdapter by inject()
+    override val contextName = CTX_CANVAS_ACTIVITY
+
+    private val pagerAdapter by inject<MainPagerAdapter>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
