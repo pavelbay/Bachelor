@@ -10,6 +10,9 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.pavel.augmented.R
+import android.graphics.Bitmap
+
+
 
 private const val DEFAULT_STROKE_WIDTH = 12F
 private const val ERASER_STROKE_WIDTH = 50F
@@ -48,16 +51,19 @@ class DrawingView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        if (bitmap == null) {
-            bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-            mCanvas = Canvas(bitmap)
+        bitmap = if (bitmap == null) {
+            Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        } else {
+            val temporary = Bitmap.createScaledBitmap(bitmap, w, h, true)
+            temporary
         }
+        mCanvas = Canvas(bitmap)
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        Log.d("Deb", "OnDraw")
+//        Log.d(TAG, "OnDraw")
 
         canvas.drawBitmap(bitmap, 0F, 0F, mBitmapPaint)
         canvas.drawPath(mPath, paint)
@@ -144,6 +150,7 @@ class DrawingView @JvmOverloads constructor(
 
     companion object {
         private val TOUCH_TOLERANCE = 4f
+        private val TAG = DrawingView::class.java.simpleName
     }
 
     internal class SavedState : BaseSavedState {
