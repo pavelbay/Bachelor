@@ -2,7 +2,7 @@ package com.pavel.augmented.presentation
 
 import android.os.Bundle
 import com.pavel.augmented.R
-import com.pavel.augmented.di.AppModule.Companion.CTX_CANVAS_ACTIVITY
+import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.contextaware.ContextAwareActivity
@@ -11,7 +11,7 @@ import org.koin.android.ext.android.inject
 
 class MainActivity : ContextAwareActivity() {
 
-    override val contextName = CTX_CANVAS_ACTIVITY
+    override val contextName = CTX_MAIN_ACTIVITY
 
     private val pagerAdapter by inject<MainPagerAdapter>()
 

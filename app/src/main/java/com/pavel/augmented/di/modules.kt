@@ -23,7 +23,7 @@ fun appModules() = listOf(AppModule(), RemoteDataSourceModule(), RxModule(), Gso
 
 class AppModule : AndroidModule() {
     override fun context() = applicationContext {
-        context(name = CTX_CANVAS_ACTIVITY) {
+        context(name = CTX_MAIN_ACTIVITY) {
             provide { MainPagerAdapter(getProperty(MainActivity.FRAGMENT_MANAGER_KEY), getProperty(MainActivity.FRAGMENT_NAMES_KEY)) }
 
             context(name = CTX_CANVAS_FRAGMENT) {
@@ -43,7 +43,7 @@ class AppModule : AndroidModule() {
     }
 
     companion object {
-        const val CTX_CANVAS_ACTIVITY = "CanvasActivity"
+        const val CTX_MAIN_ACTIVITY = "MainActivity"
         const val CTX_CANVAS_FRAGMENT = "CanvasFragment"
         const val CTX_GALERIE_FRAGMENT = "GalerieFragment"
         const val CTX_MAP_FRAGMENT = "MapFragment"
