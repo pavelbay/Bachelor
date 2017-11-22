@@ -88,6 +88,10 @@ dependencies {
 
 //    okio
     implementation 'com.squareup.okio:okio:1.13.0'
+
+//    Play services
+    implementation 'com.google.android.gms:play-services-location:11.6.0'
+    implementation 'com.google.android.gms:play-services-maps:11.6.0'
 }
 repositories {
     mavenCentral()

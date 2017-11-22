@@ -1,6 +1,7 @@
 package com.pavel.augmented.di
 
 import android.graphics.Bitmap
+import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.pavel.augmented.presentation.MainActivity
@@ -26,8 +27,10 @@ class AppModule : AndroidModule() {
         context(name = CTX_MAIN_ACTIVITY) {
             provide { MainPagerAdapter(getProperty(MainActivity.FRAGMENT_MANAGER_KEY), getProperty(MainActivity.FRAGMENT_NAMES_KEY)) }
 
+            provide  { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
+
             context(name = CTX_CANVAS_FRAGMENT) {
-                provide { CanvasPresenter(get(BITMAP_FILESTORE), get()) } bind (CanvasContract.Presenter::class)
+                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get()) } bind (CanvasContract.Presenter::class)
                 provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
             }
 

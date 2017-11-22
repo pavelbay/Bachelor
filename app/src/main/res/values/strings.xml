@@ -14,6 +14,8 @@
         <item>@string/menu_item__map</item>
     </string-array>
 
+    <string name="no_permissions_granted">Die benötigten Rechte wurden nicht erteilt. Die App schließt.</string>
+
     <!-- canvas fragment-->
     <string name="message_saved_to_gallery">Gespeichert!</string>
 </resources>

@@ -1,6 +1,11 @@
 package com.pavel.augmented.presentation
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
+import android.widget.Toast
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
@@ -19,9 +24,55 @@ class MainActivity : ContextAwareActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        requestPermissionsIfNeeded()
+
+        getKoin().setProperty(MAIN_ACTIVITY_CONTEXT, this)
         getKoin().setProperty(FRAGMENT_MANAGER_KEY, supportFragmentManager)
         getKoin().setProperty(FRAGMENT_NAMES_KEY, resources.getStringArray(R.array.main_view_pager_items))
 
+        setUpViewPager()
+
+//        val colorPicker = ColorPicker(this, Color.alpha(DEFAULT_COLOR), Color.red(DEFAULT_COLOR), Color.green(DEFAULT_COLOR), Color.blue(DEFAULT_COLOR))
+//        colorPicker.setCallback { color ->
+//            mDrawingView.setColor(color)
+//            colorPicker.dismiss()
+//        }
+        //            colorPicker.show()
+    }
+
+    private fun requestPermissionsIfNeeded() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_CONTACTS)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION),
+                        PERMISSIONS)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == PERMISSIONS) {
+            var granted = true
+            grantResults
+                    .filter { it != PackageManager.PERMISSION_GRANTED }
+                    .forEach {
+                        // TODO: display an error
+                        Toast.makeText(this, getString(R.string.no_permissions_granted), Toast.LENGTH_SHORT).show()
+                        granted = false
+                    }
+
+            if (!granted) {
+                finish()
+            }
+        }
+    }
+
+    private fun setUpViewPager() {
         main_view_pager.adapter = pagerAdapter
 
         supportActionBar?.title = pagerAdapter.getTitleForPosition(main_view_pager.currentItem)
@@ -36,17 +87,15 @@ class MainActivity : ContextAwareActivity() {
 
             return@setOnNavigationItemSelectedListener false
         }
-
-//        val colorPicker = ColorPicker(this, Color.alpha(DEFAULT_COLOR), Color.red(DEFAULT_COLOR), Color.green(DEFAULT_COLOR), Color.blue(DEFAULT_COLOR))
-//        colorPicker.setCallback { color ->
-//            mDrawingView.setColor(color)
-//            colorPicker.dismiss()
-//        }
-        //            colorPicker.show()
     }
 
     companion object {
         const val FRAGMENT_MANAGER_KEY = "FragmentManagerKey"
         const val FRAGMENT_NAMES_KEY = "FragmentNamesKey"
+        const val MAIN_ACTIVITY_CONTEXT = "MainActivityContext"
+
+        const val PERMISSIONS = 1001
+        const val PERMISSIONS_LOCATION = 1002
+        const val PERMISSIONS_CAMERA = 1003
     }
 }
