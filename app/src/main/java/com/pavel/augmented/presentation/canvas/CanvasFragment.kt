@@ -10,6 +10,7 @@ import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.ColorPickerEvents
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
+import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -74,17 +75,13 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
     override fun onStart() {
         super.onStart()
 
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this)
-        }
+        EventBus.getDefault().toggleRegister(this)
     }
 
     override fun onStop() {
         super.onStop()
 
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this)
-        }
+        EventBus.getDefault().toggleRegister(this)
     }
 
     private fun removeDialogIfExists(fragmentTransaction: FragmentTransaction?, tag: String) {
