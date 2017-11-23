@@ -7,19 +7,31 @@
     android:background="@color/white"
     tools:context="com.pavel.augmented.presentation.MainActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/main_activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" >
+    </android.support.v7.widget.Toolbar>
+
     <com.pavel.augmented.customviews.NonSwipeableViewPager
         android:id="@+id/main_view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation_view"
+        app:layout_constraintTop_toBottomOf="@id/main_activity_toolbar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent">
 
     </com.pavel.augmented.customviews.NonSwipeableViewPager>
 
     <android.support.design.widget.BottomNavigationView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/bottom_navigation_view"
+        android:id="@id/bottom_navigation_view"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         app:layout_constraintBottom_toBottomOf="parent"

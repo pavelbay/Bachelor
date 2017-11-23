@@ -26,6 +26,8 @@ class MainActivity : ContextAwareActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setSupportActionBar(main_activity_toolbar)
+
         askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_INIT_MAIN_ACTIVITY)
 
         getKoin().setProperty(MAIN_ACTIVITY_CONTEXT, this)
