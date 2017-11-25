@@ -7,6 +7,8 @@ import com.google.gson.GsonBuilder
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.presentation.canvas.CanvasContract
 import com.pavel.augmented.presentation.canvas.CanvasPresenter
+import com.pavel.augmented.presentation.map.MyMapContract
+import com.pavel.augmented.presentation.map.MyMapPresenter
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import com.pavel.augmented.rx.ApplicationSchedulerProvider
 import com.pavel.augmented.rx.SchedulerProvider
@@ -35,7 +37,7 @@ class AppModule : AndroidModule() {
             }
 
             context(name = CTX_MAP_FRAGMENT) {
-
+                provide { MyMapPresenter() } bind (MyMapContract.Presenter::class)
             }
 
             context(name = CTX_GALERIE_FRAGMENT) {

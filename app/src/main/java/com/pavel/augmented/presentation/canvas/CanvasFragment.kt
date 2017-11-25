@@ -103,5 +103,6 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
         drawing_view.setColor(colorSelectedEvent.color)
     }
 }
+
 @ColorInt private const val DEFAULT_COLOR = Color.GREEN
 private const val COLOR_PICKER_DIALOG_TAG = "color_picker_dialog_tag"

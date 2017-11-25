@@ -6,14 +6,13 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.PermissionsEvent
@@ -23,12 +22,12 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.koin.android.contextaware.ContextAwareFragment
 import org.koin.android.ext.android.inject
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.maps.android.SphericalUtil
 
 
-class MyMapFragment : ContextAwareFragment() {
+class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
     override val contextName = AppModule.CTX_MAP_FRAGMENT
+
+    override val presenter by inject<MyMapContract.Presenter>()
 
     private lateinit var mapFragment: SupportMapFragment
 
@@ -53,6 +52,13 @@ class MyMapFragment : ContextAwareFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        presenter.view = this
+        presenter.start()
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -65,26 +71,10 @@ class MyMapFragment : ContextAwareFragment() {
         EventBus.getDefault().toggleRegister(this)
     }
 
-    private fun zoomToMyLocation(location: Location) {
-        val center = LatLng(location.latitude, location.longitude)
+    override fun displayMetrics(): DisplayMetrics = resources.displayMetrics
 
-        if (location.accuracy > 30) {
-            val boundsBuilder = LatLngBounds.Builder()
-            boundsBuilder.include(center)
-            val toNorth = SphericalUtil.computeOffset(center, location.accuracy.toDouble(), 0.0)
-            boundsBuilder.include(toNorth)
-            val toEast = SphericalUtil.computeOffset(center, location.accuracy.toDouble(), 90.0)
-            boundsBuilder.include(toEast)
-            val toSouth = SphericalUtil.computeOffset(center, location.accuracy.toDouble(), 180.0)
-            boundsBuilder.include(toSouth)
-            val toWest = SphericalUtil.computeOffset(center, location.accuracy.toDouble(), 270.0)
-            boundsBuilder.include(toWest)
-            val width = resources.displayMetrics.widthPixels
-            val height = resources.displayMetrics.heightPixels
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), width, height, 25))
-        } else {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 15f))
-        }
+    private fun zoomToMyLocation(location: Location) {
+        googleMap.animateCamera(presenter.calculateCameraUpdateToMyLocation(location))
     }
 
     @SuppressLint("MissingPermission")
