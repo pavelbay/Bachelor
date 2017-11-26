@@ -10,6 +10,7 @@ import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.ColorPickerEvents
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
+import com.pavel.augmented.fragments.EditTextDialogFragment
 import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
 import org.greenrobot.eventbus.EventBus
@@ -54,7 +55,12 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
 
             R.id.save_to_gallery -> {
                 // TODO: permissions check
-                presenter.saveToGallery(drawing_view.bitmap)
+                val dialogFragment =
+                        EditTextDialogFragment.newInstance(
+                                getString(R.string.title_name_dialog), getString(R.string.hint_name_dialog), 2, true
+                        )
+                dialogFragment.show(fragmentManager, NAME_DIALOG_TAG)
+                //presenter.saveToGallery(drawing_view.bitmap)
                 true
             }
 
@@ -92,6 +98,11 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
     }
 
     @Subscribe
+    fun onSketchNameChosen(name: String) {
+
+    }
+
+    @Subscribe
     fun onColorPickerDialogDismiss(colorPickerOkButtonEvent: ColorPickerEvents.ColorPickerOkButtonEvent) {
         val fragmentTransaction = fragmentManager.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
@@ -102,7 +113,12 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
     fun onColorSelectedEvent(colorSelectedEvent: ColorPickerEvents.ColorSelectedEvent) {
         drawing_view.setColor(colorSelectedEvent.color)
     }
+
+    companion object {
+        @ColorInt private const val DEFAULT_COLOR = Color.GREEN
+        private const val COLOR_PICKER_DIALOG_TAG = "ColorPickerDialogTag"
+        private const val NAME_DIALOG_TAG = "NameDialogTag"
+    }
 }
 
-@ColorInt private const val DEFAULT_COLOR = Color.GREEN
-private const val COLOR_PICKER_DIALOG_TAG = "color_picker_dialog_tag"
+

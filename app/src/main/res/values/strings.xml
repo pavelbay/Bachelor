@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Augmented Graffiti</string>
 
+    <string name="cancel">Abbrechen</string>
+
     <!-- menu main activity -->
     <string name="menu_eraser_title">Löschen</string>
     <string name="menu_save_to_gallery">In die Gallerie speichern</string>
@@ -18,4 +20,7 @@
 
     <!-- canvas fragment-->
     <string name="message_saved_to_gallery">Gespeichert!</string>
+    <string name="message_cannot_be_empty">Feld darf nicht leer sein.</string>
+    <string name="title_name_dialog">Sketch benennen</string>
+    <string name="hint_name_dialog">Sketch Name</string>
 </resources>
