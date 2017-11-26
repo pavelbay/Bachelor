@@ -100,6 +100,11 @@ dependencies {
     implementation 'nz.bradcampbell:paperparcel:2.0.4'
     implementation 'nz.bradcampbell:paperparcel-kotlin:2.0.4' // Optional
     kapt 'nz.bradcampbell:paperparcel-compiler:2.0.4'
+
+//    room
+    implementation 'android.arch.persistence.room:runtime:1.0.0'
+    implementation 'android.arch.persistence.room:rxjava2:1.0.0'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.0.0'
 }
 repositories {
     mavenCentral()

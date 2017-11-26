@@ -14,7 +14,7 @@ interface CanvasContract {
     }
 
     interface Presenter : BasePresenter<View> {
-        fun saveToGallery(bitmap: Bitmap?)
+        fun saveToGallery(name: String, bitmap: Bitmap?)
         fun publishSketch()
     }
 }

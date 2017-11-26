@@ -1,20 +1,26 @@
 package com.pavel.augmented.model
 
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import paperparcel.PaperParcel
 
 @PaperParcel
+@Entity(tableName = "sketches")
 data class Sketch(
-        @SerializedName("name") val name: String,
-        @SerializedName("latitude") val latitude: String,
-        @SerializedName("longitude") val longitude: String,
-        @SerializedName("bitmapname") val bitmapName: String
+        @SerializedName("id") @PrimaryKey(autoGenerate = true) val id: Int = 0,
+        @SerializedName("name") @ColumnInfo(name = "name") val name: String,
+        @SerializedName("latitude") @ColumnInfo(name = "latitude") val latitude: String,
+        @SerializedName("longitude") @ColumnInfo(name = "longitude") val longitude: String
 ) : Parcelable {
 
     companion object {
         @JvmField
+        @Ignore
         val CREATOR = PaperParcelSketch.CREATOR
     }
 

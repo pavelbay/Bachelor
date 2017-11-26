@@ -60,7 +60,6 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
                                 getString(R.string.title_name_dialog), getString(R.string.hint_name_dialog), 2, true
                         )
                 dialogFragment.show(fragmentManager, NAME_DIALOG_TAG)
-                //presenter.saveToGallery(drawing_view.bitmap)
                 true
             }
 
@@ -99,7 +98,7 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
 
     @Subscribe
     fun onSketchNameChosen(name: String) {
-
+        presenter.saveToGallery(name, drawing_view.bitmap)
     }
 
     @Subscribe

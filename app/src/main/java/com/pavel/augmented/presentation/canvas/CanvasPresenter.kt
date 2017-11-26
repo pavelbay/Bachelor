@@ -25,7 +25,7 @@ class CanvasPresenter(
     override fun stop() {
     }
 
-    override fun saveToGallery(bitmap: Bitmap?) {
+    override fun saveToGallery(name: String, bitmap: Bitmap?) {
         try {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 Log.d(TAG, "Location:  " + location?.toString())
