@@ -11,6 +11,8 @@ interface CanvasContract {
         fun displayDialog()
 
         fun displayMessageSavedToGallery()
+
+        fun displayMessageCannotCreateSketch()
     }
 
     interface Presenter : BasePresenter<View> {

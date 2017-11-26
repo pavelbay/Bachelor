@@ -77,6 +77,10 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
         colorPickerDialog.show(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
     }
 
+    override fun displayMessageCannotCreateSketch() {
+        Toast.makeText(context, R.string.message_cannot_create_sketch, Toast.LENGTH_SHORT).show()
+    }
+
     override fun onStart() {
         super.onStart()
 

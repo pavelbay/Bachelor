@@ -3,6 +3,7 @@ package com.pavel.augmented.presentation.canvas
 import android.graphics.Bitmap
 import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
 import io.reactivex.Observable
@@ -28,8 +29,12 @@ class CanvasPresenter(
     override fun saveToGallery(name: String, bitmap: Bitmap?) {
         try {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                Log.d(TAG, "Location:  " + location?.toString())
-                performSave(bitmap)
+                if (location != null) {
+                    val sketch = Sketch(name = name, latitude = location.latitude, longitude = location.longitude)
+                    performSave(sketch, bitmap)
+                } else {
+                    view.displayMessageCannotCreateSketch()
+                }
             }
         } catch (e: SecurityException) {
             Log.e(TAG, "No permission for getting location")
@@ -37,7 +42,7 @@ class CanvasPresenter(
 
     }
 
-    private fun performSave(bitmap: Bitmap?) {
+    private fun performSave(sketch: Sketch, bitmap: Bitmap?) {
         bitmap?.let {
             currentRequest?.dispose()
             currentRequest = Observable
