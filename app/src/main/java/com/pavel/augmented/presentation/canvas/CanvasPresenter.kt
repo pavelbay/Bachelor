@@ -3,6 +3,7 @@ package com.pavel.augmented.presentation.canvas
 import android.graphics.Bitmap
 import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.pavel.augmented.database.dao.SketchDao
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
@@ -13,7 +14,8 @@ import io.reactivex.disposables.Disposable
 class CanvasPresenter(
         private val fileStore: FileStore<Bitmap>,
         private val schedulerProvider: SchedulerProvider,
-        private val fusedLocationProviderClient: FusedLocationProviderClient
+        private val fusedLocationProviderClient: FusedLocationProviderClient,
+        private val sketchDao: SketchDao
 ) : CanvasContract.Presenter {
     override lateinit var view: CanvasContract.View
 
@@ -27,6 +29,20 @@ class CanvasPresenter(
     }
 
     override fun saveToGallery(name: String, bitmap: Bitmap?) {
+        //currentRequest?.dispose()
+        sketchDao.findSketchByNameAsync(name)
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .subscribe { sketch: Sketch?, _: Throwable? ->
+                    if (sketch != null) {
+                        view.displayMessageSketchWithNameAlreadyExists()
+                    } else {
+                        createNewSketch(name, bitmap)
+                    }
+                }
+    }
+
+    private fun createNewSketch(name: String, bitmap: Bitmap?) {
         try {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
@@ -39,14 +55,19 @@ class CanvasPresenter(
         } catch (e: SecurityException) {
             Log.e(TAG, "No permission for getting location")
         }
-
     }
 
     private fun performSave(sketch: Sketch, bitmap: Bitmap?) {
+        Observable
+                .fromCallable { sketchDao.insertSketch(sketch) }
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .subscribe { Log.d(TAG, "Sketch: $sketch saved to db") }
+
         bitmap?.let {
-            currentRequest?.dispose()
-            currentRequest = Observable
-                    .just(fileStore.saveType(bitmap))
+            //currentRequest?.dispose()
+            Observable
+                    .fromCallable { fileStore.saveType(bitmap) }
                     .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
                     .subscribe { view.displayMessageSavedToGallery() }

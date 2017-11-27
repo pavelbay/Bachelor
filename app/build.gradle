@@ -92,8 +92,8 @@ dependencies {
     implementation 'com.squareup.okio:okio:1.13.0'
 
 //    Play services
-    implementation 'com.google.android.gms:play-services-location:11.6.0'
-    implementation 'com.google.android.gms:play-services-maps:11.6.0'
+    implementation "com.google.android.gms:play-services-location:${playServicesVersion}"
+    implementation "com.google.android.gms:play-services-maps:${playServicesVersion}"
     implementation 'com.google.maps.android:android-maps-utils:0.5'
 
 //    Paper parcel
@@ -102,9 +102,9 @@ dependencies {
     kapt 'nz.bradcampbell:paperparcel-compiler:2.0.4'
 
 //    room
-    implementation 'android.arch.persistence.room:runtime:1.0.0'
-    implementation 'android.arch.persistence.room:rxjava2:1.0.0'
-    annotationProcessor 'android.arch.persistence.room:compiler:1.0.0'
+    implementation "android.arch.persistence.room:runtime:${archRoomVersion}"
+    implementation "android.arch.persistence.room:rxjava2:${archRoomVersion}"
+    kapt "android.arch.persistence.room:compiler:${archRoomVersion}"
 }
 repositories {
     mavenCentral()

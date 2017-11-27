@@ -57,6 +57,7 @@ class DrawingView @JvmOverloads constructor(
             val temporary = Bitmap.createScaledBitmap(bitmap, w, h, true)
             temporary
         }
+
         mCanvas = Canvas(bitmap)
     }
 
@@ -64,11 +65,12 @@ class DrawingView @JvmOverloads constructor(
         super.onDraw(canvas)
 
 //        Log.d(TAG, "OnDraw")
-
         canvas.drawBitmap(bitmap, 0F, 0F, mBitmapPaint)
         canvas.drawPath(mPath, paint)
         canvas.drawPath(circlePath, circlePaint)
     }
+
+    fun clear() = bitmap?.eraseColor(ContextCompat.getColor(context, R.color.white))
 
     fun setColor(color: Int) {
         paint.color = color

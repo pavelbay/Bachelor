@@ -9,6 +9,7 @@ import android.widget.Toast
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.ColorPickerEvents
+import com.pavel.augmented.events.SketchNameChosenEvent
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
 import com.pavel.augmented.fragments.EditTextDialogFragment
 import com.pavel.augmented.util.toggleRegister
@@ -63,6 +64,12 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
                 true
             }
 
+            R.id.clear_canvas -> {
+                drawing_view.clear()
+                // TODO: implement this
+                return true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -77,9 +84,11 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
         colorPickerDialog.show(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
     }
 
-    override fun displayMessageCannotCreateSketch() {
-        Toast.makeText(context, R.string.message_cannot_create_sketch, Toast.LENGTH_SHORT).show()
-    }
+    override fun displayMessageCannotCreateSketch() =
+            Toast.makeText(context, R.string.message_cannot_create_sketch, Toast.LENGTH_SHORT).show()
+
+    override fun displayMessageSketchWithNameAlreadyExists() =
+            Toast.makeText(context, R.string.message_sketch_name_exists, Toast.LENGTH_SHORT).show()
 
     override fun onStart() {
         super.onStart()
@@ -101,8 +110,8 @@ class CanvasFragment : ContextAwareFragment(), CanvasContract.View {
     }
 
     @Subscribe
-    fun onSketchNameChosen(name: String) {
-        presenter.saveToGallery(name, drawing_view.bitmap)
+    fun onSketchNameChosen(sketchNameChosenEvent: SketchNameChosenEvent) {
+        presenter.saveToGallery(sketchNameChosenEvent.name, drawing_view.bitmap)
     }
 
     @Subscribe

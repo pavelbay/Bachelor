@@ -12,6 +12,8 @@ interface CanvasContract {
 
         fun displayMessageSavedToGallery()
 
+        fun displayMessageSketchWithNameAlreadyExists()
+
         fun displayMessageCannotCreateSketch()
     }
 

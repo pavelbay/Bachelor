@@ -1,9 +1,11 @@
 package com.pavel.augmented.di
 
+import android.arch.persistence.room.Room
 import android.graphics.Bitmap
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.pavel.augmented.database.SketchAppDatabase
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.presentation.canvas.CanvasContract
 import com.pavel.augmented.presentation.canvas.CanvasPresenter
@@ -16,13 +18,14 @@ import com.pavel.augmented.storage.FileStoreFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.module.AndroidModule
+import org.koin.dsl.context.Context
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 
-fun appModules() = listOf(AppModule(), RemoteDataSourceModule(), RxModule(), GsonModule(), FileStoreFactoryModule())
+fun appModules() = listOf(AppModule(), RemoteDataSourceModule(), RxModule(), GsonModule(), FileStoreFactoryModule(), DatabaseModule())
 
 class AppModule : AndroidModule() {
     override fun context() = applicationContext {
@@ -32,7 +35,7 @@ class AppModule : AndroidModule() {
             provide  { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
 
             context(name = CTX_CANVAS_FRAGMENT) {
-                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get()) } bind (CanvasContract.Presenter::class)
+                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get()) } bind (CanvasContract.Presenter::class)
                 provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
             }
 
@@ -54,6 +57,14 @@ class AppModule : AndroidModule() {
         const val CTX_MAP_FRAGMENT = "MyMapFragment"
         const val BITMAP_FILESTORE = "BitmpalFileStore"
         const val SERVER_URL = "lbs.f4.htw-berlin.de"
+    }
+}
+
+class DatabaseModule : AndroidModule() {
+    override fun context() = applicationContext {
+        provide { createDatabase(get()) }
+
+        provide { createDatabase(get()).sketchDao() }
     }
 }
 
@@ -79,6 +90,9 @@ class RemoteDataSourceModule : AndroidModule() {
 //        provide { createWebService<WeatherDatasource>(get(), getProperty(AppModule.SERVER_URL)) }
     }
 }
+
+fun createDatabase(appContext: android.content.Context): SketchAppDatabase =
+        Room.databaseBuilder(appContext, SketchAppDatabase::class.java, "sketchDatabase").build()
 
 fun createFileStoreForBitmap(fileStoreFactory: FileStoreFactory) = fileStoreFactory.create(Bitmap::class.java)
 

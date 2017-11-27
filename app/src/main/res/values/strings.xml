@@ -3,9 +3,10 @@
 
     <string name="cancel">Abbrechen</string>
 
-    <!-- menu main activity -->
+    <!-- menu canvas fragment -->
     <string name="menu_eraser_title">Löschen</string>
     <string name="menu_save_to_gallery">In die Gallerie speichern</string>
+    <string name="menu_clear_canvas">Canvas leer machen</string>
 
     <string name="menu_item_galerie">Galerie</string>
     <string name="menu_item_canvas">Canvas</string>
@@ -24,4 +25,5 @@
     <string name="title_name_dialog">Sketch benennen</string>
     <string name="hint_name_dialog">Sketch Name</string>
     <string name="message_cannot_create_sketch">Standort ist nicht verfügbar. Der Sketch kann nicht erstellt werden.</string>
+    <string name="message_sketch_name_exists">Sketch mit dem gleichen Namen bereits existiert.</string>
 </resources>

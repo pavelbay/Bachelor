@@ -16,6 +16,12 @@ buildscript {
     }
 }
 
+ext {
+    supportLibVersion = '26.1.0'
+    archRoomVersion = '1.0.0'
+    playServicesVersion = '11.6.2'
+}
+
 allprojects {
     repositories {
         google()
