@@ -8,11 +8,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 
-private val TAG = BitmapFileStore::class.java.simpleName
-
-class BitmapFileStore(context: Context, gson: Gson) : BaseFileStoreImpl<Bitmap>(context, gson) {
-
-    override fun getFilename() = "Image-" + System.currentTimeMillis() + ".png"
+class BitmapFileStore(val context: Context) : FileStore<Bitmap> {
 
     override fun getDir(): File {
         val dir = File(context.getExternalFilesDir(null), DIR_NAME)
@@ -25,6 +21,15 @@ class BitmapFileStore(context: Context, gson: Gson) : BaseFileStoreImpl<Bitmap>(
         return dir
     }
 
+    override fun readType(): Bitmap? = null
+
+    override fun saveType(value: Bitmap, name: String) {
+        val file = File(getDir(), name)
+        if (file.exists() || file.createNewFile()) {
+            performSave(file, value)
+        }
+    }
+
     override fun performSave(file: File, value: Bitmap) {
         val fos = FileOutputStream(file)
         value.compress(Bitmap.CompressFormat.PNG, 100, fos)
@@ -32,6 +37,7 @@ class BitmapFileStore(context: Context, gson: Gson) : BaseFileStoreImpl<Bitmap>(
     }
 
     companion object {
-        const val DIR_NAME = "images"
+        private const val DIR_NAME = "images"
+        private val TAG = BitmapFileStore::class.java.simpleName
     }
 }

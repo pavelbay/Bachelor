@@ -8,8 +8,8 @@ class FileStoreFactory(private val context: Context, private val gson: Gson) {
 
      fun<T> create(clazz: Class<T>): FileStore<Bitmap> {
          return when (clazz) {
-             Bitmap::class.java  -> BitmapFileStore(context, gson)
-             else -> BitmapFileStore(context, gson)
+             Bitmap::class.java  -> BitmapFileStore(context)
+             else -> BitmapFileStore(context)
          }
      }
 }

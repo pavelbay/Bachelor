@@ -6,9 +6,7 @@ interface FileStore<T> {
 
     fun readType(): T?
 
-    fun saveType(value: T)
-
-    fun getFilename(): String
+    fun saveType(value: T, name: String)
 
     fun getDir(): File
 

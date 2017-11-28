@@ -9,6 +9,8 @@ import com.pavel.augmented.database.SketchAppDatabase
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.presentation.canvas.CanvasContract
 import com.pavel.augmented.presentation.canvas.CanvasPresenter
+import com.pavel.augmented.presentation.galerie.GalerieContract
+import com.pavel.augmented.presentation.galerie.GaleriePresenter
 import com.pavel.augmented.presentation.map.MyMapContract
 import com.pavel.augmented.presentation.map.MyMapPresenter
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
@@ -44,7 +46,7 @@ class AppModule : AndroidModule() {
             }
 
             context(name = CTX_GALERIE_FRAGMENT) {
-
+                provide { GaleriePresenter() } bind (GalerieContract.Presenter::class)
             }
 
         }

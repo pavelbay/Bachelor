@@ -8,7 +8,7 @@ class JsonFileStoreImpl<T> : FileStore<T> {
         return null
     }
 
-    override fun saveType(value: T) {
+    override fun saveType(value: T, name: String) {
     }
 
     override fun getDir(): File {
@@ -17,9 +17,5 @@ class JsonFileStoreImpl<T> : FileStore<T> {
     }
 
     override fun performSave(file: File, value: T) {
-    }
-
-    override fun getFilename(): String {
-        return ""
     }
 }

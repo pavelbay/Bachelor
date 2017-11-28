@@ -67,7 +67,7 @@ class CanvasPresenter(
         bitmap?.let {
             //currentRequest?.dispose()
             Observable
-                    .fromCallable { fileStore.saveType(bitmap) }
+                    .fromCallable { fileStore.saveType(bitmap, sketch.name) }
                     .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
                     .subscribe { view.displayMessageSavedToGallery() }
