@@ -6,12 +6,15 @@ import android.os.Bundle
 import android.widget.Toast
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
+import com.pavel.augmented.events.MayAskForPermissionsEvent
 import com.pavel.augmented.events.PermissionsEvent
 import com.pavel.augmented.presentation.map.MyMapFragment.Companion.PERMISSION_LOCATION_FROM_MAP_FRAGMENT
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import com.pavel.augmented.util.askForPermissions
+import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import org.koin.android.contextaware.ContextAwareActivity
 import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
@@ -28,8 +31,6 @@ class MainActivity : ContextAwareActivity() {
 
         setSupportActionBar(main_activity_toolbar)
 
-        askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_INIT_MAIN_ACTIVITY)
-
         getKoin().setProperty(MAIN_ACTIVITY_CONTEXT, this)
         getKoin().setProperty(FRAGMENT_MANAGER_KEY, supportFragmentManager)
         getKoin().setProperty(FRAGMENT_NAMES_KEY, resources.getStringArray(R.array.main_view_pager_items))
@@ -42,6 +43,18 @@ class MainActivity : ContextAwareActivity() {
 //            colorPicker.dismiss()
 //        }
         //            colorPicker.show()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        EventBus.getDefault().toggleRegister(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        EventBus.getDefault().toggleRegister(this)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -61,7 +74,7 @@ class MainActivity : ContextAwareActivity() {
                 }
             }
             PERMISSION_LOCATION_FROM_MAP_FRAGMENT -> {
-                if (grantResults.isNotEmpty() ) {
+                if (grantResults.isNotEmpty()) {
                     EventBus.getDefault().post(PermissionsEvent(grantResults[0]))
                 }
             }
@@ -83,6 +96,11 @@ class MainActivity : ContextAwareActivity() {
 
             return@setOnNavigationItemSelectedListener false
         }
+    }
+
+    @Subscribe
+    fun onMayAskForPermissionsEvent(onMayAskForPermissionsEvent: MayAskForPermissionsEvent) {
+        askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_INIT_MAIN_ACTIVITY)
     }
 
     companion object {

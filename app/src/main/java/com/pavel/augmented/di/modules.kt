@@ -2,6 +2,7 @@ package com.pavel.augmented.di
 
 import android.arch.persistence.room.Room
 import android.graphics.Bitmap
+import android.support.v7.widget.GridLayoutManager
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -46,7 +47,9 @@ class AppModule : AndroidModule() {
             }
 
             context(name = CTX_GALERIE_FRAGMENT) {
-                provide { GaleriePresenter() } bind (GalerieContract.Presenter::class)
+                provide { GaleriePresenter(get(), get()) } bind (GalerieContract.Presenter::class)
+
+                provide { GridLayoutManager(get(), 4) }
             }
 
         }

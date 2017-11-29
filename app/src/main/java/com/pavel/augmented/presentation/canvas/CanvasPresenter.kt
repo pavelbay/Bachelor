@@ -4,11 +4,13 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.pavel.augmented.database.dao.SketchDao
+import com.pavel.augmented.events.NewSketchAvailableEvent
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
+import org.greenrobot.eventbus.EventBus
 
 
 class CanvasPresenter(
@@ -70,7 +72,9 @@ class CanvasPresenter(
                     .fromCallable { fileStore.saveType(bitmap, sketch.name) }
                     .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
-                    .subscribe { view.displayMessageSavedToGallery() }
+                    .subscribe {
+                        view.displayMessageSavedToGallery()
+                    }
         }
     }
 

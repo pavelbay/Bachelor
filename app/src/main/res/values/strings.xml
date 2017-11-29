@@ -8,6 +8,9 @@
     <string name="menu_save_to_gallery">In die Gallerie speichern</string>
     <string name="menu_clear_canvas">Canvas leer machen</string>
 
+    <!-- menu galerie fragment -->
+    <string name="menu_refresh">Aktualisieren</string>
+
     <string name="menu_item_galerie">Galerie</string>
     <string name="menu_item_canvas">Canvas</string>
     <string name="menu_item__map">Karte</string>
@@ -26,4 +29,7 @@
     <string name="hint_name_dialog">Sketch Name</string>
     <string name="message_cannot_create_sketch">Standort ist nicht verfügbar. Der Sketch kann nicht erstellt werden.</string>
     <string name="message_sketch_name_exists">Sketch mit dem gleichen Namen bereits existiert.</string>
+    
+    <!-- galerie rec view -->
+    <string name="img_content_description">action_view</string>
 </resources>

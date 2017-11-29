@@ -11,6 +11,9 @@ class JsonFileStoreImpl<T> : FileStore<T> {
     override fun saveType(value: T, name: String) {
     }
 
+    override fun deleteType(value: T, name: String) {
+    }
+
     override fun getDir(): File {
 
         return File("TODO")

@@ -24,9 +24,16 @@ class BitmapFileStore(val context: Context) : FileStore<Bitmap> {
     override fun readType(): Bitmap? = null
 
     override fun saveType(value: Bitmap, name: String) {
-        val file = File(getDir(), name)
+        val file = File(getDir(), name + ".png")
         if (file.exists() || file.createNewFile()) {
             performSave(file, value)
+        }
+    }
+
+    override fun deleteType(value: Bitmap, name: String) {
+        val file = File(getDir(), name + ".png")
+        if (file.exists()) {
+            file.delete()
         }
     }
 
