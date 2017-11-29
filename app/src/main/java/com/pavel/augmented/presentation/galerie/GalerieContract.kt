@@ -7,7 +7,7 @@ import com.pavel.augmented.mvp.BaseView
 interface GalerieContract {
 
     interface View : BaseView<Presenter> {
-        fun displaySketches(list: List<Sketch>)
+        fun displaySketches(list: MutableList<Sketch>)
     }
 
     interface Presenter : BasePresenter<View> {

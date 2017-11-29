@@ -4,6 +4,7 @@
     android:id="@+id/card_view"
     android:layout_width="@dimen/card_view_width"
     android:layout_height="wrap_content"
+    android:background="@drawable/selector_item"
     card_view:cardUseCompatPadding="true"
     card_view:cardCornerRadius="@dimen/card_view_corner_radius"
     android:layout_marginBottom="@dimen/card_view_margin_bottom">

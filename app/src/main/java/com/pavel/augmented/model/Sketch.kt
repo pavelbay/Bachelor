@@ -24,6 +24,8 @@ data class Sketch(
         val CREATOR = PaperParcelSketch.CREATOR
     }
 
+
+
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {

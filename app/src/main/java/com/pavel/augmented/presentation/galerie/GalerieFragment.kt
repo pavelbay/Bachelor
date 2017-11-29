@@ -6,10 +6,12 @@ import android.view.*
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.MayAskForPermissionsEvent
+import com.pavel.augmented.events.SketchEvents
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_galerie_fragment.*
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import org.koin.android.contextaware.ContextAwareFragment
 import org.koin.android.ext.android.inject
 
@@ -19,8 +21,9 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
     override val presenter by inject<GalerieContract.Presenter>()
 
     private val gridLayoutManager by inject<GridLayoutManager>()
-
     private lateinit var galerieAdapter: GalerieAdapter
+
+    private var mode = Mode.VIEW
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
@@ -32,7 +35,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
 
         galerie_rec_view.layoutManager = gridLayoutManager
 
-        galerieAdapter = GalerieAdapter(ArrayList(),  ::itemClickListener)
+        galerieAdapter = GalerieAdapter(ArrayList())
         galerie_rec_view.adapter = galerieAdapter
 
         galerie_swipe_refresh_layout.setOnRefreshListener { presenter.loadSketches() }
@@ -55,6 +58,18 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        EventBus.getDefault().toggleRegister(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        EventBus.getDefault().toggleRegister(this)
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -62,7 +77,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         presenter.view = this
     }
 
-    override fun displaySketches(list: List<Sketch>) {
+    override fun displaySketches(list: MutableList<Sketch>) {
         galerieAdapter.list = list
         galerieAdapter.notifyDataSetChanged()
 
@@ -73,7 +88,25 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         EventBus.getDefault().post(MayAskForPermissionsEvent())
     }
 
-    private fun itemClickListener(sketch: Sketch) {
+    @Subscribe
+    fun onSketchClick(onSketchClick: SketchEvents.OnSketchClick) {
+        if (mode == Mode.EDIT) {
+            galerieAdapter.toggleItem(onSketchClick.position)
+        } else {
+            // TODO: implement this
+        }
+    }
 
+    @Subscribe
+    fun onSketchLongClick(onSketchLongClick: SketchEvents.OnSketchLongClick) {
+        if (mode != Mode.EDIT) {
+            mode = Mode.EDIT
+            galerieAdapter.toggleItem(onSketchLongClick.position)
+            // TODO: implement this
+        }
+    }
+
+    enum class Mode {
+        VIEW, EDIT
     }
 }
