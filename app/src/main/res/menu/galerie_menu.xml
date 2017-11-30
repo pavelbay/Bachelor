@@ -4,5 +4,19 @@
         android:id="@+id/menu_refresh"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_update"
-        android:title="@string/menu_refresh"/>
+        android:title="@string/menu_refresh" />
+
+    <item
+        android:id="@+id/menu_galerie_delete"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_delete_forever"
+        android:title="@string/menu_galerie_delete"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/menu_galerie_exit_edit_mode"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_close"
+        android:title="@string/menu_galerie_exit_edit_mode"
+        android:visible="false" />
 </menu>

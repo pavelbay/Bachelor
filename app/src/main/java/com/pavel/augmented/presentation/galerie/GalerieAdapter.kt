@@ -31,6 +31,10 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
         holder?.bind(list[position], selectedItems.get(position, false))
     }
 
+    override fun onBindViewHolder(holder: GalerieHolder?, position: Int, payloads: MutableList<Any>?) {
+        holder?.bind(list[position], selectedItems.get(position, false), payloads)
+    }
+
     fun toggleItem(position: Int) {
         if (selectedItems.get(position, false)) {
             selectedItems.delete(position)
@@ -38,7 +42,38 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
             selectedItems.put(position, true)
         }
 
-        notifyItemChanged(position)
+        notifyItemChanged(position, selectedItems.get(position, false))
+    }
+
+    fun getSelectedItems(): BooleanArray {
+        val ret = BooleanArray(selectedItems.size())
+
+        for (i in 0 until selectedItems.size()) {
+            ret[i] = selectedItems.get(i, false)
+        }
+
+        return ret
+    }
+
+    fun restoreSelectedItems(array: BooleanArray?) {
+        array?.let {
+            for (i in 0 until array.size) {
+                selectedItems.put(i, array[i])
+            }
+
+            notifyDataSetChanged()
+        }
+    }
+
+    fun unselectItems() {
+        if (selectedItems.size() > 0) {
+            for (i in 0..selectedItems.size()) {
+                if (selectedItems.get(i, false)) {
+                    selectedItems.delete(i)
+                    notifyItemChanged(i)
+                }
+            }
+        }
     }
 
     fun swapDataItems(items: MutableList<Sketch>?) {
@@ -97,6 +132,19 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
 
     class GalerieHolder(override val containerView: View?) : RecyclerView.ViewHolder(containerView), LayoutContainer {
 
+        fun bind(sketch: Sketch, itemChecked: Boolean, payloads: MutableList<Any>?) {
+            payloads?.let {
+                if (payloads.size > 0) {
+                    val checked = payloads[0]
+                    if (checked is Boolean) {
+                        sketch_name.isSelected = checked
+                    }
+                } else {
+                    bind(sketch, itemChecked)
+                }
+            }
+        }
+
         fun bind(sketch: Sketch, itemChecked: Boolean) {
 
             containerView?.let {
@@ -108,7 +156,8 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
                 }
 
                 sketch_name.text = sketch.name
-                card_view.isSelected = itemChecked
+
+                sketch_name.isSelected = itemChecked
 
                 GlideApp.with(containerView)
                         .load(File(getImagesFolder(containerView.context), sketch.name + ".png"))

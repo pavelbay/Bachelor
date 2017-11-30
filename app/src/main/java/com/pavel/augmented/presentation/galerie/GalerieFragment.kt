@@ -23,6 +23,8 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
     private val gridLayoutManager by inject<GridLayoutManager>()
     private lateinit var galerieAdapter: GalerieAdapter
 
+    private var menu: Menu? = null
+
     private var mode = Mode.VIEW
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -43,14 +45,47 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         presenter.loadSketches()
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+
+        outState?.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
+        outState?.putBooleanArray(LIST_SAVE_STATE_KEY, galerieAdapter.getSelectedItems())
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        savedInstanceState?.let {
+            mode = Mode.values()[savedInstanceState.getInt(MODE_SAVE_STATE_KEY)]
+            galerieAdapter.restoreSelectedItems(savedInstanceState.getBooleanArray(LIST_SAVE_STATE_KEY))
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        this.menu = menu
         inflater?.inflate(R.menu.galerie_menu, menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?) {
+        super.onPrepareOptionsMenu(menu)
+
+        toggleMenuItems()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.menu_refresh -> {
                 presenter.loadSketches()
+                true
+            }
+
+            R.id.menu_galerie_exit_edit_mode -> {
+                exitEditMode()
+                true
+            }
+
+            R.id.menu_galerie_delete -> {
+
                 true
             }
 
@@ -88,6 +123,25 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         EventBus.getDefault().post(MayAskForPermissionsEvent())
     }
 
+    private fun exitEditMode() {
+        mode = Mode.VIEW
+        galerieAdapter.unselectItems()
+        toggleMenuItems()
+    }
+
+    private fun toggleViewElements(position: Int) {
+        galerieAdapter.toggleItem(position)
+        toggleMenuItems()
+    }
+
+    private fun toggleMenuItems() {
+        menu?.let {
+            menu?.findItem(R.id.menu_refresh)?.isVisible = mode != Mode.EDIT
+            menu?.findItem(R.id.menu_galerie_delete)?.isVisible = mode == Mode.EDIT
+            menu?.findItem(R.id.menu_galerie_exit_edit_mode)?.isVisible = mode == Mode.EDIT
+        }
+    }
+
     @Subscribe
     fun onSketchClick(onSketchClick: SketchEvents.OnSketchClick) {
         if (mode == Mode.EDIT) {
@@ -101,12 +155,17 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
     fun onSketchLongClick(onSketchLongClick: SketchEvents.OnSketchLongClick) {
         if (mode != Mode.EDIT) {
             mode = Mode.EDIT
-            galerieAdapter.toggleItem(onSketchLongClick.position)
+            toggleViewElements(onSketchLongClick.position)
             // TODO: implement this
         }
     }
 
     enum class Mode {
         VIEW, EDIT
+    }
+
+    companion object {
+        private val MODE_SAVE_STATE_KEY = "ModeSaveStateKey"
+        private val LIST_SAVE_STATE_KEY = "ListSaveStateKey"
     }
 }
