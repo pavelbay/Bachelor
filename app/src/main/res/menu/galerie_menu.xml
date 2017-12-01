@@ -1,22 +1,37 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/menu_refresh"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_update"
-        android:title="@string/menu_refresh" />
 
-    <item
-        android:id="@+id/menu_galerie_delete"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_delete_forever"
-        android:title="@string/menu_galerie_delete"
-        android:visible="false" />
+    <group android:id="@+id/galerie_group_view"
+        android:visible="true" >
 
-    <item
-        android:id="@+id/menu_galerie_exit_edit_mode"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_close"
-        android:title="@string/menu_galerie_exit_edit_mode"
-        android:visible="false" />
+        <item
+            android:id="@+id/menu_refresh"
+            android:icon="@drawable/ic_update"
+            android:title="@string/menu_refresh"
+            app:showAsAction="ifRoom" />
+
+    </group>
+
+    <group android:id="@+id/galerie_group_edit"
+        android:visible="false" >
+
+        <item
+            android:id="@+id/menu_galerie_exit_edit_mode"
+            android:icon="@drawable/ic_close"
+            android:title="@string/menu_galerie_exit_edit_mode"
+            app:showAsAction="ifRoom" />
+
+        <item
+            android:id="@+id/menu_galerie_delete"
+            android:icon="@drawable/ic_delete_forever"
+            android:title="@string/menu_galerie_delete"
+            app:showAsAction="ifRoom" />
+
+        <item
+            android:id="@+id/menu_galerie_upload"
+            android:icon="@drawable/ic_file_upload"
+            android:title="@string/menu_galerie_upload_sketch"
+            app:showAsAction="ifRoom" />
+    </group>
+
 </menu>

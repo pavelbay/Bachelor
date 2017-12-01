@@ -136,9 +136,8 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
 
     private fun toggleMenuItems() {
         menu?.let {
-            menu?.findItem(R.id.menu_refresh)?.isVisible = mode != Mode.EDIT
-            menu?.findItem(R.id.menu_galerie_delete)?.isVisible = mode == Mode.EDIT
-            menu?.findItem(R.id.menu_galerie_exit_edit_mode)?.isVisible = mode == Mode.EDIT
+            menu?.setGroupVisible(R.id.galerie_group_view, mode != Mode.EDIT)
+            menu?.setGroupVisible(R.id.galerie_group_edit, mode == Mode.EDIT)
         }
     }
 
