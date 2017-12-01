@@ -7,6 +7,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.pavel.augmented.database.SketchAppDatabase
+import com.pavel.augmented.network.SketchUploadService
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.presentation.canvas.CanvasContract
 import com.pavel.augmented.presentation.canvas.CanvasPresenter
@@ -92,7 +93,7 @@ class RemoteDataSourceModule : AndroidModule() {
 
         // Fill property
         // TODO: implement this later
-//        provide { createWebService<WeatherDatasource>(get(), getProperty(AppModule.SERVER_URL)) }
+        provide { createWebService<SketchUploadService>(get(), getProperty(AppModule.SERVER_URL)) }
     }
 }
 
