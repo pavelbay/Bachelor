@@ -2,6 +2,7 @@ package com.pavel.augmented.presentation.galerie
 
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
+import android.util.Log
 import android.view.*
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
@@ -20,7 +21,6 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
 
     override val presenter by inject<GalerieContract.Presenter>()
 
-    private val gridLayoutManager by inject<GridLayoutManager>()
     private lateinit var galerieAdapter: GalerieAdapter
 
     private var menu: Menu? = null
@@ -35,7 +35,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        galerie_rec_view.layoutManager = gridLayoutManager
+        galerie_rec_view.layoutManager = GridLayoutManager(context, 4)
 
         galerieAdapter = GalerieAdapter(ArrayList())
         galerie_rec_view.adapter = galerieAdapter
@@ -49,7 +49,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         super.onSaveInstanceState(outState)
 
         outState?.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
-        outState?.putBooleanArray(LIST_SAVE_STATE_KEY, galerieAdapter.getSelectedItems())
+        outState?.putBooleanArray(LIST_SAVE_STATE_KEY, galerieAdapter.getSelectedNumbers())
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -76,6 +76,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         return when (item?.itemId) {
             R.id.menu_refresh -> {
                 presenter.loadSketches()
+                exitEditMode()
                 true
             }
 
@@ -85,6 +86,13 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
             }
 
             R.id.menu_galerie_delete -> {
+                val selectedItems = galerieAdapter.getSelectedItems()
+                presenter.deleteSketches(selectedItems)
+                exitEditMode()
+                true
+            }
+
+            R.id.menu_galerie_upload -> {
 
                 true
             }
@@ -113,14 +121,19 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
     }
 
     override fun displaySketches(list: MutableList<Sketch>) {
-        galerieAdapter.list = list
-        galerieAdapter.notifyDataSetChanged()
+        galerieAdapter.swapDataItems(list)
+//        galerieAdapter.list = list
+//        galerieAdapter.notifyDataSetChanged()
 
         if (galerie_swipe_refresh_layout.isRefreshing) {
             galerie_swipe_refresh_layout.isRefreshing = false
         }
 
         EventBus.getDefault().post(MayAskForPermissionsEvent())
+    }
+
+    override fun updateUi() {
+        galerieAdapter
     }
 
     private fun exitEditMode() {
@@ -164,6 +177,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
     }
 
     companion object {
+        private val TAG = GalerieFragment::class.java.simpleName
         private val MODE_SAVE_STATE_KEY = "ModeSaveStateKey"
         private val LIST_SAVE_STATE_KEY = "ListSaveStateKey"
     }

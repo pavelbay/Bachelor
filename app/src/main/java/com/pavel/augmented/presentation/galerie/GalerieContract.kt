@@ -8,9 +8,12 @@ interface GalerieContract {
 
     interface View : BaseView<Presenter> {
         fun displaySketches(list: MutableList<Sketch>)
+        fun updateUi()
     }
 
     interface Presenter : BasePresenter<View> {
         fun loadSketches()
+        fun publicSketch()
+        fun deleteSketches(sketches: Array<Sketch?>)
     }
 }

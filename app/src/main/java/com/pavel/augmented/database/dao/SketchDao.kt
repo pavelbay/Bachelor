@@ -16,6 +16,9 @@ interface SketchDao {
     @Delete
     fun deleteSketch(sketch: Sketch)
 
+    @Delete
+    fun deleteSketches(sketches: Array<Sketch?>)
+
     @Query("SELECT * FROM sketches")
     fun loadAllSketches(): Array<Sketch>
 

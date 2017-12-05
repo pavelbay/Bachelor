@@ -38,9 +38,10 @@ class AppModule : AndroidModule() {
 
             provide  { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
 
+            provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
+
             context(name = CTX_CANVAS_FRAGMENT) {
                 provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get()) } bind (CanvasContract.Presenter::class)
-                provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
             }
 
             context(name = CTX_MAP_FRAGMENT) {
@@ -48,9 +49,7 @@ class AppModule : AndroidModule() {
             }
 
             context(name = CTX_GALERIE_FRAGMENT) {
-                provide { GaleriePresenter(get(), get()) } bind (GalerieContract.Presenter::class)
-
-                provide { GridLayoutManager(get(), 4) }
+                provide { GaleriePresenter(get(), get(), get(BITMAP_FILESTORE), get()) } bind (GalerieContract.Presenter::class)
             }
 
         }
@@ -62,7 +61,7 @@ class AppModule : AndroidModule() {
         const val CTX_GALERIE_FRAGMENT = "GalerieFragment"
         const val CTX_MAP_FRAGMENT = "MyMapFragment"
         const val BITMAP_FILESTORE = "BitmpalFileStore"
-        const val SERVER_URL = "lbs.f4.htw-berlin.de"
+        const val SERVER_URL = "http://lbs.f4.htw-berlin.de"
     }
 }
 
@@ -93,7 +92,7 @@ class RemoteDataSourceModule : AndroidModule() {
 
         // Fill property
         // TODO: implement this later
-        provide { createWebService<SketchUploadService>(get(), getProperty(AppModule.SERVER_URL)) }
+        provide { createWebService<SketchUploadService>(get(), AppModule.SERVER_URL) }
     }
 }
 

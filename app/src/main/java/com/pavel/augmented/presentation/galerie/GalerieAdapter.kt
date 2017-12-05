@@ -45,11 +45,22 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
         notifyItemChanged(position, selectedItems.get(position, false))
     }
 
-    fun getSelectedItems(): BooleanArray {
+    fun getSelectedNumbers(): BooleanArray {
         val ret = BooleanArray(selectedItems.size())
 
         for (i in 0 until selectedItems.size()) {
             ret[i] = selectedItems.get(i, false)
+        }
+
+        return ret
+    }
+
+    fun getSelectedItems(): Array<Sketch?> {
+//        val ret = ArrayList<Sketch>(selectedItems.size())
+
+        val ret = arrayOfNulls<Sketch>(selectedItems.size())
+        for (i in 0 until selectedItems.size()) {
+            ret[i] = list[selectedItems.keyAt(i)]
         }
 
         return ret
@@ -74,6 +85,8 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
                 }
             }
         }
+
+        selectedItems.clear()
     }
 
     fun swapDataItems(items: MutableList<Sketch>?) {
@@ -97,10 +110,6 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
 
             if (oldList?.get(oldItemPosition) == null && newList?.get(newItemPosition) == null) {
                 return true
-            }
-
-            if (newList?.get(oldItemPosition) == null && newList?.get(newItemPosition) != null) {
-                return false
             }
 
             return oldList!![oldItemPosition] == newList!![newItemPosition]

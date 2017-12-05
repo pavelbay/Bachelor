@@ -81,8 +81,9 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
     @Subscribe
     fun onPermissionsRequested(event: PermissionsEvent) {
         if (event.result == PackageManager.PERMISSION_GRANTED) {
+            // TODO: check availability
             googleMap.isMyLocationEnabled = true
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location -> zoomToMyLocation(location) }
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location -> if (location != null) zoomToMyLocation(location) }
         }
     }
 

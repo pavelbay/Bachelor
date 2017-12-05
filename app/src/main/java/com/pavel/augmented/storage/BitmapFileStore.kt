@@ -30,7 +30,7 @@ class BitmapFileStore(val context: Context) : FileStore<Bitmap> {
         }
     }
 
-    override fun deleteType(value: Bitmap, name: String) {
+    override fun deleteType(name: String) {
         val file = File(getDir(), name + ".png")
         if (file.exists()) {
             file.delete()
