@@ -1,8 +1,8 @@
 package com.pavel.augmented.presentation.galerie
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
-import android.util.Log
 import android.view.*
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
@@ -76,7 +76,6 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         return when (item?.itemId) {
             R.id.menu_refresh -> {
                 presenter.loadSketches()
-                exitEditMode()
                 true
             }
 
@@ -86,20 +85,22 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
             }
 
             R.id.menu_galerie_delete -> {
-                val selectedItems = galerieAdapter.getSelectedItems()
-                presenter.deleteSketches(selectedItems)
+                presenter.deleteSketches(galerieAdapter.getSelectedItems())
                 exitEditMode()
                 true
             }
 
             R.id.menu_galerie_upload -> {
-
+                presenter.publicSketches(galerieAdapter.getSelectedItems())
+                exitEditMode()
                 true
             }
 
             else -> super.onOptionsItemSelected(item)
         }
     }
+
+    override fun context(): Context = context
 
     override fun onStart() {
         super.onStart()
@@ -122,18 +123,12 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
 
     override fun displaySketches(list: MutableList<Sketch>) {
         galerieAdapter.swapDataItems(list)
-//        galerieAdapter.list = list
-//        galerieAdapter.notifyDataSetChanged()
 
         if (galerie_swipe_refresh_layout.isRefreshing) {
             galerie_swipe_refresh_layout.isRefreshing = false
         }
 
         EventBus.getDefault().post(MayAskForPermissionsEvent())
-    }
-
-    override fun updateUi() {
-        galerieAdapter
     }
 
     private fun exitEditMode() {

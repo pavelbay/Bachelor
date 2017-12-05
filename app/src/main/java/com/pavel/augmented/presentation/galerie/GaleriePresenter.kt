@@ -1,12 +1,17 @@
 package com.pavel.augmented.presentation.galerie
 
 import android.graphics.Bitmap
+import android.net.Uri
 import com.pavel.augmented.database.dao.SketchDao
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.network.SketchUploadService
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
+import com.pavel.augmented.util.getImageFile
 import io.reactivex.Observable
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 class GaleriePresenter(private val schedulerProvider: SchedulerProvider,
                        private val sketchDao: SketchDao,
@@ -33,7 +38,18 @@ class GaleriePresenter(private val schedulerProvider: SchedulerProvider,
                 }
     }
 
-    override fun publicSketch() {
+    override fun publicSketches(sketches: Array<Sketch?>) {
+        sketches.forEach { sketch ->
+            sketch?.let {
+                publicSketch(sketch)
+            }
+        }
+    }
+
+    private fun publicSketch(sketch: Sketch) {
+        val imageFile = getImageFile(view.context(), sketch.name)
+        val requestBody = RequestBody.create(MediaType.parse(view.context().contentResolver.getType(Uri.parse(imageFile.toString()))), imageFile)
+        val body = MultipartBody.Part.createFormData("picture", imageFile.name, requestBody)
 
     }
 
