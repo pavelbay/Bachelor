@@ -16,6 +16,7 @@ import com.pavel.augmented.presentation.galerie.GaleriePresenter
 import com.pavel.augmented.presentation.map.MyMapContract
 import com.pavel.augmented.presentation.map.MyMapPresenter
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
+import com.pavel.augmented.repository.SketchRepository
 import com.pavel.augmented.rx.ApplicationSchedulerProvider
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStoreFactory
@@ -38,6 +39,8 @@ class AppModule : AndroidModule() {
 
             provide  { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
 
+            provide { SketchRepository(get(), get(), get(BITMAP_FILESTORE), get())}
+
             provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
 
             context(name = CTX_CANVAS_FRAGMENT) {
@@ -49,7 +52,7 @@ class AppModule : AndroidModule() {
             }
 
             context(name = CTX_GALERIE_FRAGMENT) {
-                provide { GaleriePresenter(get(), get(), get(BITMAP_FILESTORE), get()) } bind (GalerieContract.Presenter::class)
+                provide { GaleriePresenter(get()) } bind (GalerieContract.Presenter::class)
             }
 
         }
