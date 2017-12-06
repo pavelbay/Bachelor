@@ -37,9 +37,9 @@ class GaleriePresenter(private val sketchRepository: SketchRepository) : Galerie
 
     private fun publicSketch(sketch: Sketch) {
         val imageFile = getImageFile(view.context(), sketch.name)
-        val requestBody = RequestBody.create(MediaType.parse(view.context().contentResolver.getType(Uri.parse(imageFile.toString()))), imageFile)
+        val requestBody = RequestBody.create(MediaType.parse("image/*"), imageFile)
         val body = MultipartBody.Part.createFormData("picture", imageFile.name, requestBody)
-
+        sketchRepository.publicSketch(sketch, body)
     }
 
     override fun deleteSketches(sketches: Array<Sketch?>) {
