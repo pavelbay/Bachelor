@@ -100,7 +100,7 @@ class MainActivity : ContextAwareActivity() {
 
     @Subscribe
     fun onMayAskForPermissionsEvent(onMayAskForPermissionsEvent: MayAskForPermissionsEvent) {
-        askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_INIT_MAIN_ACTIVITY)
+        askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA), PERMISSIONS_INIT_MAIN_ACTIVITY)
     }
 
     companion object {
