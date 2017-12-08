@@ -80,7 +80,7 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
     @SuppressLint("MissingPermission")
     @Subscribe
     fun onPermissionsRequested(event: PermissionsEvent) {
-        if (event.result == PackageManager.PERMISSION_GRANTED) {
+        if (event.requestId == PERMISSION_LOCATION_FROM_MAP_FRAGMENT && event.result == PackageManager.PERMISSION_GRANTED) {
             // TODO: check availability
             googleMap.isMyLocationEnabled = true
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location -> if (location != null) zoomToMyLocation(location) }

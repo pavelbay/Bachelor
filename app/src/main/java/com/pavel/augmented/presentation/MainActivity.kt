@@ -8,7 +8,6 @@ import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
 import com.pavel.augmented.events.MayAskForPermissionsEvent
 import com.pavel.augmented.events.PermissionsEvent
-import com.pavel.augmented.presentation.map.MyMapFragment.Companion.PERMISSION_LOCATION_FROM_MAP_FRAGMENT
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import com.pavel.augmented.util.askForPermissions
 import com.pavel.augmented.util.toggleRegister
@@ -73,9 +72,9 @@ class MainActivity : ContextAwareActivity() {
                     finish()
                 }
             }
-            PERMISSION_LOCATION_FROM_MAP_FRAGMENT -> {
+            else -> {
                 if (grantResults.isNotEmpty()) {
-                    EventBus.getDefault().post(PermissionsEvent(grantResults[0]))
+                    EventBus.getDefault().post(PermissionsEvent(grantResults[0], requestCode))
                 }
             }
         }

@@ -1,7 +1,9 @@
 package com.pavel.augmented.presentation.canvas
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
@@ -13,6 +15,7 @@ import android.os.HandlerThread
 import android.support.annotation.ColorInt
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.util.Size
 import android.view.*
@@ -20,9 +23,11 @@ import android.widget.Toast
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.ColorPickerEvents
+import com.pavel.augmented.events.PermissionsEvent
 import com.pavel.augmented.events.SketchNameChosenEvent
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
 import com.pavel.augmented.fragments.EditTextDialogFragment
+import com.pavel.augmented.util.askForPermissions
 import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
 import org.greenrobot.eventbus.EventBus
@@ -45,13 +50,20 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     private var backgroundHandler: Handler? = null
     private var backgroundThread: HandlerThread? = null
     private var imageReader: ImageReader? = null
+    private var permissionGranted = false
+    private var cameraOpened = false
+    private var textureAvailable = false
 
     inner class SurfaceTextureListener : TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
+            textureAvailable = true
             this@CanvasFragment.openCamera()
         }
 
-        override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?): Boolean = false
+        override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?): Boolean {
+            textureAvailable = false
+            return false
+        }
 
         override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) {
             // TODO: handle it
@@ -68,6 +80,10 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        val parentActivity = activity
+        if (parentActivity is AppCompatActivity) {
+            parentActivity.askForPermissions(arrayOf(Manifest.permission.CAMERA), PERMISSION_LOCATION_FROM_CANVAS_FRAGMENT)
+        }
         drawing_view.setColor(DEFAULT_COLOR)
         main_activity_floating_action_button.setOnClickListener {
             displayDialog()
@@ -158,31 +174,34 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     @SuppressLint("MissingPermission")
     private fun openCamera() {
-        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        try {
-            cameraId = cameraManager.cameraIdList[0]
-            val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-            val configurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-            configurationMap?.let {
-                imageDimension = configurationMap.getOutputSizes(SurfaceTexture::class.java)[0]
+        if (!cameraOpened && textureAvailable && permissionGranted) {
+            val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            try {
+                cameraId = cameraManager.cameraIdList[0]
+                val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+                val configurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                configurationMap?.let {
+                    imageDimension = configurationMap.getOutputSizes(SurfaceTexture::class.java)[0]
+                }
+                cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
+                    override fun onOpened(camera: CameraDevice?) {
+                        cameraOpened = true
+                        cameraDevice = camera
+                        createCameraPreview()
+                    }
+
+                    override fun onDisconnected(camera: CameraDevice?) {
+                        cameraDevice?.close()
+                    }
+
+                    override fun onError(camera: CameraDevice?, error: Int) {
+                        cameraDevice?.close()
+                        cameraDevice = null
+                    }
+                }, null)
+            } catch (e: CameraAccessException) {
+                Log.e(TAG, "Cannot access Camera: " + e)
             }
-            cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
-                override fun onOpened(camera: CameraDevice?) {
-                    cameraDevice = camera
-                    createCameraPreview()
-                }
-
-                override fun onDisconnected(camera: CameraDevice?) {
-                    cameraDevice?.close()
-                }
-
-                override fun onError(camera: CameraDevice?, error: Int) {
-                    cameraDevice?.close()
-                    cameraDevice = null
-                }
-            }, null)
-        } catch (e: CameraAccessException) {
-            Log.e(TAG, "Cannot access Camera: " + e)
         }
     }
 
@@ -248,6 +267,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     }
 
     private fun closeCamera() {
+        cameraOpened = false
         cameraDevice?.close()
         cameraDevice = null
         imageReader?.close()
@@ -295,11 +315,20 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         drawing_view.setColor(colorSelectedEvent.color)
     }
 
+    @SuppressLint("MissingPermission")
+    @Subscribe
+    fun onPermissionsRequested(event: PermissionsEvent) {
+        if (event.requestId == PERMISSION_LOCATION_FROM_CANVAS_FRAGMENT) {
+            permissionGranted = event.result == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
     companion object {
         @ColorInt private const val DEFAULT_COLOR = Color.GREEN
         private const val COLOR_PICKER_DIALOG_TAG = "ColorPickerDialogTag"
         private const val NAME_DIALOG_TAG = "NameDialogTag"
         private val TAG = CanvasFragment::class.java.simpleName
+        const val PERMISSION_LOCATION_FROM_CANVAS_FRAGMENT = 1003
     }
 }
 
