@@ -22,7 +22,7 @@ class MainActivity : ContextAwareActivity() {
 
     override val contextName = CTX_MAIN_ACTIVITY
 
-    private val pagerAdapter by inject<MainPagerAdapter>()
+    private lateinit var pagerAdapter: MainPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +30,9 @@ class MainActivity : ContextAwareActivity() {
 
         setSupportActionBar(main_activity_toolbar)
 
+        pagerAdapter = MainPagerAdapter(supportFragmentManager, resources.getStringArray(R.array.main_view_pager_items))
+
         getKoin().setProperty(MAIN_ACTIVITY_CONTEXT, this)
-        getKoin().setProperty(FRAGMENT_MANAGER_KEY, supportFragmentManager)
-        getKoin().setProperty(FRAGMENT_NAMES_KEY, resources.getStringArray(R.array.main_view_pager_items))
 
         setUpViewPager()
 

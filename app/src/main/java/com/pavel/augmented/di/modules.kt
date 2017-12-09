@@ -35,7 +35,6 @@ fun appModules() = listOf(AppModule(), RemoteDataSourceModule(), RxModule(), Gso
 class AppModule : AndroidModule() {
     override fun context() = applicationContext {
         context(name = CTX_MAIN_ACTIVITY) {
-            provide { MainPagerAdapter(getProperty(MainActivity.FRAGMENT_MANAGER_KEY), getProperty(MainActivity.FRAGMENT_NAMES_KEY)) }
 
             provide  { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
 

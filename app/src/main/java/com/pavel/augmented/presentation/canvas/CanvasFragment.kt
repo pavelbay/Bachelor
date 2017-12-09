@@ -109,6 +109,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
             }
         }
 
+        setupViewVisibility()
         texture_view.surfaceTextureListener = SurfaceTextureListener()
     }
 
@@ -220,7 +221,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     @SuppressLint("MissingPermission")
     private fun openCamera() {
-        if (!cameraOpened && textureAvailable && permissionGranted) {
+        if (!cameraOpened && textureAvailable && permissionGranted && mode == Mode.VIEW) {
             val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             try {
                 cameraId = cameraManager.cameraIdList[0]
@@ -323,16 +324,23 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         mode = if (mode == Mode.VIEW) {
             closeCamera()
             stopBackgroundThread()
-            texture_view.visibility = View.GONE
-            drawing_view.visibility = View.VISIBLE
             Mode.DRAW
         } else {
-            texture_view.visibility = View.VISIBLE
-            drawing_view.visibility = View.GONE
             handleOpenCamera()
             Mode.VIEW
         }
+        setupViewVisibility()
         setupMenu()
+    }
+
+    private fun setupViewVisibility() {
+        if (mode == Mode.VIEW) {
+            texture_view.visibility = View.VISIBLE
+            drawing_view.visibility = View.GONE
+        } else {
+            texture_view.visibility = View.GONE
+            drawing_view.visibility = View.VISIBLE
+        }
     }
 
     private fun createCameraPreview() {
@@ -379,6 +387,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         cameraDevice = null
         imageReader?.close()
         imageReader = null
+        stopBackgroundThread()
     }
 
     private fun startBackgroundThread() {
