@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/eraser"
-        android:title="@string/menu_eraser_title"
-        app:showAsAction="never" />
+    <!--<item android:id="@+id/eraser"-->
+        <!--android:title="@string/menu_eraser_title"-->
+        <!--app:showAsAction="never" />-->
+
+    <item android:id="@+id/switch_mode"
+        android:title="@string/menu_switch_mode"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_switch" />
 
     <item android:id="@+id/save_to_gallery"
         android:title="@string/menu_save_to_gallery"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_save" />
 
-    <item android:id="@+id/clear_canvas"
-        android:title="@string/menu_clear_canvas"
-        app:showAsAction="never" />
+    <!--<item android:id="@+id/clear_canvas"-->
+        <!--android:title="@string/menu_clear_canvas"-->
+        <!--app:showAsAction="never" />-->
 </menu>

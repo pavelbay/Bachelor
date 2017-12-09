@@ -36,8 +36,8 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         super.onViewCreated(view, savedInstanceState)
 
         galerie_rec_view.layoutManager = GridLayoutManager(context, 4)
-
         galerieAdapter = GalerieAdapter(ArrayList())
+
         galerie_rec_view.adapter = galerieAdapter
 
         galerie_swipe_refresh_layout.setOnRefreshListener { presenter.loadSketches() }

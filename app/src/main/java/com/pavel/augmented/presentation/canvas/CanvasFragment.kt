@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
@@ -18,6 +19,7 @@ import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.util.Size
+import android.util.SparseIntArray
 import android.view.*
 import android.widget.Toast
 import com.pavel.augmented.R
@@ -40,6 +42,11 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     private val contextName = AppModule.CTX_CANVAS_FRAGMENT
 
     override val presenter by inject<CanvasContract.Presenter>()
+
+    private var mode: Mode = Mode.VIEW
+    private var menu: Menu? = null
+
+    private val orientations: SparseIntArray = SparseIntArray(4)
 
     private var cameraId: String? = null
     private var imageDimension: Size? = null
@@ -74,6 +81,15 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        orientations.append(Surface.ROTATION_0, 90)
+        orientations.append(Surface.ROTATION_90, 0)
+        orientations.append(Surface.ROTATION_180, 270)
+        orientations.append(Surface.ROTATION_270, 180)
+    }
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
         return inflater?.inflate(R.layout.layout_canvas_fragment, container, false)
@@ -86,10 +102,28 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         }
         drawing_view.setColor(DEFAULT_COLOR)
         main_activity_floating_action_button.setOnClickListener {
-            displayDialog()
+            if (mode == Mode.VIEW) {
+                takePicture()
+            } else {
+                displayDialog()
+            }
         }
 
         texture_view.surfaceTextureListener = SurfaceTextureListener()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+
+        outState?.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        savedInstanceState?.let {
+            mode = Mode.values()[savedInstanceState.getInt(MODE_SAVE_STATE_KEY)]
+        }
     }
 
     override fun onResume() {
@@ -98,11 +132,8 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         presenter.view = this
         presenter.start()
 
-        startBackgroundThread()
-        if (texture_view.isAvailable) {
-            openCamera()
-        } else {
-            texture_view.surfaceTextureListener = SurfaceTextureListener()
+        if (mode == Mode.VIEW) {
+            handleOpenCamera()
         }
     }
 
@@ -116,10 +147,20 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         inflater?.inflate(R.menu.main_menu, menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?) {
+        this.menu = menu
+        setupMenu()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
-            R.id.eraser -> {
-                drawing_view.enableEraser()
+//            R.id.eraser -> {
+//                drawing_view.enableEraser()
+//                true
+//            }
+
+            R.id.switch_mode -> {
+                changeMode()
                 true
             }
 
@@ -133,11 +174,11 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                 true
             }
 
-            R.id.clear_canvas -> {
-                drawing_view.clear()
-                // TODO: implement this
-                return true
-            }
+//            R.id.clear_canvas -> {
+//                drawing_view.clear()
+//                // TODO: implement this
+//                return true
+//            }
 
             else -> super.onOptionsItemSelected(item)
         }
@@ -170,6 +211,11 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         super.onStop()
 
         EventBus.getDefault().toggleRegister(this)
+    }
+
+    private fun setupMenu() {
+        menu?.findItem(R.id.save_to_gallery)?.isVisible = mode == Mode.DRAW
+        menu?.findItem(R.id.switch_mode)?.isEnabled = drawing_view.pictureAvailable || mode == Mode.DRAW
     }
 
     @SuppressLint("MissingPermission")
@@ -221,11 +267,72 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                 }
                 val reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1)
                 val outputSurfaces = arrayListOf<Surface>(reader.surface, Surface(texture_view.surfaceTexture))
-                // TODO: do it later
+                val captBuilder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                captBuilder.addTarget(reader.surface)
+                captBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+                val rotation = activity.windowManager.defaultDisplay.rotation
+                captBuilder.set(CaptureRequest.JPEG_ORIENTATION, orientations.get(rotation))
+                reader.setOnImageAvailableListener({
+                    val image = it.acquireLatestImage()
+                    val buffer = image.planes[0].buffer
+                    val bytes = ByteArray(buffer.remaining())
+                    buffer.get(bytes)
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
+                    drawing_view.updateBitmap(bitmap)
+                }, backgroundHandler)
+                val captureListener = object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureCompleted(session: CameraCaptureSession?, request: CaptureRequest?, result: TotalCaptureResult?) {
+                        super.onCaptureCompleted(session, request, result)
+                        if (isAdded) {
+                            activity.runOnUiThread({
+                                changeMode()
+                                setupMenu()
+                                Toast.makeText(context, R.string.message_picture_has_been_taken, Toast.LENGTH_SHORT).show()
+                            })
+                        }
+                    }
+                }
+                cameraDevice!!.createCaptureSession(outputSurfaces, object : CameraCaptureSession.StateCallback() {
+                    override fun onConfigureFailed(session: CameraCaptureSession?) {
+                    }
+
+                    override fun onConfigured(session: CameraCaptureSession?) {
+                        try {
+                            session?.capture(captBuilder.build(), captureListener, backgroundHandler)
+                        } catch (e: CameraAccessException) {
+                            Log.e(TAG, "Error accepting camera: " + e)
+                        }
+                    }
+                }, backgroundHandler)
             } catch (e: CameraAccessException) {
                 Log.e(TAG, "Error while trying take picture: " + e)
             }
         }
+    }
+
+    private fun handleOpenCamera() {
+        startBackgroundThread()
+        if (texture_view.isAvailable) {
+            openCamera()
+        } else {
+            texture_view.surfaceTextureListener = SurfaceTextureListener()
+        }
+    }
+
+    private fun changeMode() {
+        mode = if (mode == Mode.VIEW) {
+            closeCamera()
+            stopBackgroundThread()
+            texture_view.visibility = View.GONE
+            drawing_view.visibility = View.VISIBLE
+            Mode.DRAW
+        } else {
+            texture_view.visibility = View.VISIBLE
+            drawing_view.visibility = View.GONE
+            handleOpenCamera()
+            Mode.VIEW
+        }
+        setupMenu()
     }
 
     private fun createCameraPreview() {
@@ -329,6 +436,12 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         private const val NAME_DIALOG_TAG = "NameDialogTag"
         private val TAG = CanvasFragment::class.java.simpleName
         const val PERMISSION_LOCATION_FROM_CANVAS_FRAGMENT = 1003
+        private val MODE_SAVE_STATE_KEY = "ModeSaveStateKey"
+    }
+
+    enum class Mode {
+        VIEW,
+        DRAW
     }
 }
 

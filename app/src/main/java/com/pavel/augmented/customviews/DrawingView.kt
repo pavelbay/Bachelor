@@ -31,6 +31,8 @@ class DrawingView @JvmOverloads constructor(
     private val circlePaint: Paint = Paint()
     private val circlePath: Path = Path()
 
+    var pictureAvailable = false
+
     private var mX: Float = 0.toFloat()
     private var mY: Float = 0.toFloat()
 
@@ -51,6 +53,8 @@ class DrawingView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
+        mWidth = w
+        mHeight = h
         bitmap = if (bitmap == null) {
             Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         } else {
@@ -61,16 +65,20 @@ class DrawingView @JvmOverloads constructor(
         mCanvas = Canvas(bitmap)
     }
 
+    fun updateBitmap(bitmap: Bitmap) {
+        this.bitmap = bitmap
+        pictureAvailable = true
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-//        Log.d(TAG, "OnDraw")
         canvas.drawBitmap(bitmap, 0F, 0F, mBitmapPaint)
         canvas.drawPath(mPath, paint)
         canvas.drawPath(circlePath, circlePaint)
     }
 
-    fun clear() = bitmap?.eraseColor(ContextCompat.getColor(context, R.color.white))
+    //fun clear() = bitmap?.eraseColor(ContextCompat.getColor(context, R.color.white))
 
     fun setColor(color: Int) {
         paint.color = color
@@ -78,10 +86,10 @@ class DrawingView @JvmOverloads constructor(
 
     fun getColor(): Int = paint.color
 
-    fun enableEraser() {
-        paint.color = ContextCompat.getColor(context, R.color.white)
-        paint.strokeWidth = ERASER_STROKE_WIDTH
-    }
+//    fun enableEraser() {
+//        paint.color = ContextCompat.getColor(context, R.color.white)
+//        paint.strokeWidth = ERASER_STROKE_WIDTH
+//    }
 
     private fun touchStart(x: Float, y: Float) {
         mPath.reset()
