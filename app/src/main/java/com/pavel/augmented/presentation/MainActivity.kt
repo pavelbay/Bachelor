@@ -3,6 +3,7 @@ package com.pavel.augmented.presentation
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.widget.Toast
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
@@ -16,13 +17,13 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.koin.android.contextaware.ContextAwareActivity
 import org.koin.android.ext.android.getKoin
-import org.koin.android.ext.android.inject
 
 class MainActivity : ContextAwareActivity() {
 
     override val contextName = CTX_MAIN_ACTIVITY
 
     private lateinit var pagerAdapter: MainPagerAdapter
+    private var restoredCurrentItem: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +32,10 @@ class MainActivity : ContextAwareActivity() {
         setSupportActionBar(main_activity_toolbar)
 
         pagerAdapter = MainPagerAdapter(supportFragmentManager, resources.getStringArray(R.array.main_view_pager_items))
+
+        savedInstanceState?.let {
+            restoredCurrentItem = savedInstanceState.getInt(VIEW_PAGER_CURRENT_ITEM_KEY, 0)
+        }
 
         getKoin().setProperty(MAIN_ACTIVITY_CONTEXT, this)
 
@@ -54,6 +59,12 @@ class MainActivity : ContextAwareActivity() {
         super.onStop()
 
         EventBus.getDefault().toggleRegister(this)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+
+        outState?.putInt(VIEW_PAGER_CURRENT_ITEM_KEY, main_view_pager.currentItem)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -83,6 +94,8 @@ class MainActivity : ContextAwareActivity() {
     private fun setUpViewPager() {
         main_view_pager.adapter = pagerAdapter
 
+        main_view_pager.currentItem = restoredCurrentItem
+
         supportActionBar?.title = pagerAdapter.getTitleForPosition(main_view_pager.currentItem)
 
         bottom_navigation_view.setOnNavigationItemSelectedListener { item ->
@@ -109,5 +122,7 @@ class MainActivity : ContextAwareActivity() {
 
         const val PERMISSIONS_INIT_MAIN_ACTIVITY = 1001
         const val PERMISSIONS_CAMERA = 1003
+
+        private const val VIEW_PAGER_CURRENT_ITEM_KEY = "ViewPagerCurrentItemKey"
     }
 }
