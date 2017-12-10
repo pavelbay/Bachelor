@@ -465,5 +465,3 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         DRAW
     }
 }
-
-
