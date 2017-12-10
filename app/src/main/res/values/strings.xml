@@ -34,6 +34,7 @@
     <string name="message_cannot_create_sketch">Standort ist nicht verfügbar. Der Sketch kann nicht erstellt werden.</string>
     <string name="message_sketch_name_exists">Sketch mit dem gleichen Namen bereits existiert.</string>
     <string name="message_picture_has_been_taken">Aufgenommen!</string>
+    <string name="message_no_available_picture">Mach erstmal ein Foto.</string>
 
     <!-- galerie rec view -->
     <string name="img_content_description">action_view</string>

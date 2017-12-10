@@ -3,6 +3,7 @@ package com.pavel.augmented.presentation.galerie
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.*
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
@@ -29,6 +30,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
+        galerieAdapter = GalerieAdapter(ArrayList())
         return inflater?.inflate(R.layout.layout_galerie_fragment, container, false)
     }
 
@@ -36,7 +38,6 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         super.onViewCreated(view, savedInstanceState)
 
         galerie_rec_view.layoutManager = GridLayoutManager(context, 4)
-        galerieAdapter = GalerieAdapter(ArrayList())
 
         galerie_rec_view.adapter = galerieAdapter
 
@@ -49,7 +50,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         super.onSaveInstanceState(outState)
 
         outState?.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
-        outState?.putBooleanArray(LIST_SAVE_STATE_KEY, galerieAdapter.getSelectedNumbers())
+        outState?.putBooleanArray(LIST_SAVE_STATE_KEY, galerieAdapter?.getSelectedNumbers())
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

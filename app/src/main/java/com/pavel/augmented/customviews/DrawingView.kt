@@ -65,8 +65,17 @@ class DrawingView @JvmOverloads constructor(
         mCanvas = Canvas(bitmap)
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+
+        Log.d(TAG, "OnMeasure")
+    }
+
     fun updateBitmap(bitmap: Bitmap) {
         this.bitmap = bitmap
+        this.bitmap = Bitmap.createScaledBitmap(bitmap, mWidth, mHeight, true)
+
+        mCanvas = Canvas(this.bitmap)
         pictureAvailable = true
     }
 
@@ -145,6 +154,7 @@ class DrawingView @JvmOverloads constructor(
         val bundle = super.onSaveInstanceState()
         val savedState = SavedState(bundle)
         savedState.mBitmap = this.bitmap
+        savedState.isPictureAvailable = this.pictureAvailable
         return savedState
     }
 
@@ -152,6 +162,7 @@ class DrawingView @JvmOverloads constructor(
         if (state is SavedState) {
             super.onRestoreInstanceState(state.superState)
             this.bitmap = state.mBitmap
+            this.pictureAvailable = state.isPictureAvailable
             Log.d("Deb", "Bitmap restored")
         } else {
             super.onRestoreInstanceState(state)
@@ -165,11 +176,13 @@ class DrawingView @JvmOverloads constructor(
 
     internal class SavedState : BaseSavedState {
         var mBitmap: Bitmap? = null
+        var isPictureAvailable: Boolean = false
 
         constructor(bundle: Parcelable) : super(bundle)
 
         private constructor(parcel: Parcel) : super(parcel) {
             mBitmap = parcel.readParcelable(Parcelable::class.java.classLoader)
+            isPictureAvailable = parcel.readInt() == 1
         }
 
         companion object {
@@ -185,6 +198,8 @@ class DrawingView @JvmOverloads constructor(
         override fun writeToParcel(dest: Parcel, flags: Int) {
             super.writeToParcel(dest, flags)
             dest.writeParcelable(mBitmap, flags)
+            val available = if (isPictureAvailable) 1 else 0
+            dest.writeInt(available)
         }
     }
 }

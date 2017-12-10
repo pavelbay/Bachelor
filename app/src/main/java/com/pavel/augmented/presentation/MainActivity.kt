@@ -3,7 +3,6 @@ package com.pavel.augmented.presentation
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.widget.Toast
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
@@ -95,6 +94,8 @@ class MainActivity : ContextAwareActivity() {
         main_view_pager.adapter = pagerAdapter
 
         main_view_pager.currentItem = restoredCurrentItem
+
+        main_view_pager.offscreenPageLimit = 2
 
         supportActionBar?.title = pagerAdapter.getTitleForPosition(main_view_pager.currentItem)
 

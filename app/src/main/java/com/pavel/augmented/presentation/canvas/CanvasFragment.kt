@@ -140,6 +140,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     override fun onPause() {
         releaseContext(contextName)
+        closeCamera()
         stopBackgroundThread()
         super.onPause()
     }
@@ -161,7 +162,14 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 //            }
 
             R.id.switch_mode -> {
-                changeMode()
+                menu?.findItem(R.id.switch_mode)?.isEnabled = drawing_view.pictureAvailable || mode == Mode.DRAW
+                if (drawing_view.pictureAvailable || mode == Mode.DRAW) {
+                    changeMode()
+                } else {
+                    if (isAdded) {
+                        Toast.makeText(context, R.string.message_no_available_picture, Toast.LENGTH_SHORT).show()
+                    }
+                }
                 true
             }
 
@@ -216,7 +224,6 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     private fun setupMenu() {
         menu?.findItem(R.id.save_to_gallery)?.isVisible = mode == Mode.DRAW
-        menu?.findItem(R.id.switch_mode)?.isEnabled = drawing_view.pictureAvailable || mode == Mode.DRAW
     }
 
     @SuppressLint("MissingPermission")
@@ -235,6 +242,12 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                         cameraOpened = true
                         cameraDevice = camera
                         createCameraPreview()
+                    }
+
+                    override fun onClosed(camera: CameraDevice?) {
+                        super.onClosed(camera)
+
+                        cameraOpened = false
                     }
 
                     override fun onDisconnected(camera: CameraDevice?) {
@@ -321,13 +334,13 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     }
 
     private fun changeMode() {
-        mode = if (mode == Mode.VIEW) {
+        if (mode == Mode.VIEW) {
+            mode = Mode.DRAW
             closeCamera()
             stopBackgroundThread()
-            Mode.DRAW
         } else {
+            mode = Mode.VIEW
             handleOpenCamera()
-            Mode.VIEW
         }
         setupViewVisibility()
         setupMenu()
@@ -336,10 +349,10 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     private fun setupViewVisibility() {
         if (mode == Mode.VIEW) {
             texture_view.visibility = View.VISIBLE
-            drawing_view.visibility = View.GONE
+            drawing_view.isEnabled = false
         } else {
             texture_view.visibility = View.GONE
-            drawing_view.visibility = View.VISIBLE
+            drawing_view.isEnabled = true
         }
     }
 
@@ -382,7 +395,6 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     }
 
     private fun closeCamera() {
-        cameraOpened = false
         cameraDevice?.close()
         cameraDevice = null
         imageReader?.close()
