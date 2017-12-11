@@ -4,10 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.ImageFormat
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.hardware.camera2.*
 import android.media.ImageReader
 import android.os.Bundle
@@ -237,6 +234,8 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                 configurationMap?.let {
                     imageDimension = configurationMap.getOutputSizes(SurfaceTexture::class.java)[0]
                 }
+                configureTransform(orientations.get(activity.windowManager.defaultDisplay.rotation))
+               // configureTransform(getJpegOrientation(characteristics, activity.windowManager.defaultDisplay.rotation))
                 cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
                     override fun onOpened(camera: CameraDevice?) {
                         cameraOpened = true
@@ -365,6 +364,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
             val surface = Surface(texture)
             captureRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             captureRequestBuilder?.addTarget(surface)
+
             cameraDevice?.createCaptureSession(mutableListOf(surface), object : CameraCaptureSession.StateCallback() {
                 override fun onConfigureFailed(session: CameraCaptureSession?) {
                     Log.d(TAG, "Camera configuration failed")
@@ -379,19 +379,88 @@ class CanvasFragment : Fragment(), CanvasContract.View {
             }, null)
 
         } catch (e: CameraAccessException) {
-
+            Log.e(TAG, "Error creating preview: " + e)
         }
+    }
+
+    private fun getJpegOrientation(c: CameraCharacteristics, deviceOrientation: Int): Int {
+        if (deviceOrientation == android.view.OrientationEventListener.ORIENTATION_UNKNOWN) return 0
+        val sensorOrientation = c.get(CameraCharacteristics.SENSOR_ORIENTATION)
+
+        // Round device orientation to a multiple of 90
+        val deviceOrientation1 = (deviceOrientation + 45) / 90 * 90
+
+        // Reverse device orientation for front-facing cameras
+        val facingFront = c.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+        if (facingFront) -deviceOrientation1
+
+        // Calculate desired JPEG orientation relative to camera orientation to make
+        // the image upright relative to the device orientation
+
+        return (sensorOrientation + deviceOrientation1 + 360) % 360
     }
 
     private fun updatePreview() {
         cameraDevice?.let {
             captureRequestBuilder?.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+            captureRequestBuilder?.set(CaptureRequest.JPEG_ORIENTATION, orientations.get(activity.windowManager.defaultDisplay.rotation))
             try {
                 cameraCaptureSession?.setRepeatingRequest(captureRequestBuilder?.build(), null, backgroundHandler)
             } catch (e: CameraAccessException) {
                 Log.e(TAG, "Error while updating preview: " + e)
             }
         }
+    }
+
+    private fun updateMatrix(width: Int, height: Int) {
+        if (textureAvailable) {
+            val matrix = Matrix()
+            val rotation = activity.windowManager.defaultDisplay.rotation
+            val textureRectF = RectF(0F, 0F, width.toFloat(), height.toFloat())
+            val previewRectF = RectF(0F, 0F, texture_view.height.toFloat(), texture_view.width.toFloat())
+            val centerX = textureRectF.centerX()
+            val centerY = textureRectF.centerY()
+            if (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) {
+                previewRectF.offset(centerX - previewRectF.centerX(), centerY - previewRectF.centerY())
+                matrix.setRectToRect(textureRectF, previewRectF, Matrix.ScaleToFit.FILL)
+                val scale = Math.max(width.toFloat() / width, height.toFloat() / width)
+                matrix.postScale(scale, scale, centerX, centerY)
+                matrix.postRotate(90F * (rotation - 2), centerX, centerY)
+            }
+            texture_view.setTransform(matrix)
+        }
+    }
+
+    private fun configureTransform(displayOrientation: Int) {
+        val matrix = Matrix()
+        if (displayOrientation == 180 || displayOrientation == 0) {
+            val width = texture_view.width
+            val height = texture_view.height
+            // Rotate the camera preview when the screen is landscape.
+            matrix.setPolyToPoly(
+                    floatArrayOf(0f, 0f, // top left
+                            width.toFloat(), 0f, // top right
+                            0f, height.toFloat(), // bottom left
+                            width.toFloat(), height.toFloat())// bottom right
+                    , 0,
+                    if (displayOrientation == 0)
+                    // Clockwise
+                        floatArrayOf(0f, height.toFloat(), // top left
+                                0f, 0f, // top right
+                                width.toFloat(), height.toFloat(), // bottom left
+                                width.toFloat(), 0f)// bottom right
+                    else
+                    // displayOrientation == 180
+                    // Counter-clockwise
+                        floatArrayOf(width.toFloat(), 0f, // top left
+                                width.toFloat(), height.toFloat(), // top right
+                                0f, 0f, // bottom left
+                                0f, height.toFloat())// bottom right
+                    , 0,
+                    4)
+        }
+
+        texture_view.setTransform(matrix)
     }
 
     private fun closeCamera() {

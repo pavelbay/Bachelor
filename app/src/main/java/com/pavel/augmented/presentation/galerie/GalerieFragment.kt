@@ -125,7 +125,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
     override fun displaySketches(list: MutableList<Sketch>) {
         galerieAdapter.swapDataItems(list)
 
-        if (galerie_swipe_refresh_layout.isRefreshing) {
+        if (galerie_swipe_refresh_layout != null && galerie_swipe_refresh_layout.isRefreshing) {
             galerie_swipe_refresh_layout.isRefreshing = false
         }
 

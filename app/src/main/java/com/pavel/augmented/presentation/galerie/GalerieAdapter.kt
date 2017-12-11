@@ -169,7 +169,7 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
                 sketch_name.isSelected = itemChecked
 
                 GlideApp.with(containerView)
-                        .load(File(getImagesFolder(containerView.context), sketch.name + ".png"))
+                        .load(File(getImagesFolder(containerView.context), sketch.name + ".jpeg"))
                         .centerCrop()
                         .placeholder(R.drawable.ic_placeholder_image)
                         .into(sketch_image)

@@ -24,14 +24,14 @@ class BitmapFileStore(val context: Context) : FileStore<Bitmap> {
     override fun readType(): Bitmap? = null
 
     override fun saveType(value: Bitmap, name: String) {
-        val file = File(getDir(), name + ".png")
+        val file = File(getDir(), name + ".jpeg")
         if (file.exists() || file.createNewFile()) {
             performSave(file, value)
         }
     }
 
     override fun deleteType(name: String) {
-        val file = File(getDir(), name + ".png")
+        val file = File(getDir(), name + ".jpeg")
         if (file.exists()) {
             file.delete()
         }
@@ -39,7 +39,7 @@ class BitmapFileStore(val context: Context) : FileStore<Bitmap> {
 
     override fun performSave(file: File, value: Bitmap) {
         val fos = FileOutputStream(file)
-        value.compress(Bitmap.CompressFormat.PNG, 100, fos)
+        value.compress(Bitmap.CompressFormat.JPEG, 100, fos)
         fos.close()
     }
 

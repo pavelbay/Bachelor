@@ -5,4 +5,4 @@ import java.io.File
 
 fun getImagesFolder(context: Context) = File(context.getExternalFilesDir(null), "images")
 
-fun getImageFile(context: Context, name: String) = File(getImagesFolder(context), name + ".png")
+fun getImageFile(context: Context, name: String) = File(getImagesFolder(context), name + ".jpeg")
