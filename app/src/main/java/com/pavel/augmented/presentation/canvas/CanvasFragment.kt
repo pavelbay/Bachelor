@@ -13,7 +13,7 @@ import android.os.HandlerThread
 import android.support.annotation.ColorInt
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
-import android.support.v7.app.AppCompatActivity
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
@@ -26,7 +26,6 @@ import com.pavel.augmented.events.PermissionsEvent
 import com.pavel.augmented.events.SketchNameChosenEvent
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
 import com.pavel.augmented.fragments.EditTextDialogFragment
-import com.pavel.augmented.util.askForPermissions
 import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
 import org.greenrobot.eventbus.EventBus
@@ -57,6 +56,8 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     private var permissionGranted = false
     private var cameraOpened = false
     private var textureAvailable = false
+    private lateinit var orientationEventListener: OrientationEventListener
+    private var currentOrientation: Int = 0
 
     inner class SurfaceTextureListener : TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
@@ -78,6 +79,12 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         }
     }
 
+    inner class OrientationEventListener : android.view.OrientationEventListener(context) {
+        override fun onOrientationChanged(orientation: Int) {
+            currentOrientation = orientation
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -89,14 +96,15 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
+        permissionGranted = checkPermission()
+        orientationEventListener = OrientationEventListener()
+        if (orientationEventListener.canDetectOrientation()) {
+            orientationEventListener.enable()
+        }
         return inflater?.inflate(R.layout.layout_canvas_fragment, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        val parentActivity = activity
-        if (parentActivity is AppCompatActivity) {
-            parentActivity.askForPermissions(arrayOf(Manifest.permission.CAMERA), PERMISSION_LOCATION_FROM_CANVAS_FRAGMENT)
-        }
         drawing_view.setColor(DEFAULT_COLOR)
         main_activity_floating_action_button.setOnClickListener {
             if (mode == Mode.VIEW) {
@@ -108,6 +116,12 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
         setupViewVisibility()
         texture_view.surfaceTextureListener = SurfaceTextureListener()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        orientationEventListener.disable()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -219,6 +233,8 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         EventBus.getDefault().toggleRegister(this)
     }
 
+    private fun checkPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+
     private fun setupMenu() {
         menu?.findItem(R.id.save_to_gallery)?.isVisible = mode == Mode.DRAW
     }
@@ -234,8 +250,8 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                 configurationMap?.let {
                     imageDimension = configurationMap.getOutputSizes(SurfaceTexture::class.java)[0]
                 }
-                configureTransform(orientations.get(activity.windowManager.defaultDisplay.rotation))
-               // configureTransform(getJpegOrientation(characteristics, activity.windowManager.defaultDisplay.rotation))
+                // configureTransform(orientations.get(activity.windowManager.defaultDisplay.rotation))
+                configureTransform(getJpegOrientation(characteristics, currentOrientation))
                 cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
                     override fun onOpened(camera: CameraDevice?) {
                         cameraOpened = true
@@ -279,12 +295,14 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                     }
                 }
                 val reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1)
-                val outputSurfaces = arrayListOf<Surface>(reader.surface, Surface(texture_view.surfaceTexture))
+                val outputSurfaces = arrayListOf<Surface>(reader.surface/*, Surface(texture_view.surfaceTexture)*/)
                 val captBuilder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
                 captBuilder.addTarget(reader.surface)
                 captBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+//                val rotation = activity.windowManager.defaultDisplay.rotation
+//                captBuilder.set(CaptureRequest.JPEG_ORIENTATION, orientations.get(rotation))
                 val rotation = activity.windowManager.defaultDisplay.rotation
-                captBuilder.set(CaptureRequest.JPEG_ORIENTATION, orientations.get(rotation))
+                captBuilder.set(CaptureRequest.JPEG_ORIENTATION, getJpegOrientation(characteristics, currentOrientation))
                 reader.setOnImageAvailableListener({
                     val image = it.acquireLatestImage()
                     val buffer = image.planes[0].buffer
@@ -324,11 +342,13 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     }
 
     private fun handleOpenCamera() {
-        startBackgroundThread()
-        if (texture_view.isAvailable) {
-            openCamera()
-        } else {
-            texture_view.surfaceTextureListener = SurfaceTextureListener()
+        if (permissionGranted) {
+            startBackgroundThread()
+            if (texture_view.isAvailable) {
+                openCamera()
+            } else {
+                texture_view.surfaceTextureListener = SurfaceTextureListener()
+            }
         }
     }
 
@@ -403,7 +423,6 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     private fun updatePreview() {
         cameraDevice?.let {
             captureRequestBuilder?.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-            captureRequestBuilder?.set(CaptureRequest.JPEG_ORIENTATION, orientations.get(activity.windowManager.defaultDisplay.rotation))
             try {
                 cameraCaptureSession?.setRepeatingRequest(captureRequestBuilder?.build(), null, backgroundHandler)
             } catch (e: CameraAccessException) {
@@ -412,24 +431,24 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         }
     }
 
-    private fun updateMatrix(width: Int, height: Int) {
-        if (textureAvailable) {
-            val matrix = Matrix()
-            val rotation = activity.windowManager.defaultDisplay.rotation
-            val textureRectF = RectF(0F, 0F, width.toFloat(), height.toFloat())
-            val previewRectF = RectF(0F, 0F, texture_view.height.toFloat(), texture_view.width.toFloat())
-            val centerX = textureRectF.centerX()
-            val centerY = textureRectF.centerY()
-            if (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) {
-                previewRectF.offset(centerX - previewRectF.centerX(), centerY - previewRectF.centerY())
-                matrix.setRectToRect(textureRectF, previewRectF, Matrix.ScaleToFit.FILL)
-                val scale = Math.max(width.toFloat() / width, height.toFloat() / width)
-                matrix.postScale(scale, scale, centerX, centerY)
-                matrix.postRotate(90F * (rotation - 2), centerX, centerY)
-            }
-            texture_view.setTransform(matrix)
-        }
-    }
+//    private fun updateMatrix(width: Int, height: Int) {
+//        if (textureAvailable) {
+//            val matrix = Matrix()
+//            val rotation = activity.windowManager.defaultDisplay.rotation
+//            val textureRectF = RectF(0F, 0F, width.toFloat(), height.toFloat())
+//            val previewRectF = RectF(0F, 0F, texture_view.height.toFloat(), texture_view.width.toFloat())
+//            val centerX = textureRectF.centerX()
+//            val centerY = textureRectF.centerY()
+//            if (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) {
+//                previewRectF.offset(centerX - previewRectF.centerX(), centerY - previewRectF.centerY())
+//                matrix.setRectToRect(textureRectF, previewRectF, Matrix.ScaleToFit.FILL)
+//                val scale = Math.max(width.toFloat() / width, height.toFloat() / width)
+//                matrix.postScale(scale, scale, centerX, centerY)
+//                matrix.postRotate(90F * (rotation - 2), centerX, centerY)
+//            }
+//            texture_view.setTransform(matrix)
+//        }
+//    }
 
     private fun configureTransform(displayOrientation: Int) {
         val matrix = Matrix()
@@ -515,9 +534,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     @SuppressLint("MissingPermission")
     @Subscribe
     fun onPermissionsRequested(event: PermissionsEvent) {
-        if (event.requestId == PERMISSION_LOCATION_FROM_CANVAS_FRAGMENT) {
-            permissionGranted = event.result == PackageManager.PERMISSION_GRANTED
-        }
+        permissionGranted = checkPermission()
     }
 
     companion object {
@@ -525,7 +542,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         private const val COLOR_PICKER_DIALOG_TAG = "ColorPickerDialogTag"
         private const val NAME_DIALOG_TAG = "NameDialogTag"
         private val TAG = CanvasFragment::class.java.simpleName
-        const val PERMISSION_LOCATION_FROM_CANVAS_FRAGMENT = 1003
+        const val PERMISSION_CAMERA_FROM_CANVAS_FRAGMENT = 1002
         private val MODE_SAVE_STATE_KEY = "ModeSaveStateKey"
     }
 

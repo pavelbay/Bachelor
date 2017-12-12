@@ -39,8 +39,9 @@ fun AppCompatActivity.askForPermissions(permissions: Array<out String>, requestC
             .filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED &&
                         !shouldShowRequestPermissionRationale(it)}
             .forEach { permissionsToBeRequested.add(it)}
-
-    requestPermissions(permissions,  requestCode)
+    if (permissionsToBeRequested.isNotEmpty()) {
+        requestPermissions(permissionsToBeRequested.toTypedArray(), requestCode)
+    }
 }
 
 /**

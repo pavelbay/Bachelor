@@ -155,10 +155,10 @@ class DrawingView @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable {
         val bundle = super.onSaveInstanceState()
-        val savedState = SavedState(bundle)
-        savedState.mBitmap = this.bitmap
-        savedState.isPictureAvailable = this.pictureAvailable
-        return savedState
+//        val savedState = SavedState(bundle)
+//        savedState.mBitmap = this.bitmap
+//        savedState.isPictureAvailable = this.pictureAvailable
+        return bundle
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {

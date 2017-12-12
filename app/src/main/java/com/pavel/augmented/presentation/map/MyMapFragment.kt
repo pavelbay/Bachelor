@@ -5,7 +5,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import android.support.v4.content.ContextCompat
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +16,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.PermissionsEvent
-import com.pavel.augmented.util.askForPermissions
 import com.pavel.augmented.util.toggleRegister
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -35,6 +34,8 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
 
     private val fusedLocationProviderClient by inject<FusedLocationProviderClient>()
 
+    private var permissionGranted = false
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.layout_map_fragment, container, false)
     }
@@ -42,14 +43,27 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        permissionGranted = checkPermission()
+
+//        if (!permissionGranted) {
+//            val parentActivity = activity
+//            if (parentActivity is AppCompatActivity) {
+//                parentActivity.askForPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_LOCATION_FROM_MAP_FRAGMENT)
+//            }
+//        }
         mapFragment = childFragmentManager.findFragmentById(R.id.google_map_fragment) as SupportMapFragment
         mapFragment.getMapAsync { map ->
             googleMap = map
-            val parentActivity = activity
-            if (parentActivity is AppCompatActivity) {
-                parentActivity.askForPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_LOCATION_FROM_MAP_FRAGMENT)
+            if (permissionGranted) {
+                setupMap()
             }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setupMap() {
+        googleMap.isMyLocationEnabled = true
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location -> if (location != null) zoomToMyLocation(location) }
     }
 
     override fun onResume() {
@@ -77,17 +91,18 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
         googleMap.animateCamera(presenter.calculateCameraUpdateToMyLocation(location))
     }
 
+    private fun checkPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
     @SuppressLint("MissingPermission")
     @Subscribe
     fun onPermissionsRequested(event: PermissionsEvent) {
-        if (event.requestId == PERMISSION_LOCATION_FROM_MAP_FRAGMENT && event.result == PackageManager.PERMISSION_GRANTED) {
-            // TODO: check availability
-            googleMap.isMyLocationEnabled = true
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location -> if (location != null) zoomToMyLocation(location) }
+        permissionGranted = checkPermission()
+        if (permissionGranted) {
+            setupMap()
         }
     }
 
     companion object {
-        const val PERMISSION_LOCATION_FROM_MAP_FRAGMENT = 1002
+        const val PERMISSION_LOCATION_FROM_MAP_FRAGMENT = 1003
     }
 }

@@ -38,4 +38,7 @@
 
     <!-- galerie rec view -->
     <string name="img_content_description">action_view</string>
+
+    <!-- galerie fragment -->
+    <string name="galerie_fragmetn_no_storage_permission">Die App braucht Storage Permissions!</string>
 </resources>
