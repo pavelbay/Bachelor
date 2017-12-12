@@ -251,7 +251,6 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                 configurationMap?.let {
                     imageDimension = configurationMap.getOutputSizes(SurfaceTexture::class.java)[0]
                 }
-                // configureTransform(orientations.get(activity.windowManager.defaultDisplay.rotation))
                 configureTransform(getJpegOrientation(characteristics, currentOrientation))
                 cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
                     override fun onOpened(camera: CameraDevice?) {
