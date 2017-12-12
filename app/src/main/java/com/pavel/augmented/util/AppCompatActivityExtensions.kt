@@ -33,15 +33,16 @@ fun AppCompatActivity.setupActionBar(@IdRes toolbarId: Int, action: ActionBar.()
     }
 }
 
-fun AppCompatActivity.askForPermissions(permissions: Array<out String>, requestCode: Int) {
+fun AppCompatActivity.askForPermissions(permissions: Array<out String>, requestCode: Int): Boolean {
     val permissionsToBeRequested = ArrayList<String>()
     permissions
             .filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED &&
                         !shouldShowRequestPermissionRationale(it)}
             .forEach { permissionsToBeRequested.add(it)}
-    if (permissionsToBeRequested.isNotEmpty()) {
+    return if (permissionsToBeRequested.isNotEmpty()) {
         requestPermissions(permissionsToBeRequested.toTypedArray(), requestCode)
-    }
+        true
+    } else false
 }
 
 /**

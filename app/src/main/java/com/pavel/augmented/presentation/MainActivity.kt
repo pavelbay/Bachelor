@@ -49,7 +49,7 @@ class MainActivity : ContextAwareActivity() {
         super.onResume()
 
         if (!askedForPermission) {
-            askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA), 1)
+            askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA), PERMISSION_REQUEST_FROM_MAIN_ACTIVITY)
             askedForPermission = true
         }
     }
@@ -118,7 +118,7 @@ class MainActivity : ContextAwareActivity() {
             override fun onPageSelected(position: Int) {
 //                when (position) {
 //                    0 -> askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_STORAGE_FROM_GALERIE_FRAGMENT)
-//                    1 -> askForPermissions(arrayOf(Manifest.permission.CAMERA), PERMISSION_CAMERA_FROM_CANVAS_FRAGMENT)
+//                    1 -> askForPermissions(arrayOf(Manifest.permission.CAMERA), PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT)
 //                    2 -> askForPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_LOCATION_FROM_MAP_FRAGMENT)
 //                }
             }
@@ -142,6 +142,7 @@ class MainActivity : ContextAwareActivity() {
         const val FRAGMENT_MANAGER_KEY = "FragmentManagerKey"
         const val FRAGMENT_NAMES_KEY = "FragmentNamesKey"
         const val MAIN_ACTIVITY_CONTEXT = "MainActivityContext"
+        const val PERMISSION_REQUEST_FROM_MAIN_ACTIVITY = 1
         private const val VIEW_PAGER_CURRENT_ITEM_KEY = "ViewPagerCurrentItemKey"
     }
 }

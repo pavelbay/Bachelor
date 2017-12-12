@@ -14,6 +14,7 @@ import android.support.annotation.ColorInt
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
@@ -26,6 +27,8 @@ import com.pavel.augmented.events.PermissionsEvent
 import com.pavel.augmented.events.SketchNameChosenEvent
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
 import com.pavel.augmented.fragments.EditTextDialogFragment
+import com.pavel.augmented.presentation.MainActivity
+import com.pavel.augmented.util.askForPermissions
 import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
 import org.greenrobot.eventbus.EventBus
@@ -53,11 +56,13 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     private var backgroundHandler: Handler? = null
     private var backgroundThread: HandlerThread? = null
     private var imageReader: ImageReader? = null
-    private var permissionGranted = false
     private var cameraOpened = false
     private var textureAvailable = false
     private lateinit var orientationEventListener: OrientationEventListener
     private var currentOrientation: Int = 0
+
+    private var permissionCameraGranted = false
+    private var permissionStorageGranted = false
 
     inner class SurfaceTextureListener : TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
@@ -96,7 +101,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
-        permissionGranted = checkPermission()
+        permissionCameraGranted = checkPermission()
         orientationEventListener = OrientationEventListener()
         if (orientationEventListener.canDetectOrientation()) {
             orientationEventListener.enable()
@@ -168,11 +173,6 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
-//            R.id.eraser -> {
-//                drawing_view.enableEraser()
-//                true
-//            }
-
             R.id.switch_mode -> {
                 menu?.findItem(R.id.switch_mode)?.isEnabled = drawing_view.pictureAvailable || mode == Mode.DRAW
                 if (drawing_view.pictureAvailable || mode == Mode.DRAW) {
@@ -186,20 +186,20 @@ class CanvasFragment : Fragment(), CanvasContract.View {
             }
 
             R.id.save_to_gallery -> {
-                // TODO: permissions check
-                val dialogFragment =
-                        EditTextDialogFragment.newInstance(
-                                getString(R.string.title_name_dialog), getString(R.string.hint_name_dialog), 2, true
-                        )
-                dialogFragment.show(fragmentManager, NAME_DIALOG_TAG)
+                val parentActivity = activity
+                if (parentActivity is AppCompatActivity) {
+                    permissionStorageGranted = !parentActivity.askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT)
+                    if (permissionStorageGranted) {
+                        permissionStorageGranted = true
+                        val dialogFragment =
+                                EditTextDialogFragment.newInstance(
+                                        getString(R.string.title_name_dialog), getString(R.string.hint_name_dialog), 2, true
+                                )
+                        dialogFragment.show(fragmentManager, NAME_DIALOG_TAG)
+                    }
+                }
                 true
             }
-
-//            R.id.clear_canvas -> {
-//                drawing_view.clear()
-//                // TODO: implement this
-//                return true
-//            }
 
             else -> super.onOptionsItemSelected(item)
         }
@@ -242,7 +242,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     @SuppressLint("MissingPermission")
     private fun openCamera() {
-        if (!cameraOpened && textureAvailable && permissionGranted && mode == Mode.VIEW) {
+        if (!cameraOpened && textureAvailable && permissionCameraGranted && mode == Mode.VIEW) {
             val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             try {
                 cameraId = cameraManager.cameraIdList[0]
@@ -340,7 +340,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     }
 
     private fun handleOpenCamera() {
-        if (permissionGranted) {
+        if (permissionCameraGranted) {
             startBackgroundThread()
             if (texture_view.isAvailable) {
                 openCamera()
@@ -528,10 +528,12 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         drawing_view.setColor(colorSelectedEvent.color)
     }
 
-    @SuppressLint("MissingPermission")
     @Subscribe
     fun onPermissionsRequested(event: PermissionsEvent) {
-        permissionGranted = checkPermission()
+        when (event.requestId) {
+            MainActivity.PERMISSION_REQUEST_FROM_MAIN_ACTIVITY ->  permissionCameraGranted = event.result == PackageManager.PERMISSION_GRANTED
+            PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT -> permissionStorageGranted = event.result == PackageManager.PERMISSION_GRANTED
+        }
     }
 
     companion object {
@@ -539,7 +541,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         private const val COLOR_PICKER_DIALOG_TAG = "ColorPickerDialogTag"
         private const val NAME_DIALOG_TAG = "NameDialogTag"
         private val TAG = CanvasFragment::class.java.simpleName
-        const val PERMISSION_CAMERA_FROM_CANVAS_FRAGMENT = 1002
+        const val PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT = 2
         private val MODE_SAVE_STATE_KEY = "ModeSaveStateKey"
     }
 
