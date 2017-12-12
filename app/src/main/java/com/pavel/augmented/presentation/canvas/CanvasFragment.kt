@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.camera2.*
+import android.media.ExifInterface
 import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
@@ -101,6 +102,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         if (orientationEventListener.canDetectOrientation()) {
             orientationEventListener.enable()
         }
+
         return inflater?.inflate(R.layout.layout_canvas_fragment, container, false)
     }
 
@@ -309,7 +311,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                     val bytes = ByteArray(buffer.remaining())
                     buffer.get(bytes)
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
-                    drawing_view.updateBitmap(bitmap)
+                    drawing_view.updateBitmap(bitmap, getJpegOrientation(characteristics, currentOrientation).toFloat())
                 }, backgroundHandler)
                 val captureListener = object : CameraCaptureSession.CaptureCallback() {
                     override fun onCaptureCompleted(session: CameraCaptureSession?, request: CaptureRequest?, result: TotalCaptureResult?) {
@@ -416,7 +418,6 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
         // Calculate desired JPEG orientation relative to camera orientation to make
         // the image upright relative to the device orientation
-
         return (sensorOrientation + deviceOrientation1 + 360) % 360
     }
 
