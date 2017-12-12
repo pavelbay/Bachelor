@@ -4,14 +4,10 @@ import android.content.Context
 import android.graphics.*
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import com.pavel.augmented.R
-import android.graphics.Bitmap
-
 
 
 private const val DEFAULT_STROKE_WIDTH = 12F
@@ -74,13 +70,7 @@ class DrawingView @JvmOverloads constructor(
     fun updateBitmap(bitmap: Bitmap, rotate: Float) {
         Log.d(TAG, "BitmapCount Before: " + bitmap.byteCount)
         this.bitmap = bitmap
-        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, mWidth, mHeight, true)
-//        this.bitmap = Bitmap.createScaledBitmap(bitmap, mWidth, mHeight, true)
-        val matrix = Matrix()
-        matrix.postRotate(rotate)
-        this.bitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.width, scaledBitmap.height, matrix, true)
-        Log.d(TAG, "BitmapCount After: " + this.bitmap?.byteCount)
-
+        this.bitmap = Bitmap.createScaledBitmap(bitmap, mWidth, mHeight, true)
         mCanvas = Canvas(this.bitmap)
         pictureAvailable = true
     }

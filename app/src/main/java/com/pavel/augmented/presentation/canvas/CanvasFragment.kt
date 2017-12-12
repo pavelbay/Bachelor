@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.camera2.*
-import android.media.ExifInterface
 import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
@@ -301,9 +300,6 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                 val captBuilder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
                 captBuilder.addTarget(reader.surface)
                 captBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-//                val rotation = activity.windowManager.defaultDisplay.rotation
-//                captBuilder.set(CaptureRequest.JPEG_ORIENTATION, orientations.get(rotation))
-                val rotation = activity.windowManager.defaultDisplay.rotation
                 captBuilder.set(CaptureRequest.JPEG_ORIENTATION, getJpegOrientation(characteristics, currentOrientation))
                 reader.setOnImageAvailableListener({
                     val image = it.acquireLatestImage()
