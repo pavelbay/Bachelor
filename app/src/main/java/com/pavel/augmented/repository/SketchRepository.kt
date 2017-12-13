@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.pavel.augmented.database.dao.SketchDao
 import com.pavel.augmented.model.Sketch
+import com.pavel.augmented.network.SketchDownloadService
 import com.pavel.augmented.network.SketchUploadService
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
@@ -19,7 +20,8 @@ import retrofit2.Response
 class SketchRepository(private val schedulerProvider: SchedulerProvider,
                        private val sketchDao: SketchDao,
                        private val fileStore: FileStore<Bitmap>,
-                       private val sketchUploadService: SketchUploadService) {
+                       private val sketchUploadService: SketchUploadService,
+                       private val sketchDownloadService: SketchDownloadService) {
 
     fun loadSketches(callback: (sketches: Array<Sketch>) -> Unit) {
         Observable.fromCallable { sketchDao.loadAllSketches() }
@@ -28,6 +30,33 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
                 .subscribe { sketches ->
                     callback(sketches)
                 }
+    }
+
+    fun fetchImage(name: String) {
+        val call = sketchDownloadService.downloadImage(name)
+        call.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                Log.d(TAG, "Image fetched: " + response?.body()?.bytes()?.size)
+            }
+
+            override  fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                Log.d(TAG, "Failure fetching image")
+            }
+        })
+    }
+
+    fun fetchSketches(callback: (sketches: List<Sketch>?) -> Unit) {
+        val call = sketchDownloadService.downloadSketches()
+        call.enqueue(object : Callback<List<Sketch>> {
+            override fun onResponse(call: Call<List<Sketch>>?, response: Response<List<Sketch>>?) {
+                Log.d(TAG, "Sketches downloaded")
+                callback(response?.body())
+            }
+
+            override fun onFailure(call: Call<List<Sketch>>?, t: Throwable?) {
+                Log.e(TAG, "Error loading sketches", t)
+            }
+        })
     }
 
     fun deleteSketches(sketches: Array<Sketch?>, callback: () -> Unit) {
@@ -56,7 +85,7 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
             }
 
             override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
-                Log.e(TAG, "Error from image upload: "+ t?.toString())
+                Log.e(TAG, "Error from image upload: " + t?.toString())
             }
         })
 
@@ -68,7 +97,7 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
             }
 
             override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
-                Log.e(TAG, "Error from sketch upload: "+ t?.toString())
+                Log.e(TAG, "Error from sketch upload: " + t?.toString())
             }
         })
     }

@@ -7,7 +7,9 @@ import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.pavel.augmented.database.SketchAppDatabase
+import com.pavel.augmented.di.AppModule.Companion.SKETCH_DOWNLOAD_SERVICE
 import com.pavel.augmented.di.AppModule.Companion.SKETCH_UPLOAD_SERVICE
+import com.pavel.augmented.network.SketchDownloadService
 import com.pavel.augmented.network.SketchUploadService
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.presentation.canvas.CanvasContract
@@ -40,7 +42,7 @@ class AppModule : AndroidModule() {
 
             provide  { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
 
-            provide { SketchRepository(get(), get(), get(BITMAP_FILESTORE), get(SKETCH_UPLOAD_SERVICE))}
+            provide { SketchRepository(get(), get(), get(BITMAP_FILESTORE), get(SKETCH_UPLOAD_SERVICE), get(SKETCH_DOWNLOAD_SERVICE))}
 
             provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
 
@@ -99,6 +101,8 @@ class RemoteDataSourceModule : AndroidModule() {
         // Fill property
         // TODO: implement this later
         provide(SKETCH_UPLOAD_SERVICE) { createWebService<SketchUploadService>(get(), AppModule.SERVER_URL) }
+
+        provide(SKETCH_DOWNLOAD_SERVICE) { createWebService<SketchDownloadService>(get(), AppModule.SERVER_URL) }
     }
 }
 

@@ -6,12 +6,11 @@ import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.google.maps.android.SphericalUtil
 import com.pavel.augmented.model.Sketch
+import com.pavel.augmented.repository.SketchRepository
 
-class MyMapPresenter(private val gson: Gson) : MyMapContract.Presenter {
+class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapContract.Presenter {
 
     override lateinit var view: MyMapContract.View
 
@@ -21,8 +20,14 @@ class MyMapPresenter(private val gson: Gson) : MyMapContract.Presenter {
 
 
     override fun start() {
-        sketches = gson.fromJson(testString, object : TypeToken<List<Sketch>>() {}.type)
-        Log.d(TAG, "Deserialization finished")
+//        sketchRepository.fetchSketches {
+//            if (it != null) {
+//                Log.d(TAG, "Sketches fetched successfully")
+//            }
+//        }
+        sketchRepository.fetchImage("bfa")
+//        sketches = gson.fromJson(testString, object : TypeToken<List<Sketch>>() {}.type)
+//        Log.d(TAG, "Deserialization finished")
     }
 
     override fun stop() {
