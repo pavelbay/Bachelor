@@ -25,7 +25,7 @@ class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapCont
 //                Log.d(TAG, "Sketches fetched successfully")
 //            }
 //        }
-        sketchRepository.fetchImage("bfa")
+//        sketchRepository.fetchImage("bfa")
 //        sketches = gson.fromJson(testString, object : TypeToken<List<Sketch>>() {}.type)
 //        Log.d(TAG, "Deserialization finished")
     }

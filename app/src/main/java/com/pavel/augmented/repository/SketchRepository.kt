@@ -1,6 +1,7 @@
 package com.pavel.augmented.repository
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import com.pavel.augmented.database.dao.SketchDao
 import com.pavel.augmented.model.Sketch
@@ -32,10 +33,19 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
                 }
     }
 
-    fun fetchImage(name: String) {
+    fun fetchImage(name: String, callback: (bitmap: Bitmap) -> Unit) {
         val call = sketchDownloadService.downloadImage(name)
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                response?.let {
+                    response.body()?.let {
+                        Observable.fromCallable { getBitmapFromByteArray(response.body()!!.bytes()) }
+                                .subscribeOn(schedulerProvider.io())
+                                .observeOn(schedulerProvider.ui())
+                                .subscribe { callback(it) }
+                    }
+                }
+
                 Log.d(TAG, "Image fetched: " + response?.body()?.bytes()?.size)
             }
 
@@ -58,6 +68,8 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
             }
         })
     }
+
+    private fun getBitmapFromByteArray(bytes: ByteArray) = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
 
     fun deleteSketches(sketches: Array<Sketch?>, callback: () -> Unit) {
         Observable.fromCallable {
