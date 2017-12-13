@@ -2,6 +2,7 @@ package com.pavel.augmented.presentation.galerie
 
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
@@ -46,9 +47,9 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
     }
 
     fun getSelectedNumbers(): BooleanArray {
-        val ret = BooleanArray(selectedItems.size())
-
-        for (i in 0 until selectedItems.size()) {
+        val ret = BooleanArray(list.size)
+        for (i in 0 until list.size) {
+            Log.d("Bla", "Count: $i, keyAt: ${selectedItems.keyAt(i)}, value: ${selectedItems.get(i, false)}")
             ret[i] = selectedItems.get(i, false)
         }
 
@@ -77,15 +78,12 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
     }
 
     fun unselectItems() {
-        if (selectedItems.size() > 0) {
-            for (i in 0..selectedItems.size()) {
-                if (selectedItems.get(i, false)) {
-                    selectedItems.delete(i)
-                    notifyItemChanged(i)
-                }
+        for (i in 0 until list.size) {
+            if (selectedItems.get(i, false)) {
+                notifyItemChanged(i)
+                selectedItems.delete(i)
             }
         }
-
         selectedItems.clear()
     }
 

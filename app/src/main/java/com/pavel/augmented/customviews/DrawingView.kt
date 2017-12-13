@@ -67,9 +67,8 @@ class DrawingView @JvmOverloads constructor(
         Log.d(TAG, "OnMeasure")
     }
 
-    fun updateBitmap(bitmap: Bitmap, rotate: Float) {
+    fun updateBitmap(bitmap: Bitmap) {
         Log.d(TAG, "BitmapCount Before: " + bitmap.byteCount)
-        this.bitmap = bitmap
         this.bitmap = Bitmap.createScaledBitmap(bitmap, mWidth, mHeight, true)
         mCanvas = Canvas(this.bitmap)
         pictureAvailable = true
@@ -151,7 +150,7 @@ class DrawingView @JvmOverloads constructor(
         val savedState = SavedState(bundle)
         savedState.mBitmap = this.bitmap
         savedState.isPictureAvailable = this.pictureAvailable
-        return bundle
+        return savedState
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {

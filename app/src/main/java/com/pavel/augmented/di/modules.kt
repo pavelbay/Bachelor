@@ -18,6 +18,7 @@ import com.pavel.augmented.presentation.map.MyMapContract
 import com.pavel.augmented.presentation.map.MyMapPresenter
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import com.pavel.augmented.repository.SketchRepository
+import com.pavel.augmented.repository.SketchTypeAdapterFactory
 import com.pavel.augmented.rx.ApplicationSchedulerProvider
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStoreFactory
@@ -48,7 +49,7 @@ class AppModule : AndroidModule() {
             }
 
             context(name = CTX_MAP_FRAGMENT) {
-                provide { MyMapPresenter() } bind (MyMapContract.Presenter::class)
+                provide { MyMapPresenter(get()) } bind (MyMapContract.Presenter::class)
             }
 
             context(name = CTX_GALERIE_FRAGMENT) {
@@ -111,6 +112,7 @@ fun createGson(): Gson {
             .setPrettyPrinting()
             .serializeNulls()
             .setLenient()
+            .registerTypeAdapterFactory(SketchTypeAdapterFactory())
             .create()
 }
 
@@ -127,7 +129,7 @@ inline fun <reified T> createWebService(okHttpClient: OkHttpClient, url: String)
     val retrofit = Retrofit.Builder()
             .baseUrl(url)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(createGson()))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create()).build()
     return retrofit.create(T::class.java)
 }

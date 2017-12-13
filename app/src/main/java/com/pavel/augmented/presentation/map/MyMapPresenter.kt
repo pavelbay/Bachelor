@@ -1,18 +1,28 @@
 package com.pavel.augmented.presentation.map
 
 import android.location.Location
+import android.util.Log
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.google.maps.android.SphericalUtil
+import com.pavel.augmented.model.Sketch
 
-class MyMapPresenter : MyMapContract.Presenter {
+class MyMapPresenter(private val gson: Gson) : MyMapContract.Presenter {
 
     override lateinit var view: MyMapContract.View
 
-    override fun start() {
+    var sketches: List<Sketch>? = null
 
+    private val testString = "[{\"id\":2,\"latitude\":52.5238463,\"longitude\":13.5454916,\"name\":\"second\"}, {\"id\":1,\"latitude\":52.5238391,\"longitude\":13.5454903,\"name\":\"first\"}]"
+
+
+    override fun start() {
+        sketches = gson.fromJson(testString, object : TypeToken<List<Sketch>>() {}.type)
+        Log.d(TAG, "Deserialization finished")
     }
 
     override fun stop() {
@@ -39,5 +49,9 @@ class MyMapPresenter : MyMapContract.Presenter {
         } else {
             CameraUpdateFactory.newLatLngZoom(center, 15f)
         }
+    }
+
+    companion object {
+        private val TAG = MyMapPresenter::class.java.simpleName
     }
 }

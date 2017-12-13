@@ -20,7 +20,11 @@ import android.util.Size
 import android.util.SparseIntArray
 import android.view.*
 import android.widget.Toast
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.ViewTarget
+import com.bumptech.glide.request.transition.Transition
 import com.pavel.augmented.R
+import com.pavel.augmented.customviews.DrawingView
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.ColorPickerEvents
 import com.pavel.augmented.events.PermissionsEvent
@@ -28,19 +32,23 @@ import com.pavel.augmented.events.SketchNameChosenEvent
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
 import com.pavel.augmented.fragments.EditTextDialogFragment
 import com.pavel.augmented.presentation.MainActivity
+import com.pavel.augmented.util.GlideApp
 import com.pavel.augmented.util.askForPermissions
+import com.pavel.augmented.util.getImagesFolder
 import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.inject
 import org.koin.standalone.releaseContext
+import java.io.File
 
 @Suppress("unused")
 class CanvasFragment : Fragment(), CanvasContract.View {
     private val contextName = AppModule.CTX_CANVAS_FRAGMENT
 
     override val presenter by inject<CanvasContract.Presenter>()
+    override var tempBitmapSaved: Boolean = false
 
     private var mode: Mode = Mode.VIEW
     private var menu: Menu? = null
@@ -63,6 +71,14 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     private var permissionCameraGranted = false
     private var permissionStorageGranted = false
+
+    inner class ViewTarget(drawingView: DrawingView) : com.bumptech.glide.request.target.ViewTarget<DrawingView, Bitmap>(drawingView) {
+        override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
+            resource?.let {
+                this@CanvasFragment.drawing_view.updateBitmap(resource)
+            }
+        }
+    }
 
     inner class SurfaceTextureListener : TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
@@ -134,6 +150,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         super.onSaveInstanceState(outState)
 
         outState?.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
+        outState?.putBoolean(TEMP_BITMAP_SAVED_KEY, tempBitmapSaved)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -141,6 +158,15 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
         savedInstanceState?.let {
             mode = Mode.values()[savedInstanceState.getInt(MODE_SAVE_STATE_KEY)]
+            tempBitmapSaved = savedInstanceState.getBoolean(TEMP_BITMAP_SAVED_KEY, false)
+        }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+
+        if (tempBitmapSaved) {
+            loadImage()
         }
     }
 
@@ -234,6 +260,13 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         EventBus.getDefault().toggleRegister(this)
     }
 
+    private fun loadImage() {
+        GlideApp.with(drawing_view)
+                .asBitmap()
+                .load(File(getImagesFolder(context), CanvasPresenter.TEMP_SAVED_BITMAP_NAME + ".jpeg"))
+                .into(ViewTarget(drawing_view))
+    }
+
     private fun checkPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     private fun setupMenu() {
@@ -301,12 +334,14 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                 captBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
                 captBuilder.set(CaptureRequest.JPEG_ORIENTATION, getJpegOrientation(characteristics, currentOrientation))
                 reader.setOnImageAvailableListener({
+                    tempBitmapSaved = false
                     val image = it.acquireLatestImage()
                     val buffer = image.planes[0].buffer
                     val bytes = ByteArray(buffer.remaining())
                     buffer.get(bytes)
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
-                    drawing_view.updateBitmap(bitmap, getJpegOrientation(characteristics, currentOrientation).toFloat())
+//                    presenter.saveTempBitmap(bitmap)
+                    drawing_view.updateBitmap(bitmap)
                 }, backgroundHandler)
                 val captureListener = object : CameraCaptureSession.CaptureCallback() {
                     override fun onCaptureCompleted(session: CameraCaptureSession?, request: CaptureRequest?, result: TotalCaptureResult?) {
@@ -541,7 +576,8 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         private const val NAME_DIALOG_TAG = "NameDialogTag"
         private val TAG = CanvasFragment::class.java.simpleName
         const val PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT = 2
-        private val MODE_SAVE_STATE_KEY = "ModeSaveStateKey"
+        private const val MODE_SAVE_STATE_KEY = "ModeSaveStateKey"
+        private const val TEMP_BITMAP_SAVED_KEY = "TempBitmapSavedKey"
     }
 
     enum class Mode {

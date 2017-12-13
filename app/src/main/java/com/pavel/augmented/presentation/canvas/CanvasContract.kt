@@ -7,6 +7,7 @@ import com.pavel.augmented.mvp.BaseView
 interface CanvasContract {
 
     interface View : BaseView<Presenter> {
+        var tempBitmapSaved: Boolean
 
         fun displayDialog()
 
@@ -20,5 +21,6 @@ interface CanvasContract {
     interface Presenter : BasePresenter<View> {
         fun saveToGallery(name: String, bitmap: Bitmap?)
         fun publishSketch()
+        fun saveTempBitmap(bitmap: Bitmap?)
     }
 }

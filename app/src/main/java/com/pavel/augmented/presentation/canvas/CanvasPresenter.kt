@@ -44,6 +44,15 @@ class CanvasPresenter(
                 }
     }
 
+    override fun saveTempBitmap(bitmap: Bitmap?) {
+        bitmap?.let {
+            Observable.fromCallable { fileStore.saveType(bitmap, TEMP_SAVED_BITMAP_NAME) }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .subscribe { view.tempBitmapSaved = true }
+        }
+    }
+
     private fun createNewSketch(name: String, bitmap: Bitmap?) {
         try {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
@@ -83,6 +92,6 @@ class CanvasPresenter(
 
     companion object {
         private val TAG = CanvasPresenter::class.java.simpleName
-
+        const val TEMP_SAVED_BITMAP_NAME = "TempSavedBitmapName"
     }
 }
