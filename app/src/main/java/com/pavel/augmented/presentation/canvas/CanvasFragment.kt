@@ -20,22 +20,18 @@ import android.util.Size
 import android.util.SparseIntArray
 import android.view.*
 import android.widget.Toast
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.target.ViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.pavel.augmented.R
 import com.pavel.augmented.customviews.DrawingView
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.ColorPickerEvents
 import com.pavel.augmented.events.PermissionsEvent
+import com.pavel.augmented.events.SketchEvents
 import com.pavel.augmented.events.SketchNameChosenEvent
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
 import com.pavel.augmented.fragments.EditTextDialogFragment
 import com.pavel.augmented.presentation.MainActivity
-import com.pavel.augmented.util.GlideApp
-import com.pavel.augmented.util.askForPermissions
-import com.pavel.augmented.util.getImagesFolder
-import com.pavel.augmented.util.toggleRegister
+import com.pavel.augmented.util.*
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -76,6 +72,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
             resource?.let {
                 this@CanvasFragment.drawing_view.updateBitmap(resource)
+                this@CanvasFragment.drawing_view.requestLayout()
             }
         }
     }
@@ -551,6 +548,19 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     }
 
     @Subscribe
+    fun onSketchChosen(onSketchChosen: SketchEvents.OnSketchChosen) {
+        GlideApp
+                .with(drawing_view)
+                .asBitmap()
+                .load(getImageFile(context, onSketchChosen.sketch.name))
+                .into(ViewTarget(drawing_view))
+
+        if (mode == Mode.VIEW) {
+            changeMode()
+        }
+    }
+
+    @Subscribe
     fun onColorPickerDialogDismiss(ignore: ColorPickerEvents.ColorPickerOkButtonEvent) {
         val fragmentTransaction = fragmentManager.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
@@ -565,7 +575,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     @Subscribe
     fun onPermissionsRequested(event: PermissionsEvent) {
         when (event.requestId) {
-            MainActivity.PERMISSION_REQUEST_FROM_MAIN_ACTIVITY ->  permissionCameraGranted = event.result == PackageManager.PERMISSION_GRANTED
+            MainActivity.PERMISSION_REQUEST_FROM_MAIN_ACTIVITY -> permissionCameraGranted = event.result == PackageManager.PERMISSION_GRANTED
             PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT -> permissionStorageGranted = event.result == PackageManager.PERMISSION_GRANTED
         }
     }

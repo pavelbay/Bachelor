@@ -6,10 +6,13 @@ import android.support.v4.view.ViewPager
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
 import com.pavel.augmented.events.PermissionsEvent
+import com.pavel.augmented.events.SketchEvents
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import com.pavel.augmented.util.askForPermissions
+import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import org.koin.android.contextaware.ContextAwareActivity
 import org.koin.android.ext.android.getKoin
 
@@ -57,13 +60,13 @@ class MainActivity : ContextAwareActivity() {
     override fun onStart() {
         super.onStart()
 
-//        EventBus.getDefault().toggleRegister(this)
+        EventBus.getDefault().toggleRegister(this)
     }
 
     override fun onStop() {
         super.onStop()
 
-//        EventBus.getDefault().toggleRegister(this)
+        EventBus.getDefault().toggleRegister(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -104,7 +107,7 @@ class MainActivity : ContextAwareActivity() {
 
         main_view_pager.currentItem = restoredCurrentItem
 
-        main_view_pager.offscreenPageLimit = 2
+        main_view_pager.offscreenPageLimit = PAGER_OFFSCREEN_PAGE_LIMIT
 
         main_view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
@@ -138,11 +141,17 @@ class MainActivity : ContextAwareActivity() {
         }
     }
 
+    @Subscribe
+    fun onSketchChosen(onSketchChosen: SketchEvents.OnSketchChosen) {
+        bottom_navigation_view.selectedItemId = R.id.action_canvas
+    }
+
     companion object {
         const val FRAGMENT_MANAGER_KEY = "FragmentManagerKey"
         const val FRAGMENT_NAMES_KEY = "FragmentNamesKey"
         const val MAIN_ACTIVITY_CONTEXT = "MainActivityContext"
         const val PERMISSION_REQUEST_FROM_MAIN_ACTIVITY = 1
+        private const val PAGER_OFFSCREEN_PAGE_LIMIT = 2
         private const val VIEW_PAGER_CURRENT_ITEM_KEY = "ViewPagerCurrentItemKey"
     }
 }

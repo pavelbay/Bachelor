@@ -182,17 +182,17 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         if (mode == Mode.EDIT) {
             galerieAdapter.toggleItem(onSketchClick.position)
         } else {
-            // TODO: implement this
+            EventBus.getDefault().post(SketchEvents.OnSketchChosen(galerieAdapter.list[onSketchClick.position]))
         }
     }
 
     @Subscribe
     fun onSketchLongClick(onSketchLongClick: SketchEvents.OnSketchLongClick) {
-        if (mode != Mode.EDIT) {
+//        if (mode != Mode.EDIT) {
             mode = Mode.EDIT
             toggleViewElements(onSketchLongClick.position)
-            // TODO: implement this
-        }
+            // TODO: test this
+//        }
     }
 
     enum class Mode {

@@ -4,13 +4,14 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.pavel.augmented.database.dao.SketchDao
-import com.pavel.augmented.events.NewSketchAvailableEvent
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
-import org.greenrobot.eventbus.EventBus
+import java.math.BigInteger
+import java.nio.ByteBuffer
+import java.util.*
 
 
 class CanvasPresenter(
@@ -57,7 +58,7 @@ class CanvasPresenter(
         try {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
-                    val sketch = Sketch(name = name, latitude = location.latitude, longitude = location.longitude)
+                    val sketch = Sketch(id = generateUniqueId() ?: 0, name = name, latitude = location.latitude, longitude = location.longitude)
                     performSave(sketch, bitmap)
                 } else {
                     view.displayMessageCannotCreateSketch()
@@ -66,6 +67,19 @@ class CanvasPresenter(
         } catch (e: SecurityException) {
             Log.e(TAG, "No permission for getting location")
         }
+    }
+
+    private fun generateUniqueId(): Long? {
+        var `val`: Long
+        do {
+            val uid = UUID.randomUUID()
+            val buffer = ByteBuffer.wrap(ByteArray(16))
+            buffer.putLong(uid.leastSignificantBits)
+            buffer.putLong(uid.mostSignificantBits)
+            val bi = BigInteger(buffer.array())
+            `val` = bi.toLong()
+        } while (`val` < 0)
+        return `val`
     }
 
     private fun performSave(sketch: Sketch, bitmap: Bitmap?) {
