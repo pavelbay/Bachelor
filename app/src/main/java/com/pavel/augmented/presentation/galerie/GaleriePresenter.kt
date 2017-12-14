@@ -1,6 +1,5 @@
 package com.pavel.augmented.presentation.galerie
 
-import android.net.Uri
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.repository.SketchRepository
 import com.pavel.augmented.util.getImageFile
