@@ -20,11 +20,14 @@ class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapCont
 
 
     override fun start() {
-//        sketchRepository.fetchSketches {
-//            if (it != null) {
-//                Log.d(TAG, "Sketches fetched successfully")
-//            }
-//        }
+        sketchRepository.fetchSketches {
+            if (it != null) {
+                Log.d(TAG, "Sketches fetched successfully")
+                sketches = it
+                view.updateMarkers(it)
+            }
+
+        }
 //        sketchRepository.fetchImage("bfa")
 //        sketches = gson.fromJson(testString, object : TypeToken<List<Sketch>>() {}.type)
 //        Log.d(TAG, "Deserialization finished")

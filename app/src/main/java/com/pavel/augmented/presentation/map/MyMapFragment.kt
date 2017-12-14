@@ -13,9 +13,12 @@ import android.view.ViewGroup
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.PermissionsEvent
+import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.util.toggleRegister
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -57,6 +60,14 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
             if (permissionGranted) {
                 setupMap()
             }
+        }
+    }
+
+    override fun updateMarkers(sketches: List<Sketch>) {
+        sketches.forEach {
+            googleMap.addMarker(MarkerOptions()
+                    .position(LatLng(it.latitude, it.longitude))
+                    .title(it.name))
         }
     }
 

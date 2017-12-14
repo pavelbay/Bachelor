@@ -13,5 +13,5 @@ interface SketchDownloadService {
 
     @Streaming
     @GET("/sketchimage")
-    fun downloadImage(@Query("name") name: String): Call<ResponseBody>
+    fun downloadImage(@Query("id") id: String): Call<ResponseBody>
 }

@@ -38,7 +38,7 @@ class GaleriePresenter(private val sketchRepository: SketchRepository) : Galerie
     private fun publicSketch(sketch: Sketch) {
         val imageFile = getImageFile(view.context(), sketch.name)
         val requestBody = RequestBody.create(MediaType.parse("image/*"), imageFile)
-        val body = MultipartBody.Part.createFormData("picture", imageFile.name, requestBody)
+        val body = MultipartBody.Part.createFormData("picture", sketch.id.toString(), requestBody)
         sketchRepository.publicSketch(sketch, body)
     }
 

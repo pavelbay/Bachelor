@@ -33,8 +33,8 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
                 }
     }
 
-    fun fetchImage(name: String, callback: (bitmap: Bitmap) -> Unit) {
-        val call = sketchDownloadService.downloadImage(name)
+    fun fetchImage(id: Long, callback: (bitmap: Bitmap) -> Unit) {
+        val call = sketchDownloadService.downloadImage(id.toString())
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
                 response?.let {
@@ -89,8 +89,8 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
     }
 
     fun publicSketch(sketch: Sketch, file: MultipartBody.Part) {
-        val name = RequestBody.create(MediaType.parse("text/plain"), sketch.name)
-        val call = sketchUploadService.uploadImage(name, file)
+        val id = RequestBody.create(MediaType.parse("text/plain"), sketch.id.toString())
+        val call = sketchUploadService.uploadImage(id, file)
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
                 Log.d(TAG, "Response from image upload: " + response?.toString())
