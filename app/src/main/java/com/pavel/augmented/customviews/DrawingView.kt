@@ -68,7 +68,7 @@ class DrawingView @JvmOverloads constructor(
     }
 
     fun updateBitmap(bitmap: Bitmap) {
-        Log.d(TAG, "BitmapCount Before: " + bitmap.byteCount)
+        Log.d(TAG, "Bitmap: " + bitmap.toString())
         this.bitmap = Bitmap.createScaledBitmap(bitmap, mWidth, mHeight, true)
         mCanvas = Canvas(this.bitmap)
         pictureAvailable = true

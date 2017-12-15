@@ -3,10 +3,12 @@ package com.pavel.augmented.presentation
 import android.Manifest
 import android.os.Bundle
 import android.support.v4.view.ViewPager
+import android.widget.Toast
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
 import com.pavel.augmented.events.PermissionsEvent
 import com.pavel.augmented.events.SketchEvents
+import com.pavel.augmented.events.SketchUploadEvents
 import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import com.pavel.augmented.util.askForPermissions
 import com.pavel.augmented.util.toggleRegister
@@ -144,6 +146,16 @@ class MainActivity : ContextAwareActivity() {
     @Subscribe
     fun onSketchChosen(onSketchChosen: SketchEvents.OnSketchChosen) {
         bottom_navigation_view.selectedItemId = R.id.action_canvas
+    }
+
+    @Subscribe
+    fun onSketchUploadSuccess(onSuccess: SketchUploadEvents.OnSuccess) {
+        Toast.makeText(this, R.string.message_sketch_uploaded, Toast.LENGTH_SHORT).show()
+    }
+
+    @Subscribe
+    fun onSketchUploadFailure(onFailure: SketchUploadEvents.OnFailure) {
+        Toast.makeText(this, R.string.message_sketch_upload_failure, Toast.LENGTH_SHORT).show()
     }
 
     companion object {

@@ -24,6 +24,8 @@ class CanvasPresenter(
 
     private var currentRequest: Disposable? = null
 
+    override var existedSketch: Sketch? = null
+
     override fun start() {
         Log.d(TAG, "Presenter start: " + (fileStore != null))
     }
@@ -31,18 +33,22 @@ class CanvasPresenter(
     override fun stop() {
     }
 
-    override fun saveToGallery(name: String, bitmap: Bitmap?) {
+    override fun saveToGallery(name: String?, bitmap: Bitmap?) {
         //currentRequest?.dispose()
-        sketchDao.findSketchByNameAsync(name)
-                .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
-                .subscribe { sketch: Sketch?, _: Throwable? ->
-                    if (sketch != null) {
-                        view.displayMessageSketchWithNameAlreadyExists()
-                    } else {
-                        createNewSketch(name, bitmap)
+        if (name != null) {
+            sketchDao.findSketchByNameAsync(name)
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .subscribe { sketch: Sketch?, _: Throwable? ->
+                        if (sketch != null) {
+                            view.displayMessageSketchWithNameAlreadyExists()
+                        } else {
+                            createNewSketch(name, bitmap)
+                        }
                     }
-                }
+        } else if (existedSketch != null){
+            performSave(existedSketch!!, bitmap)
+        }
     }
 
     override fun saveTempBitmap(bitmap: Bitmap?) {
@@ -60,6 +66,7 @@ class CanvasPresenter(
                 if (location != null) {
                     val sketch = Sketch(id = generateUniqueId() ?: 0, name = name, latitude = location.latitude, longitude = location.longitude)
                     performSave(sketch, bitmap)
+                    existedSketch = sketch
                 } else {
                     view.displayMessageCannotCreateSketch()
                 }
@@ -83,11 +90,15 @@ class CanvasPresenter(
     }
 
     private fun performSave(sketch: Sketch, bitmap: Bitmap?) {
-        Observable
-                .fromCallable { sketchDao.insertSketch(sketch) }
-                .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
-                .subscribe { Log.d(TAG, "Sketch: $sketch saved to db") }
+        if (sketch != existedSketch) {
+            Observable
+                    .fromCallable { sketchDao.insertSketch(sketch) }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .subscribe { Log.d(TAG, "Sketch: $sketch saved to db") }
+        }
+
+//        fun delete() = fileStore.deleteType(existedSketch?.name)
 
         bitmap?.let {
             //currentRequest?.dispose()
@@ -95,9 +106,7 @@ class CanvasPresenter(
                     .fromCallable { fileStore.saveType(bitmap, sketch.name) }
                     .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
-                    .subscribe {
-                        view.displayMessageSavedToGallery()
-                    }
+                    .subscribe { view.displayMessageSavedToGallery() }
         }
     }
 

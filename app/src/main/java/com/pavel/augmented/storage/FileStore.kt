@@ -10,7 +10,7 @@ interface FileStore<T> {
 
     fun getDir(): File
 
-    fun deleteType(name: String)
+    fun deleteType(name: String?)
 
     fun performSave(file: File, value: T)
 }

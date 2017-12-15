@@ -84,7 +84,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
-            R.id.menu_refresh -> {
+            R.id.menu_galerie_refresh -> {
                 if (storagePermissionGranted) {
                     presenter.loadSketches()
                 } else {

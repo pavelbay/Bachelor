@@ -16,5 +16,6 @@ interface MyMapContract {
 
     interface Presenter : BasePresenter<View> {
         fun calculateCameraUpdateToMyLocation(myLocation: Location): CameraUpdate
+        fun fetchSketches()
     }
 }

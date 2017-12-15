@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import com.pavel.augmented.database.dao.SketchDao
+import com.pavel.augmented.events.SketchUploadEvents
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.network.SketchDownloadService
 import com.pavel.augmented.network.SketchUploadService
@@ -14,6 +15,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.greenrobot.eventbus.EventBus
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -94,10 +96,12 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
                 Log.d(TAG, "Response from image upload: " + response?.toString())
+                EventBus.getDefault().post(SketchUploadEvents.OnSuccess())
             }
 
             override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
                 Log.e(TAG, "Error from image upload: " + t?.toString())
+                EventBus.getDefault().post(SketchUploadEvents.OnFailure())
             }
         })
 

@@ -20,6 +20,14 @@ class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapCont
 
 
     override fun start() {
+        fetchSketches()
+    }
+
+    override fun stop() {
+
+    }
+
+    override fun fetchSketches() {
         sketchRepository.fetchSketches {
             if (it != null) {
                 Log.d(TAG, "Sketches fetched successfully")
@@ -28,13 +36,6 @@ class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapCont
             }
 
         }
-//        sketchRepository.fetchImage("bfa")
-//        sketches = gson.fromJson(testString, object : TypeToken<List<Sketch>>() {}.type)
-//        Log.d(TAG, "Deserialization finished")
-    }
-
-    override fun stop() {
-
     }
 
     override fun calculateCameraUpdateToMyLocation(myLocation: Location): CameraUpdate {

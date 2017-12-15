@@ -21,6 +21,7 @@ import android.util.SparseIntArray
 import android.view.*
 import android.widget.Toast
 import com.bumptech.glide.request.transition.Transition
+import com.bumptech.glide.signature.ObjectKey
 import com.pavel.augmented.R
 import com.pavel.augmented.customviews.DrawingView
 import com.pavel.augmented.di.AppModule
@@ -30,6 +31,7 @@ import com.pavel.augmented.events.SketchEvents
 import com.pavel.augmented.events.SketchNameChosenEvent
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
 import com.pavel.augmented.fragments.EditTextDialogFragment
+import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.util.*
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
@@ -214,11 +216,15 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                     permissionStorageGranted = !parentActivity.askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT)
                     if (permissionStorageGranted) {
                         permissionStorageGranted = true
-                        val dialogFragment =
-                                EditTextDialogFragment.newInstance(
-                                        getString(R.string.title_name_dialog), getString(R.string.hint_name_dialog), 2, true
-                                )
-                        dialogFragment.show(fragmentManager, NAME_DIALOG_TAG)
+                        if (presenter.existedSketch == null) {
+                            val dialogFragment =
+                                    EditTextDialogFragment.newInstance(
+                                            getString(R.string.title_name_dialog), getString(R.string.hint_name_dialog), 2, true
+                                    )
+                            dialogFragment.show(fragmentManager, NAME_DIALOG_TAG)
+                        } else {
+                            presenter.saveToGallery(null, drawing_view.bitmap)
+                        }
                     }
                 }
                 true
@@ -331,6 +337,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                 captBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
                 captBuilder.set(CaptureRequest.JPEG_ORIENTATION, getJpegOrientation(characteristics, currentOrientation))
                 reader.setOnImageAvailableListener({
+                    presenter.existedSketch = null
                     tempBitmapSaved = false
                     val image = it.acquireLatestImage()
                     val buffer = image.planes[0].buffer
@@ -549,11 +556,15 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     @Subscribe
     fun onSketchChosen(onSketchChosen: SketchEvents.OnSketchChosen) {
+        val file = getImageFile(context, onSketchChosen.sketch.name)
         GlideApp
                 .with(drawing_view)
                 .asBitmap()
-                .load(getImageFile(context, onSketchChosen.sketch.name))
+                .load(file)
+                .signature(ObjectKey(file.lastModified()))
                 .into(ViewTarget(drawing_view))
+
+        presenter.existedSketch = onSketchChosen.sketch
 
         if (mode == Mode.VIEW) {
             changeMode()

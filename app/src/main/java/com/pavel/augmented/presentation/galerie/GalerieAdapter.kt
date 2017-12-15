@@ -7,6 +7,7 @@ import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.signature.ObjectKey
 import com.pavel.augmented.R
 import com.pavel.augmented.events.SketchEvents
 import com.pavel.augmented.model.Sketch
@@ -166,8 +167,10 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
 
                 sketch_name.isSelected = itemChecked
 
+                val file = File(getImagesFolder(containerView.context), sketch.name + ".jpeg")
                 GlideApp.with(containerView)
-                        .load(File(getImagesFolder(containerView.context), sketch.name + ".jpeg"))
+                        .load(file)
+                        .signature(ObjectKey(file.lastModified()))
                         .centerCrop()
                         .placeholder(R.drawable.ic_placeholder_image)
                         .into(sketch_image)
