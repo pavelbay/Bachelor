@@ -20,6 +20,14 @@ android {
                 arguments = ['autovaluegson.defaultCollectionsToEmpty': 'true']
             }
         }
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
+    }
+    externalNativeBuild {
+        ndkBuild {
+            path 'src/main/jni/Android.mk'
+        }
     }
     buildTypes {
         release {
@@ -35,7 +43,7 @@ androidExtensions {
 
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
     implementation "com.android.support:recyclerview-v7:${supportLibVersion}"
     implementation "com.android.support:cardview-v7:${supportLibVersion}"
@@ -46,60 +54,65 @@ dependencies {
     })
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
-//    gson
+    //    gson
     implementation 'com.google.code.gson:gson:2.8.2'
 
-//    retrofit
+    //    retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
 
-
-//    OkHttp
+    //    OkHttp
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
 
-//    сolor picker
+    //    сolor picker
     implementation 'com.pes.materialcolorpicker:library:1.2.0'
     implementation 'com.android.support:design:26.1.0'
-
     implementation 'com.github.madrapps:pikolo:1.1.6'
 
-//    event bus
+    //    event bus
     implementation 'org.greenrobot:eventbus:3.0.0'
 
-//    koin
+    //    koin
+
     // Koin for Android
     implementation 'org.koin:koin-android:0.5.2'
-// If you need Koin for your tests
+
+    // If you need Koin for your tests
     testCompile 'org.koin:koin-test:0.5.2'
 
-//    rxJava
+    //    rxJava
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
-// Because RxAndroid releases are few and far between, it is recommended you also
-// explicitly depend on RxJava's latest version for bug fixes and new features.
+
+    // Because RxAndroid releases are few and far between, it is recommended you also
+
+    // explicitly depend on RxJava's latest version for bug fixes and new features.
     implementation 'io.reactivex.rxjava2:rxjava:2.1.5'
 
-//    okio
+    //    okio
     implementation 'com.squareup.okio:okio:1.13.0'
 
-//    Play services
+    //    Play services
     implementation "com.google.android.gms:play-services-location:${playServicesVersion}"
     implementation "com.google.android.gms:play-services-maps:${playServicesVersion}"
     implementation 'com.google.maps.android:android-maps-utils:0.5'
 
-//    Paper parcel
+    //    Paper parcel
     implementation 'nz.bradcampbell:paperparcel:2.0.4'
-    implementation 'nz.bradcampbell:paperparcel-kotlin:2.0.4' // Optional
+    implementation 'nz.bradcampbell:paperparcel-kotlin:2.0.4'
+
+    // Optional
     kapt 'nz.bradcampbell:paperparcel-compiler:2.0.4'
 
-//    room
+    //    room
     implementation "android.arch.persistence.room:runtime:${archRoomVersion}"
     implementation "android.arch.persistence.room:rxjava2:${archRoomVersion}"
     kapt "android.arch.persistence.room:compiler:${archRoomVersion}"
 
-//    glide
+    //    glide
     implementation 'com.github.bumptech.glide:glide:4.3.1'
     kapt 'com.github.bumptech.glide:compiler:4.3.1'
+    implementation files('libs/EasyAR.jar')
 }
 repositories {
     mavenCentral()
