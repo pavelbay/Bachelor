@@ -65,6 +65,7 @@ class AppModule : AndroidModule() {
         const val CTX_MAIN_ACTIVITY = "MainActivity"
         const val CTX_CANVAS_FRAGMENT = "CanvasFragment"
         const val CTX_GALERIE_FRAGMENT = "GalerieFragment"
+        const val CTX_AR_FRAGMENT = "ARFragment"
         const val CTX_MAP_FRAGMENT = "MyMapFragment"
         const val BITMAP_FILESTORE = "BitmpalFileStore"
         const val SKETCH_UPLOAD_SERVICE = "SketchUploadService"

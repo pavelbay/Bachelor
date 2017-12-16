@@ -3,7 +3,9 @@ package com.pavel.augmented.presentation
 import android.Manifest
 import android.os.Bundle
 import android.support.v4.view.ViewPager
+import android.util.Log
 import android.widget.Toast
+import cn.easyar.Engine
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule.Companion.CTX_MAIN_ACTIVITY
 import com.pavel.augmented.events.PermissionsEvent
@@ -24,11 +26,17 @@ class MainActivity : ContextAwareActivity() {
 
     private lateinit var pagerAdapter: MainPagerAdapter
     private var restoredCurrentItem: Int = 0
-    private var askedForPermission = false;
+    private var askedForPermission = false
+
+    private val key = "JQHIN00Qmj3hEvW2C2AW1yWM2zHJBhFFZrfFASmMvUasnclxi11EbPBevQZhGVinPnrKKJynRKfQpR0n7brbcPN8IiV3KhB7ZI6n4yY1COunxg4jT2JiZS6pKf3pqniT7n1RaHN0nQYCMvS8c5POCvwdMZw6WZkoI88KWqIMzzJHNDKdgYGsJ8CFk4Ve6r9jNrFzBBaJ"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (!Engine.initialize(this, key)) {
+            Log.e(TAG, "Initialization Failed.")
+        }
 
         setSupportActionBar(main_activity_toolbar)
 
@@ -159,6 +167,7 @@ class MainActivity : ContextAwareActivity() {
     }
 
     companion object {
+        private val TAG = MainActivity::class.java.simpleName
         const val FRAGMENT_MANAGER_KEY = "FragmentManagerKey"
         const val FRAGMENT_NAMES_KEY = "FragmentNamesKey"
         const val MAIN_ACTIVITY_CONTEXT = "MainActivityContext"
