@@ -4,7 +4,9 @@ import android.content.Context
 import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 import cn.easyar.Engine
-import com.pavel.augmented.presentation.canvas.GraffitiAR
+import com.pavel.augmented.opengl.MyGL20Renderer
+import com.pavel.augmented.opengl.Sprite
+import com.pavel.augmented.presentation.ar.GraffitiAR
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLContext
@@ -15,12 +17,14 @@ class GLView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null) : GLSurfaceView(context, attrs) {
 
     private val graffitiAR: GraffitiAR
+    var sprite: Sprite? = null
 
     init {
         setEGLContextFactory(ContextFactory())
         setEGLConfigChooser(ConfigChooser())
 
         graffitiAR = GraffitiAR()
+        graffitiAR.sprite = sprite
 
         this.setRenderer(object : GLSurfaceView.Renderer {
             override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
@@ -69,6 +73,10 @@ class GLView @JvmOverloads constructor(
     override fun onPause() {
         Engine.onPause()
         super.onPause()
+    }
+
+    fun onTargetChanged(jsonTarget: String?) {
+        graffitiAR.onTargetChanged(jsonTarget)
     }
 
     private class ContextFactory : GLSurfaceView.EGLContextFactory {

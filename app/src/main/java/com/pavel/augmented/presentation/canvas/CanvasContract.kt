@@ -24,5 +24,6 @@ interface CanvasContract {
         fun saveToGallery(name: String?, bitmap: Bitmap?)
         fun publishSketch()
         fun saveTempBitmap(bitmap: Bitmap?)
+        fun getJsonTarget(): String?
     }
 }

@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.pavel.augmented.database.dao.SketchDao
 import com.pavel.augmented.model.Sketch
+import com.pavel.augmented.presentation.ar.TargetHelper
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
 import io.reactivex.Observable
@@ -18,7 +19,8 @@ class CanvasPresenter(
         private val fileStore: FileStore<Bitmap>,
         private val schedulerProvider: SchedulerProvider,
         private val fusedLocationProviderClient: FusedLocationProviderClient,
-        private val sketchDao: SketchDao
+        private val sketchDao: SketchDao,
+        private val targetHelper: TargetHelper
 ) : CanvasContract.Presenter {
     override lateinit var view: CanvasContract.View
 
@@ -50,6 +52,9 @@ class CanvasPresenter(
             performSave(existedSketch!!, bitmap)
         }
     }
+
+    override fun getJsonTarget(): String? = targetHelper.jsonTarget
+
 
     override fun saveTempBitmap(bitmap: Bitmap?) {
         bitmap?.let {

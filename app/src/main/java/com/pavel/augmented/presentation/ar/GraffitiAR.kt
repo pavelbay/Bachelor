@@ -1,16 +1,21 @@
-package com.pavel.augmented.presentation.canvas
+package com.pavel.augmented.presentation.ar
 
 import android.opengl.GLES20
 import android.util.Log
 import cn.easyar.*
+import com.pavel.augmented.opengl.BoxRenderer
+import com.pavel.augmented.opengl.MyGL20Renderer
+import com.pavel.augmented.opengl.Sprite
 
 class GraffitiAR {
     private var camera: CameraDevice? = null
     private var streamer: CameraFrameStreamer? = null
     private val trackers = ArrayList<ImageTracker>()
     private var videobg_renderer: Renderer? = null
+    var sprite: Sprite? = null
+
     // TODO: Change it
-//    private var box_renderer: BoxRenderer? = null
+    private var box_renderer: BoxRenderer? = null
     private var viewport_changed = false
     private var view_size = Vec2I(0, 0)
     private var rotation = 0
@@ -43,6 +48,10 @@ class GraffitiAR {
         }
     }
 
+    fun onTargetChanged(jsonTarget: String?) {
+
+    }
+
     fun initialize(): Boolean {
         camera = CameraDevice()
         streamer = CameraFrameStreamer()
@@ -57,10 +66,10 @@ class GraffitiAR {
         }
         val tracker = ImageTracker()
         tracker.attachStreamer(streamer)
-        loadFromJsonFile(tracker, "targets.json", "argame")
-        loadFromJsonFile(tracker, "targets.json", "idback")
-        loadAllFromJsonFile(tracker, "targets2.json")
-        loadFromImage(tracker, "namecard.jpg")
+//        loadFromJsonFile(tracker, "targets.json", "argame")
+//        loadFromJsonFile(tracker, "targets.json", "idback")
+//        loadAllFromJsonFile(tracker, "targets2.json")
+        loadFromImage(tracker, "target.png")
         trackers.add(tracker)
 
         return status
@@ -71,7 +80,7 @@ class GraffitiAR {
             tracker.dispose()
         }
         trackers.clear()
-//        box_renderer = null
+        box_renderer = null
         if (videobg_renderer != null) {
             videobg_renderer!!.dispose()
             videobg_renderer = null
@@ -114,8 +123,8 @@ class GraffitiAR {
         videobg_renderer = Renderer()
 
         // TODO: change it
-//        box_renderer = BoxRenderer()
-//        box_renderer!!.init()
+        box_renderer = BoxRenderer()
+        box_renderer!!.init()
     }
 
     fun resizeGL(width: Int, height: Int) {
@@ -175,7 +184,7 @@ class GraffitiAR {
                 if (status == TargetStatus.Tracked) {
                     val target = targetInstance.target()
                     val imagetarget = target as? ImageTarget ?: continue
-//                    box_renderer?.render(camera!!.projectionGL(0.2f, 500f), targetInstance.poseGL(), imagetarget.size())
+                    box_renderer?.render(camera!!.projectionGL(0.2f, 500f), targetInstance.poseGL(), imagetarget.size())
                 }
             }
         } finally {

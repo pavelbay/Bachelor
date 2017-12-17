@@ -10,7 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
+import com.pavel.augmented.events.OnTargetChanged
 import com.pavel.augmented.events.PermissionsEvent
+import com.pavel.augmented.opengl.MyGL20Renderer
+import com.pavel.augmented.opengl.Sprite
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_ar_fragment.*
@@ -28,6 +31,8 @@ class ARFragment : Fragment(), CanvasContract.View {
 
     private var permissionCameraGranted = false
 
+//    private val sprite by inject<Sprite>()
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
         permissionCameraGranted = checkPermission()
@@ -41,6 +46,7 @@ class ARFragment : Fragment(), CanvasContract.View {
 
         if (permissionCameraGranted) {
             gl_surface_view.visibility = View.VISIBLE
+//            gl_surface_view.sprite = sprite
         }
     }
 
@@ -93,6 +99,11 @@ class ARFragment : Fragment(), CanvasContract.View {
                 }
             }
         }
+    }
+
+    @Subscribe
+    fun onTargetChanged(event: OnTargetChanged) {
+        gl_surface_view.onTargetChanged(presenter.getJsonTarget())
     }
 
     companion object {

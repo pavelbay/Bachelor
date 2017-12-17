@@ -2,7 +2,6 @@ package com.pavel.augmented.di
 
 import android.arch.persistence.room.Room
 import android.graphics.Bitmap
-import android.support.v7.widget.GridLayoutManager
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -11,14 +10,17 @@ import com.pavel.augmented.di.AppModule.Companion.SKETCH_DOWNLOAD_SERVICE
 import com.pavel.augmented.di.AppModule.Companion.SKETCH_UPLOAD_SERVICE
 import com.pavel.augmented.network.SketchDownloadService
 import com.pavel.augmented.network.SketchUploadService
+import com.pavel.augmented.opengl.MyGL20Renderer
+import com.pavel.augmented.opengl.Sprite
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.presentation.canvas.CanvasContract
 import com.pavel.augmented.presentation.canvas.CanvasPresenter
+import com.pavel.augmented.presentation.ar.GraffitiAR
+import com.pavel.augmented.presentation.ar.TargetHelper
 import com.pavel.augmented.presentation.galerie.GalerieContract
 import com.pavel.augmented.presentation.galerie.GaleriePresenter
 import com.pavel.augmented.presentation.map.MyMapContract
 import com.pavel.augmented.presentation.map.MyMapPresenter
-import com.pavel.augmented.presentation.pageradapter.MainPagerAdapter
 import com.pavel.augmented.repository.SketchRepository
 import com.pavel.augmented.repository.SketchTypeAdapterFactory
 import com.pavel.augmented.rx.ApplicationSchedulerProvider
@@ -27,7 +29,6 @@ import com.pavel.augmented.storage.FileStoreFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.module.AndroidModule
-import org.koin.dsl.context.Context
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -40,6 +41,8 @@ class AppModule : AndroidModule() {
     override fun context() = applicationContext {
         context(name = CTX_MAIN_ACTIVITY) {
 
+            provide { TargetHelper(null) }
+
             provide  { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
 
             provide { SketchRepository(get(), get(), get(BITMAP_FILESTORE), get(SKETCH_UPLOAD_SERVICE), get(SKETCH_DOWNLOAD_SERVICE))}
@@ -51,7 +54,7 @@ class AppModule : AndroidModule() {
 //            }
 
             context(name = CTX_MAP_FRAGMENT) {
-                provide { MyMapPresenter(get()) } bind (MyMapContract.Presenter::class)
+                provide { MyMapPresenter(get(), get()) } bind (MyMapContract.Presenter::class)
             }
 
             context(name = CTX_GALERIE_FRAGMENT) {
@@ -59,7 +62,7 @@ class AppModule : AndroidModule() {
             }
 
             context(name = CTX_AR_FRAGMENT) {
-                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get()) } bind (CanvasContract.Presenter::class)
+                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get(), get()) } bind (CanvasContract.Presenter::class)
             }
 
         }

@@ -8,9 +8,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.SphericalUtil
 import com.pavel.augmented.model.Sketch
+import com.pavel.augmented.presentation.ar.TargetHelper
 import com.pavel.augmented.repository.SketchRepository
 
-class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapContract.Presenter {
+class MyMapPresenter(private val sketchRepository: SketchRepository, private val targetHelper: TargetHelper) : MyMapContract.Presenter {
 
     override lateinit var view: MyMapContract.View
 
