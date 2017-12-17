@@ -46,9 +46,9 @@ class AppModule : AndroidModule() {
 
             provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
 
-            context(name = CTX_CANVAS_FRAGMENT) {
-                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get()) } bind (CanvasContract.Presenter::class)
-            }
+//            context(name = CTX_CANVAS_FRAGMENT) {
+//                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get()) } bind (CanvasContract.Presenter::class)
+//            }
 
             context(name = CTX_MAP_FRAGMENT) {
                 provide { MyMapPresenter(get()) } bind (MyMapContract.Presenter::class)
@@ -56,6 +56,10 @@ class AppModule : AndroidModule() {
 
             context(name = CTX_GALERIE_FRAGMENT) {
                 provide { GaleriePresenter(get()) } bind (GalerieContract.Presenter::class)
+            }
+
+            context(name = CTX_AR_FRAGMENT) {
+                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get()) } bind (CanvasContract.Presenter::class)
             }
 
         }

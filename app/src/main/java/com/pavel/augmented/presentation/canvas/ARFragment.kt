@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.layout_ar_fragment.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.inject
+import org.koin.standalone.releaseContext
 
 class ARFragment : Fragment(), CanvasContract.View {
     private val contextName = AppModule.CTX_AR_FRAGMENT
@@ -31,16 +32,28 @@ class ARFragment : Fragment(), CanvasContract.View {
         setHasOptionsMenu(true)
         permissionCameraGranted = checkPermission()
 
-        if (permissionCameraGranted) {
-            gl_surface_view.visibility = View.VISIBLE
-        }
-
         return inflater?.inflate(R.layout.layout_ar_fragment, container, false)
 
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (permissionCameraGranted) {
+            gl_surface_view.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        presenter.view = this
+        presenter.start()
+    }
+
+    override fun onPause() {
+        releaseContext(contextName)
+        super.onPause()
     }
 
     override fun onStart() {
