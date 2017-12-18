@@ -5,8 +5,6 @@ import android.opengl.GLES20
 import android.util.Log
 import cn.easyar.*
 import com.pavel.augmented.opengl.BoxRenderer
-import com.pavel.augmented.opengl.MyGL20Renderer
-import com.pavel.augmented.opengl.Sprite
 
 class GraffitiAR {
     private var camera: CameraDevice? = null
@@ -17,7 +15,6 @@ class GraffitiAR {
 
     // TODO: Change it
     private var box_renderer: BoxRenderer? = null
-    private var box_renderer2: com.pavel.augmented.BoxRenderer? = null
     private var viewport_changed = false
     private var view_size = Vec2I(0, 0)
     private var rotation = 0
