@@ -7,6 +7,7 @@ import android.opengl.GLUtils
 import cn.easyar.Matrix44F
 import cn.easyar.Vec2F
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 
@@ -34,6 +35,35 @@ class BoxRenderer {
     private val textureCoordinateDataSize = 2
     private val textureDataHandle: Int? = null
 
+    private val vertices = floatArrayOf(-1f, -1f, 1f, -1f, -1f, 1f, 1f, 1f)
+
+    private val textureVertices = floatArrayOf(0f, 1f, 1f, 1f, 0f, 0f, 1f, 0f)
+
+    private val vertexShaderCode = "attribute vec4 aPosition;" +
+            "uniform mat4 trans;" +
+            "uniform mat4 proj;" +
+            "attribute vec2 aTexPosition;" +
+            "varying vec2 vTexPosition;" +
+            "void main() {" +
+            "  gl_Position = proj*trans*aPosition;" +
+            "  vTexPosition = aTexPosition;" +
+            "}"
+
+    private val fragmentShaderCode = "precision mediump float;" +
+            "uniform sampler2D uTexture;" +
+            "varying vec2 vTexPosition;" +
+            "void main() {" +
+            "  gl_FragColor = texture2D(uTexture, vTexPosition);" +
+            "}"
+
+    private var verticesBuffer: FloatBuffer? = null
+    private var textureBuffer: FloatBuffer? = null
+
+    private var vertexShader: Int = 0
+    private var fragmentShader: Int = 0
+    private var program: Int = 0
+    private var texture: Int = 0
+
     private fun generateOneBuffer(): Int {
         val buffer = intArrayOf(0)
         GLES20.glGenBuffers(1, buffer, 0)
@@ -41,76 +71,125 @@ class BoxRenderer {
     }
 
     fun init() {
-        val box_vert = """uniform mat4 trans;
-uniform mat4 proj;
-attribute vec4 coord;
-attribute vec4 color;
-varying vec4 vcolor;
-
-void main(void)
-{
-    vcolor = color;
-    gl_Position = proj*trans*coord;
-}
-"""
-
-        val box_frag = """#ifdef GL_ES
-precision highp float;
-#endif
-varying vec4 vcolor;
-
-void main(void)
-{
-    gl_FragColor = vcolor;
-}
-"""
-
-        program_box = GLES20.glCreateProgram()
-        val vertShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER)
-        GLES20.glShaderSource(vertShader, box_vert)
-        GLES20.glCompileShader(vertShader)
-        val fragShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER)
-        GLES20.glShaderSource(fragShader, box_frag)
-        GLES20.glCompileShader(fragShader)
-        GLES20.glAttachShader(program_box, vertShader)
-        GLES20.glAttachShader(program_box, fragShader)
-        GLES20.glLinkProgram(program_box)
-        GLES20.glUseProgram(program_box)
-        pos_coord_box = GLES20.glGetAttribLocation(program_box, "coord")
-        pos_color_box = GLES20.glGetAttribLocation(program_box, "color")
-        pos_trans_box = GLES20.glGetUniformLocation(program_box, "trans")
-        pos_proj_box = GLES20.glGetUniformLocation(program_box, "proj")
-
-        vbo_coord_box = generateOneBuffer()
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo_coord_box)
-        val cube_vertices = arrayOf(
-                /* +z */floatArrayOf(1.0f / 2, 1.0f / 2, 0.01f / 2), floatArrayOf(1.0f / 2, -1.0f / 2, 0.01f / 2), floatArrayOf(-1.0f / 2, -1.0f / 2, 0.01f / 2), floatArrayOf(-1.0f / 2, 1.0f / 2, 0.01f / 2),
-                /* -z */floatArrayOf(1.0f / 2, 1.0f / 2, -0.01f / 2), floatArrayOf(1.0f / 2, -1.0f / 2, -0.01f / 2), floatArrayOf(-1.0f / 2, -1.0f / 2, -0.01f / 2), floatArrayOf(-1.0f / 2, 1.0f / 2, -0.01f / 2))
-        val cube_vertices_buffer = FloatBuffer.wrap(cube_vertices.asIterable().flatMap { it.asIterable() }.toFloatArray())
-        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, cube_vertices_buffer.limit() * 4, cube_vertices_buffer, GLES20.GL_DYNAMIC_DRAW)
-
-        vbo_color_box = generateOneBuffer()
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo_color_box)
-        val cube_vertex_colors = arrayOf(intArrayOf(255, 0, 0, 128), intArrayOf(0, 255, 0, 128), intArrayOf(0, 0, 255, 128), intArrayOf(0, 0, 0, 128), intArrayOf(0, 255, 255, 128), intArrayOf(255, 0, 255, 128), intArrayOf(255, 255, 0, 128), intArrayOf(255, 255, 255, 128))
-        val cube_vertex_colors_buffer = ByteBuffer.wrap(cube_vertex_colors.asIterable().flatMap { it.asIterable() }.map { it.toByte() }.toByteArray())
-        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, cube_vertex_colors_buffer.limit(), cube_vertex_colors_buffer, GLES20.GL_STATIC_DRAW)
-
-        vbo_color_box_2 = generateOneBuffer()
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo_color_box_2)
-        val cube_vertex_colors_2 = arrayOf(intArrayOf(255, 0, 0, 255), intArrayOf(255, 255, 0, 255), intArrayOf(0, 255, 0, 255), intArrayOf(255, 0, 255, 255), intArrayOf(255, 0, 255, 255), intArrayOf(255, 255, 255, 255), intArrayOf(0, 255, 255, 255), intArrayOf(255, 0, 255, 255))
-        val cube_vertex_colors_2_buffer = ByteBuffer.wrap(cube_vertex_colors_2.asIterable().flatMap { it.asIterable() }.map { it.toByte() }.toByteArray())
-        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, cube_vertex_colors_2_buffer.limit(), cube_vertex_colors_2_buffer, GLES20.GL_STATIC_DRAW)
-
-        vbo_faces_box = generateOneBuffer()
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vbo_faces_box)
-        val cube_faces = arrayOf(
-                /* +z */shortArrayOf(3, 2, 1, 0), /* -y */shortArrayOf(2, 3, 7, 6), /* +y */shortArrayOf(0, 1, 5, 4),
-                /* -x */shortArrayOf(3, 0, 4, 7), /* +x */shortArrayOf(1, 2, 6, 5), /* -z */shortArrayOf(4, 5, 6, 7))
-        val cube_faces_buffer = ShortBuffer.wrap(cube_faces.asIterable().flatMap { it.asIterable() }.toShortArray())
-        GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, cube_faces_buffer.limit() * 2, cube_faces_buffer, GLES20.GL_STATIC_DRAW)
+        initializeBuffers()
+        initializeProgram()
     }
 
-    fun loadTexture(bitmap: Bitmap?): Int? {
+//    fun init() {
+//        val box_vert = """uniform mat4 trans;
+//uniform mat4 proj;
+//attribute vec4 coord;
+//attribute vec4 color;
+//attribute vec2 a_TexCoordinate;
+//varying vec2 v_TexCoordinate;
+//varying vec4 vcolor;
+//
+//void main(void)
+//{
+//    vcolor = color;
+//    gl_Position = proj*trans*coord;
+//    v_TexCoordinate = a_TexCoordinate;
+//}
+//"""
+//
+//        val box_frag = """#ifdef GL_ES
+//precision highp float;
+//#endif
+//varying vec4 vcolor;
+//
+//void main(void)
+//{
+//    gl_FragColor = vcolor;
+//}
+//"""
+//
+//        val fragmentShaderCode = "precision mediump float;" +
+//        "uniform vec4 vсolor;" +
+//         //Test
+//                            "uniform sampler2D u_Texture;" +
+//        "varying vec2 v_TexCoordinate;" +
+//         //End Test
+//                            "void main() {" +
+//         //"gl_FragColor = vColor;" +
+//                            "gl_FragColor = (vсolor * texture2D(u_Texture, v_TexCoordinate));" +
+//        "}"
+//
+//        program_box = GLES20.glCreateProgram()
+//        val vertShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER)
+//        GLES20.glShaderSource(vertShader, box_vert)
+//        GLES20.glCompileShader(vertShader)
+//        val fragShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER)
+//        GLES20.glShaderSource(fragShader, box_frag)
+//        GLES20.glCompileShader(fragShader)
+//        GLES20.glAttachShader(program_box, vertShader)
+//        GLES20.glAttachShader(program_box, fragShader)
+//        GLES20.glLinkProgram(program_box)
+//        GLES20.glUseProgram(program_box)
+//        pos_coord_box = GLES20.glGetAttribLocation(program_box, "coord")
+//        pos_color_box = GLES20.glGetAttribLocation(program_box, "color")
+//        pos_trans_box = GLES20.glGetUniformLocation(program_box, "trans")
+//        pos_proj_box = GLES20.glGetUniformLocation(program_box, "proj")
+//
+//        vbo_coord_box = generateOneBuffer()
+//        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo_coord_box)
+//        val cube_vertices = arrayOf(
+//                /* +z */floatArrayOf(1.0f / 2, 1.0f / 2, 0.01f / 2), floatArrayOf(1.0f / 2, -1.0f / 2, 0.01f / 2), floatArrayOf(-1.0f / 2, -1.0f / 2, 0.01f / 2), floatArrayOf(-1.0f / 2, 1.0f / 2, 0.01f / 2),
+//                /* -z */floatArrayOf(1.0f / 2, 1.0f / 2, -0.01f / 2), floatArrayOf(1.0f / 2, -1.0f / 2, -0.01f / 2), floatArrayOf(-1.0f / 2, -1.0f / 2, -0.01f / 2), floatArrayOf(-1.0f / 2, 1.0f / 2, -0.01f / 2))
+//        val cube_vertices_buffer = FloatBuffer.wrap(cube_vertices.asIterable().flatMap { it.asIterable() }.toFloatArray())
+//        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, cube_vertices_buffer.limit() * 4, cube_vertices_buffer, GLES20.GL_DYNAMIC_DRAW)
+//
+//        vbo_color_box = generateOneBuffer()
+//        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo_color_box)
+//        val cube_vertex_colors = arrayOf(intArrayOf(255, 0, 0, 128), intArrayOf(0, 255, 0, 128), intArrayOf(0, 0, 255, 128), intArrayOf(0, 0, 0, 128), intArrayOf(0, 255, 255, 128), intArrayOf(255, 0, 255, 128), intArrayOf(255, 255, 0, 128), intArrayOf(255, 255, 255, 128))
+//        val cube_vertex_colors_buffer = ByteBuffer.wrap(cube_vertex_colors.asIterable().flatMap { it.asIterable() }.map { it.toByte() }.toByteArray())
+//        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, cube_vertex_colors_buffer.limit(), cube_vertex_colors_buffer, GLES20.GL_STATIC_DRAW)
+//
+//        vbo_color_box_2 = generateOneBuffer()
+//        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo_color_box_2)
+//        val cube_vertex_colors_2 = arrayOf(intArrayOf(255, 0, 0, 255), intArrayOf(255, 255, 0, 255), intArrayOf(0, 255, 0, 255), intArrayOf(255, 0, 255, 255), intArrayOf(255, 0, 255, 255), intArrayOf(255, 255, 255, 255), intArrayOf(0, 255, 255, 255), intArrayOf(255, 0, 255, 255))
+//        val cube_vertex_colors_2_buffer = ByteBuffer.wrap(cube_vertex_colors_2.asIterable().flatMap { it.asIterable() }.map { it.toByte() }.toByteArray())
+//        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, cube_vertex_colors_2_buffer.limit(), cube_vertex_colors_2_buffer, GLES20.GL_STATIC_DRAW)
+//
+//        vbo_faces_box = generateOneBuffer()
+//        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vbo_faces_box)
+//        val cube_faces = arrayOf(
+//                /* +z */shortArrayOf(3, 2, 1, 0), /* -y */shortArrayOf(2, 3, 7, 6), /* +y */shortArrayOf(0, 1, 5, 4),
+//                /* -x */shortArrayOf(3, 0, 4, 7), /* +x */shortArrayOf(1, 2, 6, 5), /* -z */shortArrayOf(4, 5, 6, 7))
+//        val cube_faces_buffer = ShortBuffer.wrap(cube_faces.asIterable().flatMap { it.asIterable() }.toShortArray())
+//        GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, cube_faces_buffer.limit() * 2, cube_faces_buffer, GLES20.GL_STATIC_DRAW)
+//    }
+
+    private fun initializeBuffers() {
+        var buff = ByteBuffer.allocateDirect(vertices.size * 4)
+        buff.order(ByteOrder.nativeOrder())
+        verticesBuffer = buff.asFloatBuffer()
+        verticesBuffer!!.put(vertices)
+        verticesBuffer!!.position(0)
+
+        buff = ByteBuffer.allocateDirect(textureVertices.size * 4)
+        buff.order(ByteOrder.nativeOrder())
+        textureBuffer = buff.asFloatBuffer()
+        textureBuffer!!.put(textureVertices)
+        textureBuffer!!.position(0)
+    }
+
+    private fun initializeProgram() {
+        vertexShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER)
+        GLES20.glShaderSource(vertexShader, vertexShaderCode)
+        GLES20.glCompileShader(vertexShader)
+
+        fragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER)
+        GLES20.glShaderSource(fragmentShader, fragmentShaderCode)
+        GLES20.glCompileShader(fragmentShader)
+
+        program = GLES20.glCreateProgram()
+        GLES20.glAttachShader(program, vertexShader)
+        GLES20.glAttachShader(program, fragmentShader)
+
+        GLES20.glLinkProgram(program)
+    }
+
+    fun loadTexture(bitmap: Bitmap?) {
         bitmap?.let {
             val textureHandle = IntArray(1)
             GLES20.glGenTextures(1, textureHandle, 0)
@@ -122,12 +201,11 @@ void main(void)
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0])
 
                 // Set filtering
-                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
-                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
 
                 // Load the bitmap into the bound texture.
                 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
-
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
                 // Recycle the bitmap, since its data has been loaded into OpenGL.
                 bitmap.recycle()
             }
@@ -136,10 +214,9 @@ void main(void)
                 throw RuntimeException("Error loading texture.")
             }
 
-            return textureHandle[0]
+            texture = textureHandle[0]
         }
 
-        return null
     }
 
     fun render(projectionMatrix: Matrix44F, cameraview: Matrix44F, size: Vec2F) {
@@ -184,5 +261,33 @@ void main(void)
         for (i in 0..5) {
             GLES20.glDrawElements(GLES20.GL_TRIANGLE_FAN, 4, GLES20.GL_UNSIGNED_SHORT, i * 4 * 2)
         }
+    }
+
+    fun render2(projectionMatrix: Matrix44F, cameraview: Matrix44F, size: Vec2F) {
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
+        GLES20.glUseProgram(program)
+        GLES20.glDisable(GLES20.GL_BLEND)
+
+        val positionHandle = GLES20.glGetAttribLocation(program, "aPosition")
+        val textureHandle = GLES20.glGetUniformLocation(program, "uTexture")
+        val texturePositionHandle = GLES20.glGetAttribLocation(program, "aTexPosition")
+        val trans = GLES20.glGetUniformLocation(program, "trans")
+        val proj = GLES20.glGetUniformLocation(program, "proj")
+
+        GLES20.glVertexAttribPointer(texturePositionHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer)
+        GLES20.glEnableVertexAttribArray(texturePositionHandle)
+
+        GLES20.glUniformMatrix4fv(trans, 1, false, cameraview.data, 0)
+        GLES20.glUniformMatrix4fv(proj, 1, false, projectionMatrix.data, 0)
+
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture)
+        GLES20.glUniform1i(textureHandle, 0)
+
+        GLES20.glVertexAttribPointer(positionHandle, 2, GLES20.GL_FLOAT, false, 0, verticesBuffer)
+        GLES20.glEnableVertexAttribArray(positionHandle)
+
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
     }
 }

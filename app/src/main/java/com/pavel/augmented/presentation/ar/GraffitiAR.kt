@@ -1,5 +1,6 @@
 package com.pavel.augmented.presentation.ar
 
+import android.graphics.Bitmap
 import android.opengl.GLES20
 import android.util.Log
 import cn.easyar.*
@@ -12,10 +13,11 @@ class GraffitiAR {
     private var streamer: CameraFrameStreamer? = null
     private val trackers = ArrayList<ImageTracker>()
     private var videobg_renderer: Renderer? = null
-    var sprite: Sprite? = null
+    var bitmap: Bitmap? = null
 
     // TODO: Change it
     private var box_renderer: BoxRenderer? = null
+    private var box_renderer2: com.pavel.augmented.BoxRenderer? = null
     private var viewport_changed = false
     private var view_size = Vec2I(0, 0)
     private var rotation = 0
@@ -49,7 +51,7 @@ class GraffitiAR {
     }
 
     fun onTargetChanged(jsonTarget: String?) {
-
+        box_renderer!!.loadTexture(bitmap)
     }
 
     fun initialize(): Boolean {
@@ -184,7 +186,7 @@ class GraffitiAR {
                 if (status == TargetStatus.Tracked) {
                     val target = targetInstance.target()
                     val imagetarget = target as? ImageTarget ?: continue
-                    box_renderer?.render(camera!!.projectionGL(0.2f, 500f), targetInstance.poseGL(), imagetarget.size())
+                    box_renderer?.render2(camera!!.projectionGL(0.2f, 500f), targetInstance.poseGL(), imagetarget.size())
                 }
             }
         } finally {

@@ -1,6 +1,7 @@
 package com.pavel.augmented.customviews
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 import cn.easyar.Engine
@@ -17,14 +18,18 @@ class GLView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null) : GLSurfaceView(context, attrs) {
 
     private val graffitiAR: GraffitiAR
-    var sprite: Sprite? = null
+    var bitmap: Bitmap? = null
+
+    var jsonTarget: String? = null
+
+    var textureLoaded = false
 
     init {
         setEGLContextFactory(ContextFactory())
         setEGLConfigChooser(ConfigChooser())
 
         graffitiAR = GraffitiAR()
-        graffitiAR.sprite = sprite
+        graffitiAR.bitmap = bitmap
 
         this.setRenderer(object : GLSurfaceView.Renderer {
             override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
@@ -41,6 +46,10 @@ class GLView @JvmOverloads constructor(
 
             override fun onDrawFrame(gl: GL10) {
                 synchronized(graffitiAR) {
+                    if (!textureLoaded && bitmap != null) {
+                        graffitiAR.onTargetChanged(jsonTarget)
+                        textureLoaded = true
+                    }
                     graffitiAR.render()
                 }
             }
@@ -76,7 +85,9 @@ class GLView @JvmOverloads constructor(
     }
 
     fun onTargetChanged(jsonTarget: String?) {
-        graffitiAR.onTargetChanged(jsonTarget)
+        this.jsonTarget = jsonTarget
+        graffitiAR.bitmap = bitmap
+        requestRender()
     }
 
     private class ContextFactory : GLSurfaceView.EGLContextFactory {
