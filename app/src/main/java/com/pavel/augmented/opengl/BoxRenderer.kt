@@ -234,6 +234,9 @@ class BoxRenderer {
     fun render2(projectionMatrix: Matrix44F, cameraview: Matrix44F, size: Vec2F) {
         val (size0, size1) = size.data
 
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
 
         GLES20.glUseProgram(program)
