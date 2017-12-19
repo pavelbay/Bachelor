@@ -2,7 +2,7 @@ package com.pavel.augmented.presentation.galerie
 
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.repository.SketchRepository
-import com.pavel.augmented.util.getImageFile
+import com.pavel.augmented.util.getTargetImageFile
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -35,7 +35,7 @@ class GaleriePresenter(private val sketchRepository: SketchRepository) : Galerie
     }
 
     private fun publicSketch(sketch: Sketch) {
-        val imageFile = getImageFile(view.context(), sketch.name)
+        val imageFile = getTargetImageFile(view.context(), sketch.name)
         val requestBody = RequestBody.create(MediaType.parse("image/*"), imageFile)
         val body = MultipartBody.Part.createFormData("picture", sketch.id.toString(), requestBody)
         sketchRepository.publicSketch(sketch, body)

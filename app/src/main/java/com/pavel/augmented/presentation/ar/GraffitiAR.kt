@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.opengl.GLES20
 import android.util.Log
 import cn.easyar.*
-import com.pavel.augmented.opengl.BoxRenderer
 
 class GraffitiAR {
     private var camera: CameraDevice? = null

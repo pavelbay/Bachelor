@@ -8,6 +8,8 @@ import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.presentation.ar.TargetHelper
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
+import com.pavel.augmented.util.getOriginImageFile
+import com.pavel.augmented.util.getTmpImageFile
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java.math.BigInteger
@@ -53,15 +55,12 @@ class CanvasPresenter(
         }
     }
 
-    override fun getJsonTarget(): String? = targetHelper.jsonTarget
-
-
     override fun saveTempBitmap(bitmap: Bitmap?) {
         bitmap?.let {
-            Observable.fromCallable { fileStore.saveType(bitmap, TEMP_SAVED_BITMAP_NAME) }
+            Observable.fromCallable { fileStore.saveType(bitmap, TMP_BITMAP) }
                     .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
-                    .subscribe { view.tempBitmapSaved = true }
+                    .subscribe { }
         }
     }
 
@@ -96,6 +95,7 @@ class CanvasPresenter(
 
     private fun performSave(sketch: Sketch, bitmap: Bitmap?) {
         if (sketch != existedSketch) {
+            renameTempBitmap(sketch.name)
             Observable
                     .fromCallable { sketchDao.insertSketch(sketch) }
                     .subscribeOn(schedulerProvider.io())
@@ -115,11 +115,17 @@ class CanvasPresenter(
         }
     }
 
+    private fun renameTempBitmap(name: String) {
+        val from = getTmpImageFile(view.context())
+        val to = getOriginImageFile(view.context(), name)
+        from.renameTo(to)
+    }
+
     override fun publishSketch() {
     }
 
     companion object {
         private val TAG = CanvasPresenter::class.java.simpleName
-        const val TEMP_SAVED_BITMAP_NAME = "TempSavedBitmapName"
+        const val TMP_BITMAP = "temp.jpeg"
     }
 }

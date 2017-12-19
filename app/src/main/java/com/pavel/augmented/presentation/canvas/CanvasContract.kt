@@ -1,5 +1,6 @@
 package com.pavel.augmented.presentation.canvas
 
+import android.content.Context
 import android.graphics.Bitmap
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.mvp.BasePresenter
@@ -17,6 +18,8 @@ interface CanvasContract {
         fun displayMessageSketchWithNameAlreadyExists()
 
         fun displayMessageCannotCreateSketch()
+
+        fun context(): Context
     }
 
     interface Presenter : BasePresenter<View> {
@@ -24,6 +27,5 @@ interface CanvasContract {
         fun saveToGallery(name: String?, bitmap: Bitmap?)
         fun publishSketch()
         fun saveTempBitmap(bitmap: Bitmap?)
-        fun getJsonTarget(): String?
     }
 }

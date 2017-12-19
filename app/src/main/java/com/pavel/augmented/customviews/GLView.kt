@@ -5,8 +5,6 @@ import android.graphics.Bitmap
 import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 import cn.easyar.Engine
-import com.pavel.augmented.opengl.MyGL20Renderer
-import com.pavel.augmented.opengl.Sprite
 import com.pavel.augmented.presentation.ar.GraffitiAR
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig

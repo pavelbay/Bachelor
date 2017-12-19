@@ -3,8 +3,7 @@ package com.pavel.augmented.presentation.pageradapter
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import com.pavel.augmented.presentation.canvas.ARFragment
-import com.pavel.augmented.presentation.canvas.CanvasFragment
+import com.pavel.augmented.presentation.ar.ARFragment
 import com.pavel.augmented.presentation.galerie.GalerieFragment
 import com.pavel.augmented.presentation.map.MyMapFragment
 

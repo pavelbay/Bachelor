@@ -1,4 +1,4 @@
-package com.pavel.augmented.presentation.canvas
+package com.pavel.augmented.presentation.ar
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -17,11 +17,10 @@ import com.pavel.augmented.customviews.GLView
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.OnTargetChanged
 import com.pavel.augmented.events.PermissionsEvent
-import com.pavel.augmented.opengl.MyGL20Renderer
-import com.pavel.augmented.opengl.Sprite
 import com.pavel.augmented.presentation.MainActivity
+import com.pavel.augmented.presentation.canvas.CanvasContract
 import com.pavel.augmented.util.GlideApp
-import com.pavel.augmented.util.getImageFile
+import com.pavel.augmented.util.getTargetImageFile
 import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.layout_ar_fragment.*
 import org.greenrobot.eventbus.EventBus
@@ -29,12 +28,11 @@ import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.inject
 import org.koin.standalone.releaseContext
 
-class ARFragment : Fragment(), CanvasContract.View {
+class ARFragment : Fragment(), ARContract.View {
     private val contextName = AppModule.CTX_AR_FRAGMENT
 
-    override var tempBitmapSaved = false
 
-    override val presenter by inject<CanvasContract.Presenter>()
+    override val presenter by inject<ARContract.Presenter>()
 
     private var permissionCameraGranted = false
 
@@ -61,7 +59,7 @@ class ARFragment : Fragment(), CanvasContract.View {
 
         if (permissionCameraGranted) {
             gl_surface_view.visibility = View.VISIBLE
-            val file = getImageFile(context, "test.png")
+            val file = getTargetImageFile(context, "test.png")
             GlideApp
                     .with(drawing_view)
                     .asBitmap()
@@ -96,18 +94,6 @@ class ARFragment : Fragment(), CanvasContract.View {
         EventBus.getDefault().toggleRegister(this)
     }
 
-    override fun displayDialog() {
-    }
-
-    override fun displayMessageCannotCreateSketch() {
-    }
-
-    override fun displayMessageSavedToGallery() {
-    }
-
-    override fun displayMessageSketchWithNameAlreadyExists() {
-    }
-
     private fun checkPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     @Subscribe
@@ -124,8 +110,7 @@ class ARFragment : Fragment(), CanvasContract.View {
 
     @Subscribe
     fun onTargetChanged(event: OnTargetChanged) {
-        gl_surface_view.onTargetChanged(presenter.getJsonTarget())
-
+        gl_surface_view.onTargetChanged(null)
     }
 
     companion object {

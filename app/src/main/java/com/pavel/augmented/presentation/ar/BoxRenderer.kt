@@ -1,4 +1,4 @@
-package com.pavel.augmented.opengl
+package com.pavel.augmented.presentation.ar
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,7 +9,6 @@ import cn.easyar.Vec2F
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import java.nio.ShortBuffer
 
 //================================================================================================================================
 //

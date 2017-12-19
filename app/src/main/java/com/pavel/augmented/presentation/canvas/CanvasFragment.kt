@@ -31,7 +31,6 @@ import com.pavel.augmented.events.SketchEvents
 import com.pavel.augmented.events.SketchNameChosenEvent
 import com.pavel.augmented.fragments.ColorPickerDialogFragment
 import com.pavel.augmented.fragments.EditTextDialogFragment
-import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.presentation.MainActivity
 import com.pavel.augmented.util.*
 import kotlinx.android.synthetic.main.layout_canvas_fragment.*
@@ -161,13 +160,13 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         }
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-
-        if (tempBitmapSaved) {
-            loadImage()
-        }
-    }
+//    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+//        super.onViewStateRestored(savedInstanceState)
+//
+//        if (tempBitmapSaved) {
+//            loadImage()
+//        }
+//    }
 
     override fun onResume() {
         super.onResume()
@@ -263,12 +262,14 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         EventBus.getDefault().toggleRegister(this)
     }
 
-    private fun loadImage() {
-        GlideApp.with(drawing_view)
-                .asBitmap()
-                .load(File(getImagesFolder(context), CanvasPresenter.TEMP_SAVED_BITMAP_NAME + ".jpeg"))
-                .into(ViewTarget(drawing_view))
-    }
+    override fun context(): Context = context
+
+//    private fun loadImage() {
+//        GlideApp.with(drawing_view)
+//                .asBitmap()
+//                .load(File(getImagesFolder(context), CanvasPresenter.TEMP_SAVED_BITMAP_NAME + ".jpeg"))
+//                .into(ViewTarget(drawing_view))
+//    }
 
     private fun checkPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
@@ -344,7 +345,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                     val bytes = ByteArray(buffer.remaining())
                     buffer.get(bytes)
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
-//                    presenter.saveTempBitmap(bitmap)
+                    presenter.saveTempBitmap(bitmap)
                     drawing_view.updateBitmap(bitmap)
                 }, backgroundHandler)
                 val captureListener = object : CameraCaptureSession.CaptureCallback() {
@@ -556,7 +557,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     @Subscribe
     fun onSketchChosen(onSketchChosen: SketchEvents.OnSketchChosen) {
-        val file = getImageFile(context, onSketchChosen.sketch.name)
+        val file = getTargetImageFile(context, onSketchChosen.sketch.name)
         GlideApp
                 .with(drawing_view)
                 .asBitmap()

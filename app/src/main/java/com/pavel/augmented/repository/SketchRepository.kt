@@ -36,7 +36,7 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
     }
 
     fun fetchImage(id: Long, callback: (bitmap: Bitmap) -> Unit) {
-        val call = sketchDownloadService.downloadImage(id.toString())
+        val call = sketchDownloadService.downloadImage(id.toString(), true)
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
                 response?.let {
