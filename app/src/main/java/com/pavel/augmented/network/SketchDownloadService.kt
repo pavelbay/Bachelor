@@ -12,5 +12,8 @@ interface SketchDownloadService {
     fun downloadSketches(): Call<List<Sketch>>
 
     @GET("/sketchimage")
-    fun downloadImage(@Query("id") id: String, @Query("origin") orig: Boolean): Call<ResponseBody>
+    fun downloadImage(@Query("id") id: String): Call<ResponseBody>
+
+    @GET("/sketchimagetarget")
+    fun downloadImageTarget(@Query("id") id: String): Call<ResponseBody>
 }

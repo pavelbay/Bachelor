@@ -13,4 +13,8 @@ fun getTmpImageFile(context: Context) = File(getImagesFolder(context), CanvasPre
 
 fun getOriginImageFile(context: Context, id: String) = File(getImagesFolder(context), "origin$id.jpeg")
 
-fun getTargetFolder(context: Context) = File(context.getExternalFilesDir(null), BitmapFileStore.TARGET_DIR_NAME)
+fun getModifiedFolder(context: Context) = File(context.getExternalFilesDir(null), BitmapFileStore.TARGET_DIR_NAME)
+
+fun getModified(context: Context) = File(getModifiedFolder(context), "target.jpeg")
+
+fun getOrigin(context: Context) = File(getModifiedFolder(context), "origin.jpeg")

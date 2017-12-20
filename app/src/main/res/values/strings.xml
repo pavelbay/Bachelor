@@ -3,6 +3,9 @@
 
     <string name="cancel">Abbrechen</string>
 
+    <!-- Menu Main Activity-->
+    <string name="menu_open_ar_activity">AR Kamera</string>
+
     <!-- menu canvas fragment -->
     <string name="menu_eraser_title">Löschen</string>
     <string name="menu_save_to_gallery">In die Gallerie speichern</string>

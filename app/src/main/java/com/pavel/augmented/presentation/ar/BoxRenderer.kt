@@ -281,7 +281,7 @@ class BoxRenderer {
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
                 // Recycle the bitmap, since its data has been loaded into OpenGL.
-                bitmap.recycle()
+//                bitmap.recycle()
             }
 
             if (textureHandle[0] == 0) {

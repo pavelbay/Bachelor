@@ -5,12 +5,12 @@ import android.opengl.GLES20
 import android.util.Log
 import cn.easyar.*
 
-class GraffitiAR {
+class GraffitiAR(private val targetPath: String) {
     private var camera: CameraDevice? = null
     private var streamer: CameraFrameStreamer? = null
     private val trackers = ArrayList<ImageTracker>()
     private var videobg_renderer: Renderer? = null
-    var bitmap: Bitmap? = null
+    var modified: Bitmap? = null
 
     // TODO: Change it
     private var box_renderer: BoxRenderer? = null
@@ -25,8 +25,8 @@ class GraffitiAR {
   "images" :
   [
     {
-      "image" : "$path",
-      "name" : "${path.substring(0, path.indexOf("."))}"
+      "image" : "$targetPath",
+      "name" : "${targetPath.substring(0, targetPath.indexOf("."))}"
     }
   ]
 }"""
@@ -47,7 +47,7 @@ class GraffitiAR {
     }
 
     fun onTargetChanged(jsonTarget: String?) {
-        box_renderer!!.loadTexture(bitmap)
+        box_renderer!!.loadTexture(modified)
     }
 
     fun initialize(): Boolean {

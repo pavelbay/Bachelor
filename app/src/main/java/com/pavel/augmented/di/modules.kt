@@ -11,6 +11,8 @@ import com.pavel.augmented.di.AppModule.Companion.SKETCH_UPLOAD_SERVICE
 import com.pavel.augmented.network.SketchDownloadService
 import com.pavel.augmented.network.SketchUploadService
 import com.pavel.augmented.presentation.MainActivity
+import com.pavel.augmented.presentation.ar.ARContract
+import com.pavel.augmented.presentation.ar.ARPresenter
 import com.pavel.augmented.presentation.canvas.CanvasContract
 import com.pavel.augmented.presentation.canvas.CanvasPresenter
 import com.pavel.augmented.presentation.galerie.GalerieContract
@@ -55,13 +57,17 @@ class AppModule : AndroidModule() {
                 provide { GaleriePresenter(get()) } bind (GalerieContract.Presenter::class)
             }
         }
+
+        context(name = CTX_AR_ACTIVITY) {
+            provide { ARPresenter() } bind (ARContract.Presenter::class)
+        }
     }
 
     companion object {
         const val CTX_MAIN_ACTIVITY = "MainActivity"
         const val CTX_CANVAS_FRAGMENT = "CanvasFragment"
         const val CTX_GALERIE_FRAGMENT = "GalerieFragment"
-        const val CTX_AR_FRAGMENT = "ARFragment"
+        const val CTX_AR_ACTIVITY = "ARActivity"
         const val CTX_MAP_FRAGMENT = "MyMapFragment"
         const val BITMAP_FILESTORE = "BitmpalFileStore"
         const val SKETCH_UPLOAD_SERVICE = "SketchUploadService"

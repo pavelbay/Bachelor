@@ -36,8 +36,8 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
     }
 
     fun fetchImage(id: String) {
-        val originCall = sketchDownloadService.downloadImage(id, true)
-        val targetCall = sketchDownloadService.downloadImage(id, false)
+        val originCall = sketchDownloadService.downloadImage(id)
+        val targetCall = sketchDownloadService.downloadImageTarget(id)
 
         val originCallback = object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {

@@ -1,9 +1,11 @@
 package com.pavel.augmented.presentation
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.view.ViewPager
 import android.util.Log
+import android.view.Menu
 import android.widget.Toast
 import cn.easyar.Engine
 import com.pavel.augmented.R
@@ -19,6 +21,10 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.koin.android.contextaware.ContextAwareActivity
 import org.koin.android.ext.android.getKoin
+import android.view.MenuInflater
+import android.view.MenuItem
+import com.pavel.augmented.presentation.ar.ARActivity
+
 
 class MainActivity : ContextAwareActivity() {
 
@@ -28,15 +34,9 @@ class MainActivity : ContextAwareActivity() {
     private var restoredCurrentItem: Int = 0
     private var askedForPermission = false
 
-    private val key = "JQHIN00Qmj3hEvW2C2AW1yWM2zHJBhFFZrfFASmMvUasnclxi11EbPBevQZhGVinPnrKKJynRKfQpR0n7brbcPN8IiV3KhB7ZI6n4yY1COunxg4jT2JiZS6pKf3pqniT7n1RaHN0nQYCMvS8c5POCvwdMZw6WZkoI88KWqIMzzJHNDKdgYGsJ8CFk4Ve6r9jNrFzBBaJ"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        if (!Engine.initialize(this, key)) {
-            Log.e(TAG, "Initialization Failed.")
-        }
 
         setSupportActionBar(main_activity_toolbar)
 
@@ -56,6 +56,22 @@ class MainActivity : ContextAwareActivity() {
 //            colorPicker.dismiss()
 //        }
         //            colorPicker.show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_mactivity, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return if (item?.itemId == R.id.ar_activity) {
+            val intent = Intent(this, ARActivity::class.java)
+            startActivity(intent)
+            true
+        } else {
+            super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onResume() {

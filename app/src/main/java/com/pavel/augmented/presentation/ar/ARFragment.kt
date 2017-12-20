@@ -29,10 +29,8 @@ import org.koin.android.ext.android.inject
 import org.koin.standalone.releaseContext
 
 class ARFragment : Fragment()/*ARContract.View*/ {
-//    private val contextName = AppModule.CTX_AR_FRAGMENT
+//    private val contextName = AppModule.CTX_AR_ACTIVITY
 //
-//
-//    override val presenter by inject<ARContract.Presenter>()
 //
 //    private var permissionCameraGranted = false
 //
@@ -71,9 +69,6 @@ class ARFragment : Fragment()/*ARContract.View*/ {
 //
 //    override fun onResume() {
 //        super.onResume()
-//
-//        presenter.view = this
-//        presenter.start()
 //    }
 //
 //    override fun onPause() {

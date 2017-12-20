@@ -1,22 +1,23 @@
 package com.pavel.augmented.customviews
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.opengl.GLSurfaceView
-import android.util.AttributeSet
 import cn.easyar.Engine
 import com.pavel.augmented.presentation.ar.GraffitiAR
+import com.pavel.augmented.util.getOrigin
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLContext
 import javax.microedition.khronos.egl.EGLDisplay
 import javax.microedition.khronos.opengles.GL10
 
-class GLView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null) : GLSurfaceView(context, attrs) {
+@SuppressLint("ViewConstructor")
+class GLView (private var modified: Bitmap?,
+              context: Context) : GLSurfaceView(context) {
 
     private val graffitiAR: GraffitiAR
-    var bitmap: Bitmap? = null
 
     var jsonTarget: String? = null
 
@@ -26,8 +27,8 @@ class GLView @JvmOverloads constructor(
         setEGLContextFactory(ContextFactory())
         setEGLConfigChooser(ConfigChooser())
 
-        graffitiAR = GraffitiAR()
-        graffitiAR.bitmap = bitmap
+        graffitiAR = GraffitiAR(getOrigin(context).absolutePath)
+        graffitiAR.modified = modified
 
         this.setRenderer(object : GLSurfaceView.Renderer {
             override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
@@ -44,7 +45,7 @@ class GLView @JvmOverloads constructor(
 
             override fun onDrawFrame(gl: GL10) {
                 synchronized(graffitiAR) {
-                    if (!textureLoaded && bitmap != null) {
+                    if (!textureLoaded && modified != null) {
                         graffitiAR.onTargetChanged(jsonTarget)
                         textureLoaded = true
                     }
@@ -82,9 +83,12 @@ class GLView @JvmOverloads constructor(
         super.onPause()
     }
 
+    fun onDestroy() {
+    }
+
     fun onTargetChanged(jsonTarget: String?) {
         this.jsonTarget = jsonTarget
-        graffitiAR.bitmap = bitmap
+        graffitiAR.modified = modified
         requestRender()
     }
 
