@@ -14,7 +14,7 @@ interface SketchUploadService {
 
     @Multipart
     @POST("/uploadImage")
-    fun uploadImage(@Part("id") id: RequestBody, @Part file: MultipartBody.Part): Call<ResponseBody>
+    fun uploadImages(@Part("id") id: RequestBody, @Part files: Array<MultipartBody.Part?>): Call<ResponseBody>
 
     @POST("/uploadSketch")
     fun uploadSketch(@Body sketch: Sketch): Call<ResponseBody>

@@ -17,10 +17,12 @@
 
     <string name="menu_item_galerie">Galerie</string>
     <string name="menu_item_canvas">Canvas</string>
+    <string name="menu_item_ar_camera">AR Kamera</string>
     <string name="menu_item__map">Karte</string>
     <string-array name="main_view_pager_items">
         <item>@string/menu_item_galerie</item>
         <item>@string/menu_item_canvas</item>
+        <item>@string/menu_item_ar_camera</item>
         <item>@string/menu_item__map</item>
     </string-array>
 

@@ -2,6 +2,7 @@ package com.pavel.augmented.presentation.galerie
 
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.repository.SketchRepository
+import com.pavel.augmented.util.getOriginImageFile
 import com.pavel.augmented.util.getTargetImageFile
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -35,10 +36,15 @@ class GaleriePresenter(private val sketchRepository: SketchRepository) : Galerie
     }
 
     private fun publicSketch(sketch: Sketch) {
-        val imageFile = getTargetImageFile(view.context(), sketch.name)
-        val requestBody = RequestBody.create(MediaType.parse("image/*"), imageFile)
-        val body = MultipartBody.Part.createFormData("picture", sketch.id.toString(), requestBody)
-        sketchRepository.publicSketch(sketch, body)
+        val targetImageFile = getTargetImageFile(view.context(), sketch.name)
+        val originImageFIle = getOriginImageFile(view.context(), sketch.name)
+        val stringMediaType = "image/*"
+        val requestBodyTarget = RequestBody.create(MediaType.parse(stringMediaType), targetImageFile)
+        val requestBodyOrigin = RequestBody.create(MediaType.parse(stringMediaType), originImageFIle)
+        val bodyArray = arrayOfNulls<MultipartBody.Part>(2)
+        bodyArray[0]  = MultipartBody.Part.createFormData("picture", sketch.id.toString(), requestBodyTarget)
+        bodyArray[1] = MultipartBody.Part.createFormData("picture", "origin${sketch.id}", requestBodyOrigin)
+        sketchRepository.publicSketch(sketch, bodyArray)
     }
 
     override fun deleteSketches(sketches: Array<Sketch?>) {

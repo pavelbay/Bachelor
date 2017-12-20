@@ -5,6 +5,9 @@
     <item android:id="@+id/action_canvas"
         android:title="@string/menu_item_canvas"
         android:icon="@drawable/ic_gesture_black" />
+    <item android:id="@+id/action_ar_camera"
+        android:title="@string/menu_item_ar_camera"
+        android:icon="@drawable/ic_camera" />
     <item android:id="@+id/action_map"
         android:title="@string/menu_item__map"
         android:icon="@drawable/ic_map_black" />

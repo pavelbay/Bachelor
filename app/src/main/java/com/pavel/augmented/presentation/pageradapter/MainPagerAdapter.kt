@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import com.pavel.augmented.presentation.ar.ARFragment
+import com.pavel.augmented.presentation.canvas.CanvasFragment
 import com.pavel.augmented.presentation.galerie.GalerieFragment
 import com.pavel.augmented.presentation.map.MyMapFragment
 
@@ -11,7 +12,7 @@ class MainPagerAdapter(fragmentManager: FragmentManager, private val names: Arra
 
     override fun getCount(): Int = names.size
 
-    private val fragments = arrayListOf<Fragment>(GalerieFragment(), ARFragment(), MyMapFragment())
+    private val fragments = arrayListOf<Fragment>(GalerieFragment(), CanvasFragment(), ARFragment(), MyMapFragment())
 
     override fun getItem(position: Int): Fragment = fragments[position]
 
