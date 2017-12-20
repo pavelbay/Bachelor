@@ -167,7 +167,7 @@ class GalerieAdapter(var list: MutableList<Sketch>) : RecyclerView.Adapter<Galer
 
                 sketch_name.isSelected = itemChecked
 
-                val file = File(getImagesFolder(containerView.context), sketch.name + ".jpeg")
+                val file = File(getImagesFolder(containerView.context), sketch.id + ".jpeg")
                 GlideApp.with(containerView)
                         .load(file)
                         .signature(ObjectKey(file.lastModified()))

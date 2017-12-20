@@ -12,7 +12,7 @@ import paperparcel.PaperParcel
 @PaperParcel
 @Entity(tableName = "sketches")
 data class Sketch(
-        @SerializedName("id") @PrimaryKey val id: Long = 0,
+        @SerializedName("id") @PrimaryKey val id: String,
         @SerializedName("name") @ColumnInfo(name = "name") val name: String,
         @SerializedName("latitude") @ColumnInfo(name = "latitude") val latitude: Double,
         @SerializedName("longitude") @ColumnInfo(name = "longitude") val longitude: Double

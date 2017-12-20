@@ -11,11 +11,13 @@ interface MyMapContract {
 
     interface View : BaseView<Presenter> {
         fun displayMetrics(): DisplayMetrics
-        fun updateMarkers(sketches: List<Sketch>)
+        fun updateMarkers(sketches: List<Sketch>?)
     }
 
     interface Presenter : BasePresenter<View> {
+        var currentTargetId: String?
         fun calculateCameraUpdateToMyLocation(myLocation: Location): CameraUpdate
         fun fetchSketches()
+        fun fetchImages(id: String)
     }
 }

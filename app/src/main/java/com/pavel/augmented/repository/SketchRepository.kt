@@ -35,26 +35,58 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
                 }
     }
 
-    fun fetchImage(id: Long, callback: (bitmap: Bitmap) -> Unit) {
-        val call = sketchDownloadService.downloadImage(id.toString(), true)
-        call.enqueue(object : Callback<ResponseBody> {
+    fun fetchImage(id: String) {
+        val originCall = sketchDownloadService.downloadImage(id, true)
+        val targetCall = sketchDownloadService.downloadImage(id, false)
+
+        val originCallback = object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
                 response?.let {
                     response.body()?.let {
                         Observable.fromCallable { getBitmapFromByteArray(response.body()!!.bytes()) }
                                 .subscribeOn(schedulerProvider.io())
-                                .observeOn(schedulerProvider.ui())
-                                .subscribe { callback(it) }
+                                .observeOn(schedulerProvider.io())
+                                .subscribe {
+                                    synchronized(fileStore) {
+                                        fileStore.saveBitmapOrigin(it)
+                                    }
+                                }
                     }
                 }
 
-                Log.d(TAG, "Image fetched: " + response?.body()?.bytes()?.size)
+                Log.d(TAG, "Origin Image fetched")
             }
 
-            override  fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
-                Log.d(TAG, "Failure fetching image")
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                Log.d(TAG, "Failure fetching origin image")
             }
-        })
+        }
+
+        val targetCallback = object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                response?.let {
+                    response.body()?.let {
+                        Observable.fromCallable { getBitmapFromByteArray(response.body()!!.bytes()) }
+                                .subscribeOn(schedulerProvider.io())
+                                .observeOn(schedulerProvider.io())
+                                .subscribe {
+                                    synchronized(fileStore) {
+                                        fileStore.saveBitmapTarget(it)
+                                    }
+                                }
+                    }
+                }
+
+                Log.d(TAG, "Target Image fetched")
+            }
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                Log.d(TAG, "Failure fetching target image")
+            }
+        }
+
+        originCall.enqueue(originCallback)
+        targetCall.enqueue(targetCallback)
     }
 
     fun fetchSketches(callback: (sketches: List<Sketch>?) -> Unit) {
@@ -77,7 +109,7 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
         Observable.fromCallable {
             sketches.forEach { sketch ->
                 sketch?.let {
-                    fileStore.deleteType(sketch.name)
+                    fileStore.deleteType(sketch.id)
                 }
 
             }

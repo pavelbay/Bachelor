@@ -43,4 +43,8 @@
     <string name="galerie_fragmetn_no_storage_permission">Die App braucht Storage Permissions!</string>
     <string name="message_sketch_uploaded">Sketch hochgeladen!</string>
     <string name="message_sketch_upload_failure">Fehler beim Hochladen.</string>
+
+    <!-- my map fragment -->
+    <string name="map_set_as_target">Sketch %s wird als Target gesetzt.</string>
+
 </resources>

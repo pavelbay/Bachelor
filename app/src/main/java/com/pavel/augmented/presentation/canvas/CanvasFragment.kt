@@ -557,7 +557,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     @Subscribe
     fun onSketchChosen(onSketchChosen: SketchEvents.OnSketchChosen) {
-        val file = getTargetImageFile(context, onSketchChosen.sketch.name)
+        val file = getTargetImageFile(context, onSketchChosen.sketch.id)
         GlideApp
                 .with(drawing_view)
                 .asBitmap()

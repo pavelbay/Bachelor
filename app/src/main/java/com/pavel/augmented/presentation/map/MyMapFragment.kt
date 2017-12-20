@@ -8,10 +8,12 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.util.DisplayMetrics
 import android.view.*
+import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
@@ -32,6 +34,8 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
     private lateinit var mapFragment: SupportMapFragment
 
     private lateinit var googleMap: GoogleMap
+
+    private var markers: MutableList<Marker> = ArrayList()
 
     private val fusedLocationProviderClient by inject<FusedLocationProviderClient>()
 
@@ -77,11 +81,15 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun updateMarkers(sketches: List<Sketch>) {
-        sketches.forEach {
-            googleMap.addMarker(MarkerOptions()
+    override fun updateMarkers(sketches: List<Sketch>?) {
+        markers.forEach(Marker::remove)
+        markers.clear()
+        sketches?.forEach {
+            val marker = googleMap.addMarker(MarkerOptions()
                     .position(LatLng(it.latitude, it.longitude))
                     .title(it.name))
+            marker.tag = it.id
+            markers.add(marker)
         }
     }
 
@@ -89,6 +97,14 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
     private fun setupMap() {
         googleMap.isMyLocationEnabled = true
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location -> if (location != null) zoomToMyLocation(location) }
+        googleMap.setOnMarkerClickListener {
+            presenter.fetchImages(it.tag as String)
+            presenter.currentTargetId = it.tag as String
+            if (isAdded) {
+                Toast.makeText(context, String.format(getString(R.string.map_set_as_target), it.title), Toast.LENGTH_SHORT).show()
+            }
+            return@setOnMarkerClickListener true
+        }
     }
 
     override fun onResume() {

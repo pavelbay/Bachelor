@@ -68,7 +68,7 @@ class CanvasPresenter(
         try {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
-                    val sketch = Sketch(id = generateUniqueId() ?: 0, name = name, latitude = location.latitude, longitude = location.longitude)
+                    val sketch = Sketch(id = generateUniqueId()?.toString() ?: "0", name = name, latitude = location.latitude, longitude = location.longitude)
                     performSave(sketch, bitmap)
                     existedSketch = sketch
                 } else {
@@ -95,7 +95,7 @@ class CanvasPresenter(
 
     private fun performSave(sketch: Sketch, bitmap: Bitmap?) {
         if (sketch != existedSketch) {
-            renameTempBitmap(sketch.name)
+            renameTempBitmap(sketch.id)
             Observable
                     .fromCallable { sketchDao.insertSketch(sketch) }
                     .subscribeOn(schedulerProvider.io())
@@ -108,16 +108,16 @@ class CanvasPresenter(
         bitmap?.let {
             //currentRequest?.dispose()
             Observable
-                    .fromCallable { fileStore.saveType(bitmap, sketch.name) }
+                    .fromCallable { fileStore.saveType(bitmap, sketch.id) }
                     .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
                     .subscribe { view.displayMessageSavedToGallery() }
         }
     }
 
-    private fun renameTempBitmap(name: String) {
+    private fun renameTempBitmap(id: String) {
         val from = getTmpImageFile(view.context())
-        val to = getOriginImageFile(view.context(), name)
+        val to = getOriginImageFile(view.context(), id)
         from.renameTo(to)
     }
 

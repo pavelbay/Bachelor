@@ -14,6 +14,8 @@ class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapCont
 
     override lateinit var view: MyMapContract.View
 
+    override var currentTargetId: String? = null
+
     var sketches: List<Sketch>? = null
 
     private val testString = "[{\"id\":2,\"latitude\":52.5238463,\"longitude\":13.5454916,\"name\":\"second\"}, {\"id\":1,\"latitude\":52.5238391,\"longitude\":13.5454903,\"name\":\"first\"}]"
@@ -30,12 +32,18 @@ class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapCont
     override fun fetchSketches() {
         sketchRepository.fetchSketches {
             if (it != null) {
+                it.forEach {
+                    Log.d(TAG, "Sketch fetched: " + it.id)
+                }
                 Log.d(TAG, "Sketches fetched successfully")
                 sketches = it
-                view.updateMarkers(it)
             }
-
+            view.updateMarkers(it)
         }
+    }
+
+    override fun fetchImages(id: String) {
+        sketchRepository.fetchImage(id)
     }
 
     override fun calculateCameraUpdateToMyLocation(myLocation: Location): CameraUpdate {
