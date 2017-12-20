@@ -41,10 +41,9 @@ class GaleriePresenter(private val sketchRepository: SketchRepository) : Galerie
         val stringMediaType = "image/*"
         val requestBodyTarget = RequestBody.create(MediaType.parse(stringMediaType), targetImageFile)
         val requestBodyOrigin = RequestBody.create(MediaType.parse(stringMediaType), originImageFIle)
-        val bodyArray = arrayOfNulls<MultipartBody.Part>(2)
-        bodyArray[0]  = MultipartBody.Part.createFormData("picture", sketch.id.toString(), requestBodyTarget)
-        bodyArray[1] = MultipartBody.Part.createFormData("picture", "origin${sketch.id}", requestBodyOrigin)
-        sketchRepository.publicSketch(sketch, bodyArray)
+        val targetImage  = MultipartBody.Part.createFormData("picture", sketch.id.toString(), requestBodyTarget)
+        val originImage = MultipartBody.Part.createFormData("picture", "origin${sketch.id}", requestBodyOrigin)
+        sketchRepository.publicSketch(sketch, originImage, targetImage)
     }
 
     override fun deleteSketches(sketches: Array<Sketch?>) {

@@ -26,6 +26,6 @@ interface CanvasContract {
         var existedSketch: Sketch?
         fun saveToGallery(name: String?, bitmap: Bitmap?)
         fun publishSketch()
-        fun saveTempBitmap(bitmap: Bitmap?)
+        fun saveTempBitmap(bitmap: Bitmap?, width: Int, height: Int)
     }
 }

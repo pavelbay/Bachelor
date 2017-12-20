@@ -53,9 +53,11 @@ class CanvasPresenter(
         }
     }
 
-    override fun saveTempBitmap(bitmap: Bitmap?) {
+    override fun saveTempBitmap(bitmap: Bitmap?, width: Int, height: Int) {
         bitmap?.let {
-            Observable.fromCallable { fileStore.saveType(bitmap, TMP_BITMAP) }
+            Observable.fromCallable {
+                val scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
+                fileStore.saveType(scaledBitmap, TMP_BITMAP) }
                     .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
                     .subscribe { }
@@ -124,6 +126,6 @@ class CanvasPresenter(
 
     companion object {
         private val TAG = CanvasPresenter::class.java.simpleName
-        const val TMP_BITMAP = "temp.jpeg"
+        const val TMP_BITMAP = "temp"
     }
 }

@@ -8,6 +8,6 @@ fun getImagesFolder(context: Context) = File(context.getExternalFilesDir(null), 
 
 fun getTargetImageFile(context: Context, name: String) = File(getImagesFolder(context), name + ".jpeg")
 
-fun getTmpImageFile(context: Context) = File(getImagesFolder(context), CanvasPresenter.TMP_BITMAP)
+fun getTmpImageFile(context: Context) = File(getImagesFolder(context), CanvasPresenter.TMP_BITMAP + ".jpeg")
 
 fun getOriginImageFile(context: Context, name: String) = File(getImagesFolder(context), "origin$name.jpeg")

@@ -345,7 +345,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                     val bytes = ByteArray(buffer.remaining())
                     buffer.get(bytes)
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
-                    presenter.saveTempBitmap(bitmap)
+                    presenter.saveTempBitmap(bitmap, drawing_view.mWidth, drawing_view.mHeight)
                     drawing_view.updateBitmap(bitmap)
                 }, backgroundHandler)
                 val captureListener = object : CameraCaptureSession.CaptureCallback() {

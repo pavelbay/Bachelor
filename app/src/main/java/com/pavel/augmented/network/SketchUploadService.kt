@@ -13,8 +13,12 @@ import retrofit2.http.Part
 interface SketchUploadService {
 
     @Multipart
-    @POST("/uploadImage")
-    fun uploadImages(@Part("id") id: RequestBody, @Part files: Array<MultipartBody.Part?>): Call<ResponseBody>
+    @POST("/uploadImages")
+    fun uploadImages(@Part("id") id: RequestBody, @Part originFile: MultipartBody.Part, @Part targetFile: MultipartBody.Part): Call<ResponseBody>
+
+//    @Multipart
+//    @POST("/uploadImages")
+//    fun uploadImage(@Part("id") id: RequestBody, @Part file:MultipartBody.Part): Call<ResponseBody>
 
     @POST("/uploadSketch")
     fun uploadSketch(@Body sketch: Sketch): Call<ResponseBody>
