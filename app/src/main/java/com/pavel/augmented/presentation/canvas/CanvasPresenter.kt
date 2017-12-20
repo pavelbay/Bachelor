@@ -5,7 +5,6 @@ import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.pavel.augmented.database.dao.SketchDao
 import com.pavel.augmented.model.Sketch
-import com.pavel.augmented.presentation.ar.TargetHelper
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
 import com.pavel.augmented.util.getOriginImageFile
@@ -21,8 +20,7 @@ class CanvasPresenter(
         private val fileStore: FileStore<Bitmap>,
         private val schedulerProvider: SchedulerProvider,
         private val fusedLocationProviderClient: FusedLocationProviderClient,
-        private val sketchDao: SketchDao,
-        private val targetHelper: TargetHelper
+        private val sketchDao: SketchDao
 ) : CanvasContract.Presenter {
     override lateinit var view: CanvasContract.View
 

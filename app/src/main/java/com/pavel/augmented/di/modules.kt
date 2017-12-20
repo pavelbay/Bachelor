@@ -11,9 +11,6 @@ import com.pavel.augmented.di.AppModule.Companion.SKETCH_UPLOAD_SERVICE
 import com.pavel.augmented.network.SketchDownloadService
 import com.pavel.augmented.network.SketchUploadService
 import com.pavel.augmented.presentation.MainActivity
-import com.pavel.augmented.presentation.ar.ARContract
-import com.pavel.augmented.presentation.ar.ARPresenter
-import com.pavel.augmented.presentation.ar.TargetHelper
 import com.pavel.augmented.presentation.canvas.CanvasContract
 import com.pavel.augmented.presentation.canvas.CanvasPresenter
 import com.pavel.augmented.presentation.galerie.GalerieContract
@@ -40,8 +37,6 @@ class AppModule : AndroidModule() {
     override fun context() = applicationContext {
         context(name = CTX_MAIN_ACTIVITY) {
 
-            provide { TargetHelper(null) }
-
             provide { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
 
             provide { SketchRepository(get(), get(), get(BITMAP_FILESTORE), get(SKETCH_UPLOAD_SERVICE), get(SKETCH_DOWNLOAD_SERVICE)) }
@@ -49,21 +44,16 @@ class AppModule : AndroidModule() {
             provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
 
             context(name = CTX_CANVAS_FRAGMENT) {
-                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get(), get()) } bind (CanvasContract.Presenter::class)
+                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get()) } bind (CanvasContract.Presenter::class)
             }
 
             context(name = CTX_MAP_FRAGMENT) {
-                provide { MyMapPresenter(get(), get()) } bind (MyMapContract.Presenter::class)
+                provide { MyMapPresenter(get()) } bind (MyMapContract.Presenter::class)
             }
 
             context(name = CTX_GALERIE_FRAGMENT) {
                 provide { GaleriePresenter(get()) } bind (GalerieContract.Presenter::class)
             }
-
-            context(name = CTX_AR_FRAGMENT) {
-                provide { ARPresenter() } bind (ARContract.Presenter::class)
-            }
-
         }
     }
 

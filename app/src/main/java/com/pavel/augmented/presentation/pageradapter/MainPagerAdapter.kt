@@ -12,7 +12,7 @@ class MainPagerAdapter(fragmentManager: FragmentManager, private val names: Arra
 
     override fun getCount(): Int = names.size
 
-    private val fragments = arrayListOf<Fragment>(GalerieFragment(), CanvasFragment(), ARFragment(), MyMapFragment())
+    private val fragments = arrayListOf<Fragment>(GalerieFragment(), CanvasFragment(), MyMapFragment())
 
     override fun getItem(position: Int): Fragment = fragments[position]
 
