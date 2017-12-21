@@ -6,6 +6,8 @@ import android.opengl.GLES20
 import android.opengl.GLUtils
 import cn.easyar.Matrix44F
 import cn.easyar.Vec2F
+import com.pavel.augmented.events.BitmapLoaded
+import org.greenrobot.eventbus.EventBus
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -281,6 +283,7 @@ class BoxRenderer {
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
                 // Recycle the bitmap, since its data has been loaded into OpenGL.
+                EventBus.getDefault().post(BitmapLoaded())
 //                bitmap.recycle()
             }
 

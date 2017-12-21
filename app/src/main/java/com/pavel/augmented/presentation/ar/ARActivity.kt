@@ -17,9 +17,13 @@ import com.bumptech.glide.signature.ObjectKey
 import com.pavel.augmented.R
 import com.pavel.augmented.customviews.GLView
 import com.pavel.augmented.di.AppModule
+import com.pavel.augmented.events.BitmapLoaded
 import com.pavel.augmented.util.GlideApp
 import com.pavel.augmented.util.getModified
+import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.activity_ar.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.inject
 import org.koin.standalone.releaseContext
 
@@ -58,9 +62,16 @@ class ARActivity : AppCompatActivity(), ARContract.View {
         super.onPause()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        glView?.onDestroy()
+    override fun onStart() {
+        super.onStart()
+
+        EventBus.getDefault().toggleRegister(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        EventBus.getDefault().toggleRegister(this)
     }
 
     private fun loadOrigin() {
@@ -71,6 +82,11 @@ class ARActivity : AppCompatActivity(), ARContract.View {
                 .load(file)
                 .signature(ObjectKey(file.lastModified()))
                 .into(ModifiedViewTarget(preview))
+    }
+
+    @Subscribe
+    fun onBitmapLoaded(event: BitmapLoaded) {
+        GlideApp.get(this).clearMemory()
     }
 
     inner class ModifiedViewTarget(frameLayout: FrameLayout) : com.bumptech.glide.request.target.ViewTarget<FrameLayout, Bitmap>(frameLayout) {

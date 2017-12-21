@@ -83,9 +83,6 @@ class GLView (private var modified: Bitmap?,
         super.onPause()
     }
 
-    fun onDestroy() {
-    }
-
     fun onTargetChanged(jsonTarget: String?) {
         this.jsonTarget = jsonTarget
         graffitiAR.modified = modified
