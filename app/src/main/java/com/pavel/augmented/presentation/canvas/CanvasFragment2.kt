@@ -39,12 +39,12 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.inject
 import org.koin.standalone.releaseContext
-import java.io.File
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-class CanvasFragment2 : Fragment(), CanvasContract.View  {
+@Suppress("unused")
+class CanvasFragment2 : Fragment(), CanvasContract.View {
 
     private val contextName = AppModule.CTX_CANVAS_FRAGMENT
 
@@ -168,7 +168,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View  {
      * still image is ready to be saved.
      */
     private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
-//        backgroundHandler?.post(ImageSaver(it.acquireNextImage(), file)
+        //        backgroundHandler?.post(ImageSaver(it.acquireNextImage(), file)
 // presenter.existedSketch = null
         tempBitmapSaved = false
         val image = it.acquireLatestImage()
@@ -862,20 +862,6 @@ class CanvasFragment2 : Fragment(), CanvasContract.View  {
             drawing_view.isEnabled = true
         }
     }
-
-//    override fun onClick(view: View) {
-//        when (view.id) {
-//            R.id.picture -> lockFocus()
-//            R.id.info -> {
-//                if (activity != null) {
-//                    AlertDialog.Builder(activity)
-//                            .setMessage(R.string.intro_message)
-//                            .setPositiveButton(android.R.string.ok, null)
-//                            .show()
-//                }
-//            }
-//        }
-//    }
 
     private fun setAutoFlash(requestBuilder: CaptureRequest.Builder) {
         if (flashSupported) {
