@@ -3,11 +3,13 @@ package com.pavel.augmented.util
 import android.content.pm.PackageManager
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 
 
 fun AppCompatActivity.replaceFragmentInActivity(fragment: Fragment, @IdRes frameId: Int) {
@@ -43,6 +45,10 @@ fun AppCompatActivity.askForPermissions(permissions: Array<out String>, requestC
         requestPermissions(permissionsToBeRequested.toTypedArray(), requestCode)
         true
     } else false
+}
+
+fun FragmentActivity.showToast(text: String) {
+    runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_SHORT).show() }
 }
 
 /**

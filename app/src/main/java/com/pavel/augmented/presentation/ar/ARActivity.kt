@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.Toast
 import cn.easyar.Engine
@@ -24,6 +25,7 @@ import com.pavel.augmented.util.toggleRegister
 import kotlinx.android.synthetic.main.activity_ar.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
 import org.koin.standalone.releaseContext
 
@@ -42,12 +44,13 @@ class ARActivity : AppCompatActivity(), ARContract.View {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_ar)
+        window.setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         if (!Engine.initialize(this, key)) {
             Log.e(TAG, "EasyAR initialization Failed.")
         }
 
-        loadOrigin()
+        loadModifiedFile()
     }
 
     override fun onResume() {
@@ -74,7 +77,7 @@ class ARActivity : AppCompatActivity(), ARContract.View {
         EventBus.getDefault().toggleRegister(this)
     }
 
-    private fun loadOrigin() {
+    private fun loadModifiedFile() {
         val file = getModified(this)
         GlideApp
                 .with(preview)
@@ -84,7 +87,7 @@ class ARActivity : AppCompatActivity(), ARContract.View {
                 .into(ModifiedViewTarget(preview))
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onBitmapLoaded(event: BitmapLoaded) {
         GlideApp.get(this).clearMemory()
     }

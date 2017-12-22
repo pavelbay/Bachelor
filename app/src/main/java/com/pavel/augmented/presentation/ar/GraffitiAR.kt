@@ -30,7 +30,7 @@ class GraffitiAR(private val targetPath: String) {
     }
   ]
 }"""
-        target.setup(jstr, StorageType.Assets or StorageType.Json, "")
+        target.setup(jstr, StorageType.Absolute or StorageType.Json, "")
         tracker.loadTarget(target) { target, status -> Log.i("HelloAR", "load target ($status): ${target.name()} (${target.runtimeID()})") }
     }
 
@@ -67,7 +67,7 @@ class GraffitiAR(private val targetPath: String) {
 //        loadFromJsonFile(tracker, "targets.json", "argame")
 //        loadFromJsonFile(tracker, "targets.json", "idback")
 //        loadAllFromJsonFile(tracker, "targets2.json")
-        loadFromImage(tracker, "target.png")
+        loadFromImage(tracker, "target  .png")
         trackers.add(tracker)
 
         return status

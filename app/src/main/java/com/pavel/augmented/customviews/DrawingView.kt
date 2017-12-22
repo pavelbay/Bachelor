@@ -26,6 +26,8 @@ class DrawingView @JvmOverloads constructor(
     private val mBitmapPaint: Paint = Paint(Paint.DITHER_FLAG)
     private val circlePaint: Paint = Paint()
     private val circlePath: Path = Path()
+    private var ratioWidth = 0
+    private var ratioHeight = 0
 
     var pictureAvailable = false
 
@@ -61,12 +63,29 @@ class DrawingView @JvmOverloads constructor(
         mCanvas = Canvas(bitmap)
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-
-        Log.d(TAG, "OnMeasure")
+    fun setAspectRatio(width: Int, height: Int) {
+        if (width < 0 || height < 0) {
+            throw IllegalArgumentException("Size cannot be negative.")
+        }
+        ratioWidth = width
+        ratioHeight = height
+        requestLayout()
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        val width = View.MeasureSpec.getSize(widthMeasureSpec)
+        val height = View.MeasureSpec.getSize(heightMeasureSpec)
+        if (ratioWidth == 0 || ratioHeight == 0) {
+            setMeasuredDimension(width, height)
+        } else {
+            if (width < height * ratioWidth / ratioHeight) {
+                setMeasuredDimension(width, width * ratioHeight / ratioWidth)
+            } else {
+                setMeasuredDimension(height * ratioWidth / ratioHeight, height)
+            }
+        }
+    }
     fun updateBitmap(bitmap: Bitmap) {
         Log.d(TAG, "Bitmap: " + bitmap.toString())
         this.bitmap = Bitmap.createScaledBitmap(bitmap, mWidth, mHeight, true)
