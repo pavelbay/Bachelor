@@ -122,34 +122,6 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
                 }
     }
 
-//    fun publicSketch(sketch: Sketch, files: Array<MultipartBody.Part?>) {
-//        val id = RequestBody.create(MediaType.parse("text/plain"), sketch.id.toString())
-//        val call = sketchUploadService.uploadImage(id, files[0]!!)
-//        call.enqueue(object : Callback<ResponseBody> {
-//            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
-//                Log.d(TAG, "Response from image upload: " + response?.toString())
-//                EventBus.getDefault().post(SketchUploadEvents.OnSuccess())
-//            }
-//
-//            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
-//                Log.e(TAG, "Error from image upload: " + t?.toString())
-//                EventBus.getDefault().post(SketchUploadEvents.OnFailure())
-//            }
-//        })
-//
-//        val sketchCall = sketchUploadService.uploadSketch(sketch)
-//
-//        sketchCall.enqueue(object : Callback<ResponseBody> {
-//            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
-//                Log.d(TAG, "Response from sketch upload: " + response?.toString())
-//            }
-//
-//            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
-//                Log.e(TAG, "Error from sketch upload: " + t?.toString())
-//            }
-//        })
-//    }
-
     fun publicSketch(sketch: Sketch, originFile: MultipartBody.Part, targetFile: MultipartBody.Part) {
         val id = RequestBody.create(MediaType.parse("text/plain"), sketch.id.toString())
         val call = sketchUploadService.uploadImages(id, originFile, targetFile)
