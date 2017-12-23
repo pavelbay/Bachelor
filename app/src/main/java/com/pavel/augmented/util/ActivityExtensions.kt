@@ -1,7 +1,9 @@
 package com.pavel.augmented.util
 
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.support.annotation.IdRes
+import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
@@ -35,7 +37,7 @@ fun AppCompatActivity.setupActionBar(@IdRes toolbarId: Int, action: ActionBar.()
     }
 }
 
-fun AppCompatActivity.askForPermissions(permissions: Array<out String>, requestCode: Int): Boolean {
+fun Activity.askForPermissions(permissions: Array<out String>, requestCode: Int): Boolean {
     val permissionsToBeRequested = ArrayList<String>()
     permissions
             .filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED &&
@@ -49,6 +51,10 @@ fun AppCompatActivity.askForPermissions(permissions: Array<out String>, requestC
 
 fun FragmentActivity.showToast(text: String) {
     runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_SHORT).show() }
+}
+
+fun FragmentActivity.showToast(@StringRes res: Int) {
+    runOnUiThread { Toast.makeText(this, getString(res), Toast.LENGTH_SHORT).show() }
 }
 
 /**

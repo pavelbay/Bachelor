@@ -168,6 +168,8 @@ class DrawingView @JvmOverloads constructor(
         val bundle = super.onSaveInstanceState()
         val savedState = SavedState(bundle)
         savedState.mBitmap = this.bitmap
+        savedState.ratioWidth = this.ratioWidth
+        savedState.ratioHeight = this.ratioHeight
         savedState.isPictureAvailable = this.pictureAvailable
         return savedState
     }
@@ -176,8 +178,9 @@ class DrawingView @JvmOverloads constructor(
         if (state is SavedState) {
             super.onRestoreInstanceState(state.superState)
             this.bitmap = state.mBitmap
+            this.ratioWidth = state.ratioWidth
+            this.ratioHeight = state.ratioHeight
             this.pictureAvailable = state.isPictureAvailable
-            Log.d("Deb", "Bitmap restored")
         } else {
             super.onRestoreInstanceState(state)
         }
@@ -191,11 +194,15 @@ class DrawingView @JvmOverloads constructor(
     internal class SavedState : BaseSavedState {
         var mBitmap: Bitmap? = null
         var isPictureAvailable: Boolean = false
+        var ratioWidth: Int = 0
+        var ratioHeight: Int = 0
 
         constructor(bundle: Parcelable) : super(bundle)
 
         private constructor(parcel: Parcel) : super(parcel) {
             mBitmap = parcel.readParcelable(Parcelable::class.java.classLoader)
+            ratioWidth = parcel.readInt()
+            ratioHeight = parcel.readInt()
             isPictureAvailable = parcel.readInt() == 1
         }
 
@@ -212,6 +219,8 @@ class DrawingView @JvmOverloads constructor(
         override fun writeToParcel(dest: Parcel, flags: Int) {
             super.writeToParcel(dest, flags)
             dest.writeParcelable(mBitmap, flags)
+            dest.writeInt(ratioWidth)
+            dest.writeInt(ratioHeight)
             val available = if (isPictureAvailable) 1 else 0
             dest.writeInt(available)
         }

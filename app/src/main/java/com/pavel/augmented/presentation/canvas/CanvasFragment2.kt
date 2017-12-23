@@ -13,11 +13,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.support.annotation.ColorInt
+import android.support.annotation.DrawableRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.ContextCompat.checkSelfPermission
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
@@ -64,11 +64,9 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
         colorPickerDialog.show(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
     }
 
-    override fun displayMessageCannotCreateSketch() =
-            Toast.makeText(context, R.string.message_cannot_create_sketch, Toast.LENGTH_SHORT).show()
+    override fun displayMessageCannotCreateSketch() = activity.showToast(R.string.message_cannot_create_sketch)
 
-    override fun displayMessageSketchWithNameAlreadyExists() =
-            Toast.makeText(context, R.string.message_sketch_name_exists, Toast.LENGTH_SHORT).show()
+    override fun displayMessageSketchWithNameAlreadyExists() = activity.showToast(R.string.message_sketch_name_exists)
 
     private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
 
@@ -94,9 +92,6 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
      */
     private lateinit var cameraId: String
 
-    /**
-     * An [AutoFitTextureView] for camera preview.
-     */
     /**
      * A [CameraCaptureSession] for camera preview.
      */
@@ -169,7 +164,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
      */
     private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
         //        backgroundHandler?.post(ImageSaver(it.acquireNextImage(), file)
-// presenter.existedSketch = null
+        presenter.existedSketch = null
         tempBitmapSaved = false
         val image = it.acquireLatestImage()
         val buffer = image.planes[0].buffer
@@ -288,6 +283,8 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
                 displayDialog()
             }
         }
+
+        setupFloatingButtonIcon()
     }
 
     override fun onResume() {
@@ -295,17 +292,18 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
         presenter.view = this
         presenter.start()
 
-        startBackgroundThread()
-
-        // When the screen is turned off and turned back on, the SurfaceTexture is already
-        // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
-        // a camera and start preview from here (otherwise, we wait until the surface is ready in
-        // the SurfaceTextureListener).
-        if (texture_view.isAvailable && mode == Mode.VIEW) {
-            openCamera(texture_view.width, texture_view.height)
-        } else {
-            texture_view.surfaceTextureListener = surfaceTextureListener
-        }
+//        startBackgroundThread()
+//
+//        // When the screen is turned off and turned back on, the SurfaceTexture is already
+//        // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
+//        // a camera and start preview from here (otherwise, we wait until the surface is ready in
+//        // the SurfaceTextureListener).
+//        if (texture_view.isAvailable && mode == Mode.VIEW) {
+//            openCamera(texture_view.width, texture_view.height)
+//        } else {
+//            texture_view.surfaceTextureListener = surfaceTextureListener
+//        }
+        setupCameraMode()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -361,27 +359,24 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
                     changeMode()
                 } else {
                     if (isAdded) {
-                        Toast.makeText(context, R.string.message_no_available_picture, Toast.LENGTH_SHORT).show()
+                        activity.showToast(R.string.message_no_available_picture)
                     }
                 }
                 true
             }
 
             R.id.save_to_gallery -> {
-                val parentActivity = activity
-                if (parentActivity is AppCompatActivity) {
-                    permissionStorageGranted = !parentActivity.askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT)
-                    if (permissionStorageGranted) {
-                        permissionStorageGranted = true
-                        if (presenter.existedSketch == null) {
-                            val dialogFragment =
-                                    EditTextDialogFragment.newInstance(
-                                            getString(R.string.title_name_dialog), getString(R.string.hint_name_dialog), 2, true
-                                    )
-                            dialogFragment.show(fragmentManager, NAME_DIALOG_TAG)
-                        } else {
-                            presenter.saveToGallery(null, drawing_view.bitmap)
-                        }
+                permissionStorageGranted = !activity.askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT)
+                if (permissionStorageGranted) {
+                    permissionStorageGranted = true
+                    if (presenter.existedSketch == null) {
+                        val dialogFragment =
+                                EditTextDialogFragment.newInstance(
+                                        getString(R.string.title_name_dialog), getString(R.string.hint_name_dialog), 2, true
+                                )
+                        dialogFragment.show(fragmentManager, NAME_DIALOG_TAG)
+                    } else {
+                        presenter.saveToGallery(null, drawing_view.bitmap)
                     }
                 }
                 true
@@ -834,23 +829,43 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
     }
 
     private fun changeMode() {
-        if (mode == Mode.VIEW) {
-            mode = Mode.DRAW
-            closeCamera()
-            texture_view.visibility = View.GONE
-            stopBackgroundThread()
+        mode = if (mode == Mode.VIEW) {
+            Mode.DRAW
         } else {
-            mode = Mode.VIEW
-            texture_view.visibility = View.VISIBLE
+            Mode.VIEW
+        }
+        setupMode()
+    }
 
+    private fun setupCameraMode() {
+        if (mode == Mode.VIEW) {
+            startBackgroundThread()
             if (texture_view.isAvailable && mode == Mode.VIEW) {
                 openCamera(texture_view.width, texture_view.height)
             } else {
                 texture_view.surfaceTextureListener = surfaceTextureListener
             }
+        } else {
+            closeCamera()
+            stopBackgroundThread()
         }
+    }
+
+    private fun setupMode() {
+        setupCameraMode()
         setupViewVisibility()
         setupMenu()
+        setupFloatingButtonIcon()
+    }
+
+    private fun setupFloatingButtonIcon() {
+        @DrawableRes val res: Int = if (mode == Mode.DRAW) {
+            R.drawable.ic_pick_color
+        } else {
+            R.drawable.ic_camera_fb
+        }
+
+        main_activity_floating_action_button.setImageResource(res)
     }
 
     private fun setupViewVisibility() {
@@ -1003,16 +1018,15 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
             val notBigEnough = ArrayList<Size>()
             val w = aspectRatio.width
             val h = aspectRatio.height
-            for (option in choices) {
-                if (option.width <= maxWidth && option.height <= maxHeight &&
-                        option.height == option.width * h / w) {
-                    if (option.width >= textureViewWidth && option.height >= textureViewHeight) {
-                        bigEnough.add(option)
-                    } else {
-                        notBigEnough.add(option)
+            choices
+                    .filter { it.width <= maxWidth && it.height <= maxHeight && it.height == it.width * h / w }
+                    .forEach {
+                        if (it.width >= textureViewWidth && it.height >= textureViewHeight) {
+                            bigEnough.add(it)
+                        } else {
+                            notBigEnough.add(it)
+                        }
                     }
-                }
-            }
 
             // Pick the smallest of those big enough. If there is no one big enough, pick the
             // largest of those not big enough.
