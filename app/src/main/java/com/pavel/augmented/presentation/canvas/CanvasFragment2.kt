@@ -157,7 +157,6 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
 
     private var menu: Menu? = null
 
-
     /**
      * This a callback object for the [ImageReader]. "onImageAvailable" will be called when a
      * still image is ready to be saved.
@@ -292,17 +291,6 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
         presenter.view = this
         presenter.start()
 
-//        startBackgroundThread()
-//
-//        // When the screen is turned off and turned back on, the SurfaceTexture is already
-//        // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
-//        // a camera and start preview from here (otherwise, we wait until the surface is ready in
-//        // the SurfaceTextureListener).
-//        if (texture_view.isAvailable && mode == Mode.VIEW) {
-//            openCamera(texture_view.width, texture_view.height)
-//        } else {
-//            texture_view.surfaceTextureListener = surfaceTextureListener
-//        }
         setupCameraMode()
     }
 
