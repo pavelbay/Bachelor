@@ -123,7 +123,7 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
     }
 
     fun publicSketch(sketch: Sketch, originFile: MultipartBody.Part, targetFile: MultipartBody.Part) {
-        val id = RequestBody.create(MediaType.parse("text/plain"), sketch.id.toString())
+        val id = RequestBody.create(MediaType.parse("text/plain"), sketch.id)
         val call = sketchUploadService.uploadImages(id, originFile, targetFile)
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
