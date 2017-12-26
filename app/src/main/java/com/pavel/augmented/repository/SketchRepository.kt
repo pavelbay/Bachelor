@@ -89,7 +89,12 @@ class SketchRepository(private val context: Context,
 
     private fun createNewSketch(name: String, bitmap: Bitmap?, latLng: LatLng?, defaultId: String = "0"): Sketch? {
         return if (latLng != null) {
-            val sketch = Sketch(id = generateUniqueId()?.toString() ?: defaultId, name = name, latitude = latLng.latitude, longitude = latLng.longitude)
+            val newId = if (defaultId != "0") {
+                defaultId
+            } else {
+                generateUniqueId()?.toString()
+            }
+            val sketch = Sketch(id = newId ?: defaultId, name = name, latitude = latLng.latitude, longitude = latLng.longitude)
                 sketchDao.findSketchByIdAsync(sketch.id)
                         .subscribe { loadedSketch: Sketch?, _: Throwable? ->
                             val insertInDb = loadedSketch == null
