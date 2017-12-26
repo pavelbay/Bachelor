@@ -2,6 +2,7 @@ package com.pavel.augmented.presentation.map
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -98,12 +99,36 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
         googleMap.isMyLocationEnabled = true
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location -> if (location != null) zoomToMyLocation(location) }
         googleMap.setOnMarkerClickListener {
-            presenter.fetchImages(it.tag as String)
-            presenter.currentTargetId = it.tag as String
-            if (isAdded) {
-                Toast.makeText(context, String.format(getString(R.string.map_set_as_target), it.title), Toast.LENGTH_SHORT).show()
-            }
+            displayDialog(it)
             return@setOnMarkerClickListener true
+        }
+    }
+
+    private fun displayDialog(marker: Marker) {
+        AlertDialog.Builder(activity)
+                .setTitle(marker.title)
+                .setMessage(getString(R.string.map_dialog_message))
+                .setPositiveButton(R.string.map_dialog_positive_button_title, {dialog, _->
+                    setSketchAsTarget(marker.tag as String, marker.title)
+                    dialog.dismiss()
+                })
+                .setNegativeButton(R.string.map_dialog_negative_button_title, {dialog, _ ->
+
+                    dialog.dismiss()
+                })
+                .setNeutralButton(R.string.map_dialog_neutral_button_title, {dialog, _ ->
+                    dialog.dismiss()
+                })
+                .create()
+                .show()
+
+    }
+
+    private fun setSketchAsTarget(id: String, title: String) {
+        presenter.fetchImages(id)
+        presenter.currentTargetId = id
+        if (isAdded) {
+            Toast.makeText(context, String.format(getString(R.string.map_set_as_target), title), Toast.LENGTH_SHORT).show()
         }
     }
 

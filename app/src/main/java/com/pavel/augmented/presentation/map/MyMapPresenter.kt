@@ -44,7 +44,11 @@ class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapCont
 
     override fun fetchImages(id: String) {
         Log.d(TAG, "Fetching for id: " + id)
-        sketchRepository.fetchImage(id)
+        sketchRepository.fetchImage(id, false)
+    }
+
+    override fun fetchImagesForEditing(id: String) {
+
     }
 
     override fun calculateCameraUpdateToMyLocation(myLocation: Location): CameraUpdate {

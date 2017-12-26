@@ -19,5 +19,6 @@ interface MyMapContract {
         fun calculateCameraUpdateToMyLocation(myLocation: Location): CameraUpdate
         fun fetchSketches()
         fun fetchImages(id: String)
+        fun fetchImagesForEditing(id: String)
     }
 }
