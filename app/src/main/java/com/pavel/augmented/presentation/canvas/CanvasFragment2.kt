@@ -903,6 +903,11 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
     }
 
     @Subscribe
+    fun onSketchSaved(onSketchSaved: SketchEvents.OnSketchSaved) {
+        displayMessageSavedToGallery()
+    }
+
+    @Subscribe
     fun onColorPickerDialogDismiss(ignore: ColorPickerEvents.ColorPickerOkButtonEvent) {
         val fragmentTransaction = fragmentManager.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)

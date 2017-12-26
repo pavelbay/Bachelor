@@ -22,9 +22,9 @@ interface SketchDao {
     @Query("SELECT * FROM sketches")
     fun loadAllSketches(): Array<Sketch>
 
-    @Query("SELECT * FROM sketches WHERE name = :search")
-    fun findSketchByName(search: String): Sketch
+    @Query("SELECT * FROM sketches WHERE id = :search")
+    fun findSketchById(search: String): Sketch
 
-    @Query("SELECT * FROM sketches WHERE name = :search")
-    fun findSketchByNameAsync(search: String): Single<Sketch>
+    @Query("SELECT * FROM sketches WHERE id = :search")
+    fun findSketchByIdAsync(search: String): Single<Sketch>
 }

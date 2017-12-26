@@ -42,13 +42,13 @@ class MyMapPresenter(private val sketchRepository: SketchRepository) : MyMapCont
         }
     }
 
-    override fun fetchImages(id: String) {
+    override fun fetchImages(id: String, name: String, latLng: LatLng?) {
         Log.d(TAG, "Fetching for id: " + id)
-        sketchRepository.fetchImage(id, false)
+        sketchRepository.fetchImage(id, name, latLng)
     }
 
-    override fun fetchImagesForEditing(id: String) {
-
+    override fun fetchImagesForEditing(id: String, name: String, latLng: LatLng?) {
+        sketchRepository.fetchImage(id, name, latLng)
     }
 
     override fun calculateCameraUpdateToMyLocation(myLocation: Location): CameraUpdate {

@@ -51,7 +51,7 @@
     <string name="map_set_as_target">Sketch %s wird als Target gesetzt.</string>
     <string name="map_dialog_message">Ausgewählte Skizze</string>
     <string name="map_dialog_positive_button_title">als Target setzen</string>
-    <string name="map_dialog_negative_button_title">bearbeiten</string>
+    <string name="map_dialog_negative_button_title">herunterladen</string>
     <string name="map_dialog_neutral_button_title">abbrechen</string>
 
 </resources>

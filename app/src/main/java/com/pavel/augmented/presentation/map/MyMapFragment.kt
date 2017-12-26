@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.util.DisplayMetrics
 import android.view.*
-import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
@@ -20,6 +19,7 @@ import com.pavel.augmented.R
 import com.pavel.augmented.di.AppModule
 import com.pavel.augmented.events.PermissionsEvent
 import com.pavel.augmented.model.Sketch
+import com.pavel.augmented.util.showToast
 import com.pavel.augmented.util.toggleRegister
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -108,15 +108,15 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
         AlertDialog.Builder(activity)
                 .setTitle(marker.title)
                 .setMessage(getString(R.string.map_dialog_message))
-                .setPositiveButton(R.string.map_dialog_positive_button_title, {dialog, _->
+                .setPositiveButton(R.string.map_dialog_positive_button_title, { dialog, _ ->
                     setSketchAsTarget(marker.tag as String, marker.title)
                     dialog.dismiss()
                 })
-                .setNegativeButton(R.string.map_dialog_negative_button_title, {dialog, _ ->
-
+                .setNegativeButton(R.string.map_dialog_negative_button_title, { dialog, _ ->
+                    presenter.fetchImagesForEditing(marker.tag as String, marker.title, marker.position)
                     dialog.dismiss()
                 })
-                .setNeutralButton(R.string.map_dialog_neutral_button_title, {dialog, _ ->
+                .setNeutralButton(R.string.map_dialog_neutral_button_title, { dialog, _ ->
                     dialog.dismiss()
                 })
                 .create()
@@ -125,10 +125,10 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
     }
 
     private fun setSketchAsTarget(id: String, title: String) {
-        presenter.fetchImages(id)
+        presenter.fetchImages(id, title, null)
         presenter.currentTargetId = id
         if (isAdded) {
-            Toast.makeText(context, String.format(getString(R.string.map_set_as_target), title), Toast.LENGTH_SHORT).show()
+            activity.showToast(String.format(getString(R.string.map_set_as_target), title))
         }
     }
 

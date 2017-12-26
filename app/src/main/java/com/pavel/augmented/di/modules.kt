@@ -41,12 +41,12 @@ class AppModule : AndroidModule() {
 
             provide { LocationServices.getFusedLocationProviderClient(getProperty(MainActivity.MAIN_ACTIVITY_CONTEXT)) }
 
-            provide { SketchRepository(get(), get(), get(BITMAP_FILESTORE), get(SKETCH_UPLOAD_SERVICE), get(SKETCH_DOWNLOAD_SERVICE)) }
+            provide { SketchRepository(get(), get(), get(), get(BITMAP_FILESTORE), get(SKETCH_UPLOAD_SERVICE), get(SKETCH_DOWNLOAD_SERVICE)) }
 
             provide(BITMAP_FILESTORE) { createFileStoreForBitmap(get()) }
 
             context(name = CTX_CANVAS_FRAGMENT) {
-                provide { CanvasPresenter(get(BITMAP_FILESTORE), get(), get(), get()) } bind (CanvasContract.Presenter::class)
+                provide { CanvasPresenter(get(), get()) } bind (CanvasContract.Presenter::class)
             }
 
             context(name = CTX_MAP_FRAGMENT) {

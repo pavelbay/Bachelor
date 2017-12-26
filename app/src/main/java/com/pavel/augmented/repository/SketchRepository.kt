@@ -1,15 +1,22 @@
 package com.pavel.augmented.repository
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
 import android.util.Log
+import com.google.android.gms.maps.model.LatLng
 import com.pavel.augmented.database.dao.SketchDao
+import com.pavel.augmented.events.SketchEvents
 import com.pavel.augmented.events.SketchUploadEvents
 import com.pavel.augmented.model.Sketch
 import com.pavel.augmented.network.SketchDownloadService
 import com.pavel.augmented.network.SketchUploadService
+import com.pavel.augmented.presentation.canvas.CanvasPresenter.Companion.TMP_BITMAP
 import com.pavel.augmented.rx.SchedulerProvider
 import com.pavel.augmented.storage.FileStore
+import com.pavel.augmented.util.getOriginImageFile
+import com.pavel.augmented.util.getTmpImageFile
 import io.reactivex.Observable
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -19,8 +26,12 @@ import org.greenrobot.eventbus.EventBus
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.math.BigInteger
+import java.nio.ByteBuffer
+import java.util.*
 
-class SketchRepository(private val schedulerProvider: SchedulerProvider,
+class SketchRepository(private val context: Context,
+                       private val schedulerProvider: SchedulerProvider,
                        private val sketchDao: SketchDao,
                        private val fileStore: FileStore<Bitmap>,
                        private val sketchUploadService: SketchUploadService,
@@ -35,10 +46,87 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
                 }
     }
 
-    fun fetchImage(id: String, forEditing: Boolean) {
+    private fun performSave(sketch: Sketch, bitmap: Bitmap?, insertToDb: Boolean) {
+        if (insertToDb) {
+            Observable
+                    .fromCallable { sketchDao.insertSketch(sketch) }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .subscribe { Log.d(TAG, "Sketch: $sketch saved to db") }
+        }
+
+//        fun delete() = fileStore.deleteType(existedSketch?.name)
+
+        bitmap?.let {
+            //currentRequest?.dispose()
+            Observable
+                    .fromCallable { fileStore.saveType(bitmap, sketch.id) }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .subscribe { EventBus.getDefault().post(SketchEvents.OnSketchSaved()) }
+        }
+    }
+
+    fun saveTempBitmap(bitmap: Bitmap?, width: Int, height: Int) {
+        bitmap?.let {
+            Observable.fromCallable {
+                val scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
+                fileStore.saveType(scaledBitmap, TMP_BITMAP)
+            }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .subscribe { }
+        }
+    }
+
+    fun saveToGallery(name: String?, bitmap: Bitmap?, existedSketch: Sketch?, location: Location?, callback: (sketch: Sketch?) -> Unit) {
+        if (existedSketch != null) {
+            performSave(existedSketch, bitmap, false)
+        } else if (name != null && location != null) {
+            callback(createNewSketch(name, bitmap, LatLng(location.latitude, location.longitude)))
+        }
+    }
+
+    private fun createNewSketch(name: String, bitmap: Bitmap?, latLng: LatLng?, defaultId: String = "0"): Sketch? {
+        return if (latLng != null) {
+            val sketch = Sketch(id = generateUniqueId()?.toString() ?: defaultId, name = name, latitude = latLng.latitude, longitude = latLng.longitude)
+                sketchDao.findSketchByIdAsync(sketch.id)
+                        .subscribe { loadedSketch: Sketch?, _: Throwable? ->
+                            val insertInDb = loadedSketch == null
+                            Log.d(TAG, "InsertInDB:$insertInDb")
+                            performSave(sketch, bitmap, insertInDb)
+                            if (insertInDb) {
+                                renameTempBitmap(sketch.id)
+                            }
+                        }
+            sketch
+        } else {
+            null
+        }
+    }
+
+    private fun renameTempBitmap(id: String) {
+        val from = getTmpImageFile(context)
+        val to = getOriginImageFile(context, id)
+        from.renameTo(to)
+    }
+
+    private fun generateUniqueId(): Long? {
+        var `val`: Long
+        do {
+            val uid = UUID.randomUUID()
+            val buffer = ByteBuffer.wrap(ByteArray(16))
+            buffer.putLong(uid.leastSignificantBits)
+            buffer.putLong(uid.mostSignificantBits)
+            val bi = BigInteger(buffer.array())
+            `val` = bi.toLong()
+        } while (`val` < 0)
+        return `val`
+    }
+
+    fun fetchImage(id: String, title: String, latLng: LatLng?) {
         val originCall = sketchDownloadService.downloadImage(id)
         val targetCall = sketchDownloadService.downloadImageTarget(id)
-
 
         val originCallback = object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
@@ -49,7 +137,11 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
                                 .observeOn(schedulerProvider.io())
                                 .subscribe {
                                     synchronized(fileStore) {
-                                        fileStore.saveBitmapOrigin(it)
+                                        if (latLng == null) {
+                                            fileStore.saveBitmapOrigin(it)
+                                        } else {
+                                            fileStore.saveType(it, "origin$id")
+                                        }
                                     }
                                 }
                     }
@@ -72,7 +164,12 @@ class SketchRepository(private val schedulerProvider: SchedulerProvider,
                                 .observeOn(schedulerProvider.io())
                                 .subscribe {
                                     synchronized(fileStore) {
-                                        fileStore.saveBitmapTarget(it)
+                                        // TODO: create sketch
+                                        if (latLng != null) {
+                                            createNewSketch(title, it, latLng, id)
+                                        } else {
+                                            fileStore.saveBitmapTarget(it)
+                                        }
                                     }
                                 }
                     }
