@@ -113,7 +113,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         orientations.append(Surface.ROTATION_270, 180)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
         permissionCameraGranted = checkPermission()
         orientationEventListener = OrientationEventListener()
@@ -121,10 +121,10 @@ class CanvasFragment : Fragment(), CanvasContract.View {
             orientationEventListener.enable()
         }
 
-        return inflater?.inflate(R.layout.layout_canvas_fragment, container, false)
+        return inflater.inflate(R.layout.layout_canvas_fragment, container, false)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         drawing_view.setColor(DEFAULT_COLOR)
         main_activity_floating_action_button.setOnClickListener {
             if (mode == Mode.VIEW) {
@@ -144,11 +144,11 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         orientationEventListener.disable()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState?.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
-        outState?.putBoolean(TEMP_BITMAP_SAVED_KEY, tempBitmapSaved)
+        outState.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
+        outState.putBoolean(TEMP_BITMAP_SAVED_KEY, tempBitmapSaved)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -236,7 +236,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     override fun displayMessageSavedToGallery() = Toast.makeText(context, getString(R.string.message_saved_to_gallery), Toast.LENGTH_SHORT).show()
 
     override fun displayDialog() {
-        val fragmentTransaction = fragmentManager.beginTransaction()
+        val fragmentTransaction = fragmentManager?.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
 
         val colorPickerDialog = ColorPickerDialogFragment.newInstance(R.layout.layout_color_picker, R.id.color_picker_ok_button, drawing_view.getColor())
@@ -262,7 +262,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
         EventBus.getDefault().toggleRegister(this)
     }
 
-    override fun context(): Context = context
+    override fun context(): Context = context!!
 
 //    private fun loadImage() {
 //        GlideApp.with(drawing_view)
@@ -271,7 +271,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 //                .into(ViewTarget(drawing_view))
 //    }
 
-    private fun checkPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    private fun checkPermission() = ContextCompat.checkSelfPermission(context(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     private fun setupMenu() {
         menu?.findItem(R.id.save_to_gallery)?.isVisible = mode == Mode.DRAW
@@ -280,7 +280,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     @SuppressLint("MissingPermission")
     private fun openCamera() {
         if (!cameraOpened && textureAvailable && permissionCameraGranted && mode == Mode.VIEW) {
-            val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val cameraManager = context?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             try {
                 cameraId = cameraManager.cameraIdList[0]
                 val characteristics = cameraManager.getCameraCharacteristics(cameraId)
@@ -319,7 +319,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     private fun takePicture() {
         cameraDevice?.let {
-            val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val cameraManager = context?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             try {
                 val characteristics = cameraManager.getCameraCharacteristics(cameraDevice?.id)
                 val size = characteristics?.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)?.getOutputSizes(ImageFormat.JPEG)
@@ -352,7 +352,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
                     override fun onCaptureCompleted(session: CameraCaptureSession?, request: CaptureRequest?, result: TotalCaptureResult?) {
                         super.onCaptureCompleted(session, request, result)
                         if (isAdded) {
-                            activity.runOnUiThread({
+                            activity?.runOnUiThread({
                                 changeMode()
                                 setupMenu()
                                 Toast.makeText(context, R.string.message_picture_has_been_taken, Toast.LENGTH_SHORT).show()
@@ -544,7 +544,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
     }
 
     private fun removeDialogIfExists(fragmentTransaction: FragmentTransaction?, tag: String) {
-        val previousFragment = fragmentManager.findFragmentByTag(tag)
+        val previousFragment = fragmentManager?.findFragmentByTag(tag)
         previousFragment?.let {
             fragmentTransaction?.remove(previousFragment)
         }
@@ -557,7 +557,7 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     @Subscribe
     fun onSketchChosen(onSketchChosen: SketchEvents.OnSketchChosen) {
-        val file = getTargetImageFile(context, onSketchChosen.sketch.id)
+        val file = getTargetImageFile(context(), onSketchChosen.sketch.id)
         GlideApp
                 .with(drawing_view)
                 .asBitmap()
@@ -574,9 +574,9 @@ class CanvasFragment : Fragment(), CanvasContract.View {
 
     @Subscribe
     fun onColorPickerDialogDismiss(ignore: ColorPickerEvents.ColorPickerOkButtonEvent) {
-        val fragmentTransaction = fragmentManager.beginTransaction()
+        val fragmentTransaction = fragmentManager?.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
-        fragmentTransaction.commit()
+        fragmentTransaction?.commit()
     }
 
     @Subscribe

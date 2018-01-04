@@ -42,14 +42,14 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
 
     private var permissionGranted = false
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         permissionGranted = checkPermission()
         setHasOptionsMenu(true)
 
         return inflater?.inflate(R.layout.layout_map_fragment, container, false)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
 //        if (!permissionGranted) {
@@ -128,7 +128,7 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
         presenter.fetchImages(id, title, null)
         presenter.currentTargetId = id
         if (isAdded) {
-            activity.showToast(String.format(getString(R.string.map_set_as_target), title))
+            activity!!.showToast(String.format(getString(R.string.map_set_as_target), title))
         }
     }
 
@@ -157,7 +157,7 @@ class MyMapFragment : ContextAwareFragment(), MyMapContract.View {
         googleMap.animateCamera(presenter.calculateCameraUpdateToMyLocation(location))
     }
 
-    private fun checkPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    private fun checkPermission() = ContextCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     @SuppressLint("MissingPermission")
     @Subscribe

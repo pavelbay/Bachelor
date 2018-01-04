@@ -6,12 +6,12 @@ apply plugin: 'kotlin-kapt'
 
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.pavel.augmented"
-        minSdkVersion 23
-        targetSdkVersion 26
+        minSdkVersion 21
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -63,11 +63,11 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
 
     //    OkHttp
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
 
     //    сolor picker
     implementation 'com.pes.materialcolorpicker:library:1.2.0'
-    implementation 'com.android.support:design:26.1.0'
+    implementation "com.android.support:design:${supportLibVersion}"
     implementation 'com.github.madrapps:pikolo:1.1.6'
 
     //    event bus
@@ -110,7 +110,7 @@ dependencies {
     kapt "android.arch.persistence.room:compiler:${archRoomVersion}"
 
     //    glide
-    implementation 'com.github.bumptech.glide:glide:4.3.1'
+    implementation 'com.github.bumptech.glide:glide:4.4.0'
     kapt 'com.github.bumptech.glide:compiler:4.3.1'
     implementation files('libs/EasyAR.jar')
 }

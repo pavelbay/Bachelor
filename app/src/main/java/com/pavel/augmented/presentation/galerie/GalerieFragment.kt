@@ -34,14 +34,14 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
 
     private var storagePermissionGranted = false
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         storagePermissionGranted = checkPermission()
         setHasOptionsMenu(true)
         galerieAdapter = GalerieAdapter(ArrayList())
         return inflater?.inflate(R.layout.layout_galerie_fragment, container, false)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         galerie_rec_view.layoutManager = GridLayoutManager(context, 4)
@@ -55,11 +55,11 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState?.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
-        outState?.putBooleanArray(LIST_SAVE_STATE_KEY, galerieAdapter?.getSelectedNumbers())
+        outState.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
+        outState.putBooleanArray(LIST_SAVE_STATE_KEY, galerieAdapter?.getSelectedNumbers())
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -116,7 +116,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         }
     }
 
-    override fun context(): Context = context
+    override fun context(): Context = context!!
 
     override fun onStart() {
         super.onStart()
@@ -147,7 +147,7 @@ class GalerieFragment : ContextAwareFragment(), GalerieContract.View {
         // EventBus.getDefault().post(MayAskForPermissionsEvent())
     }
 
-    private fun checkPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    private fun checkPermission() = ContextCompat.checkSelfPermission(context(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
     private fun exitEditMode() {
         mode = Mode.VIEW

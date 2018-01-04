@@ -37,10 +37,10 @@ class EditTextDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val editText = EditText(context)
-        editText.hint = arguments.getString(HINT_KEY)
+        editText.hint = arguments!!.getString(HINT_KEY)
 
-        editTextDialog = AlertDialog.Builder(activity)
-                .setTitle(arguments.getString(TITLE_KEY))
+        editTextDialog = AlertDialog.Builder(activity!!)
+                .setTitle(arguments!!.getString(TITLE_KEY))
                 .setView(editText)
                 .setPositiveButton(android.R.string.ok, { _, _ ->
                     if (editText.text.isEmpty()) {
@@ -59,7 +59,7 @@ class EditTextDialogFragment : DialogFragment() {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                editTextDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = s != null && s.length > arguments.getInt(MIN_LENGTH_KEY) - 1
+                editTextDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = s != null && s.length > arguments!!.getInt(MIN_LENGTH_KEY) - 1
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -73,6 +73,6 @@ class EditTextDialogFragment : DialogFragment() {
     override fun onResume() {
         super.onResume()
 
-        editTextDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !arguments.getBoolean(DISABLE_POSITIVE_BUTTON, false)
+        editTextDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !arguments!!.getBoolean(DISABLE_POSITIVE_BUTTON, false)
     }
 }

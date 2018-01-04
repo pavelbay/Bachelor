@@ -52,21 +52,21 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
 
     override var tempBitmapSaved: Boolean = false
 
-    override fun context(): Context = context
+    override fun context(): Context = context!!
 
     override fun displayMessageSavedToGallery() = Toast.makeText(context, getString(R.string.message_saved_to_gallery), Toast.LENGTH_SHORT).show()
 
     override fun displayDialog() {
-        val fragmentTransaction = fragmentManager.beginTransaction()
+        val fragmentTransaction = fragmentManager?.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
 
         val colorPickerDialog = ColorPickerDialogFragment.newInstance(R.layout.layout_color_picker, R.id.color_picker_ok_button, drawing_view.getColor())
         colorPickerDialog.show(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
     }
 
-    override fun displayMessageCannotCreateSketch() = activity.showToast(R.string.message_cannot_create_sketch)
+    override fun displayMessageCannotCreateSketch() = activity!!.showToast(R.string.message_cannot_create_sketch)
 
-    override fun displayMessageSketchWithNameAlreadyExists() = activity.showToast(R.string.message_sketch_name_exists)
+    override fun displayMessageSketchWithNameAlreadyExists() = activity!!.showToast(R.string.message_sketch_name_exists)
 
     private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
 
@@ -294,11 +294,11 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
         setupCameraMode()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState?.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
-        outState?.putBoolean(TEMP_BITMAP_SAVED_KEY, tempBitmapSaved)
+        outState.putInt(MODE_SAVE_STATE_KEY, mode.ordinal)
+        outState.putBoolean(TEMP_BITMAP_SAVED_KEY, tempBitmapSaved)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -347,14 +347,14 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
                     changeMode()
                 } else {
                     if (isAdded) {
-                        activity.showToast(R.string.message_no_available_picture)
+                        activity!!.showToast(R.string.message_no_available_picture)
                     }
                 }
                 true
             }
 
             R.id.save_to_gallery -> {
-                permissionStorageGranted = !activity.askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT)
+                permissionStorageGranted = !activity!!.askForPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_FROM_CANVAS_FRAGMENT)
                 if (permissionStorageGranted) {
                     permissionStorageGranted = true
                     if (presenter.existedSketch == null) {
@@ -388,7 +388,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
     @TargetApi(23)
     private fun requestCameraPermission(callback: PermissionCallback) {
         if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(context(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 val requestCode = permissionRequestCodeSerial
                 permissionRequestCodeSerial += 1
                 permissionCallbacks.put(requestCode, callback)
@@ -420,7 +420,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
     }
 
     private fun removeDialogIfExists(fragmentTransaction: FragmentTransaction?, tag: String) {
-        val previousFragment = fragmentManager.findFragmentByTag(tag)
+        val previousFragment = fragmentManager?.findFragmentByTag(tag)
         previousFragment?.let {
             fragmentTransaction?.remove(previousFragment)
         }
@@ -433,7 +433,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
      * @param height The height of available size for camera preview
      */
     private fun setUpCameraOutputs(width: Int, height: Int) {
-        val manager = activity.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = activity?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             for (cameraId in manager.cameraIdList) {
                 val characteristics = manager.getCameraCharacteristics(cameraId)
@@ -459,13 +459,13 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
 
                 // Find out if we need to swap dimension to get the preview size relative to sensor
                 // coordinate.
-                val displayRotation = activity.windowManager.defaultDisplay.rotation
+                val displayRotation = activity!!.windowManager.defaultDisplay.rotation
 
                 sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)
                 val swappedDimensions = areDimensionsSwapped(displayRotation)
 
                 val displaySize = Point()
-                activity.windowManager.defaultDisplay.getSize(displaySize)
+                activity!!.windowManager.defaultDisplay.getSize(displaySize)
                 val rotatedPreviewWidth = if (swappedDimensions) height else width
                 val rotatedPreviewHeight = if (swappedDimensions) width else height
                 var maxPreviewWidth = if (swappedDimensions) displaySize.y else displaySize.x
@@ -542,7 +542,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
      * Opens the camera specified by [Camera2BasicFragment.cameraId].
      */
     private fun openCamera(width: Int, height: Int) {
-        val permission = ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
+        val permission = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.CAMERA)
         if (permission != PackageManager.PERMISSION_GRANTED) {
             requestCameraPermission(object : PermissionCallback {
                 override fun onSuccess() {
@@ -559,7 +559,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
         }
         setUpCameraOutputs(width, height)
         configureTransform(width, height)
-        val manager = activity.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = activity!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             // Wait for camera to open - 2.5 seconds is sufficient
             if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
@@ -663,7 +663,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
                         }
 
                         override fun onConfigureFailed(session: CameraCaptureSession) {
-                            activity.showToast("Failed")
+                            activity!!.showToast("Failed")
                         }
                     }, null)
         } catch (e: CameraAccessException) {
@@ -682,7 +682,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
      */
     private fun configureTransform(viewWidth: Int, viewHeight: Int) {
         activity ?: return
-        val rotation = activity.windowManager.defaultDisplay.rotation
+        val rotation = activity!!.windowManager.defaultDisplay.rotation
         val matrix = Matrix()
         val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
         val bufferRect = RectF(0f, 0f, previewSize.height.toFloat(), previewSize.width.toFloat())
@@ -749,7 +749,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
     private fun captureStillPicture() {
         try {
             if (activity == null || cameraDevice == null) return
-            val rotation = activity.windowManager.defaultDisplay.rotation
+            val rotation = activity!!.windowManager.defaultDisplay.rotation
 
             // This is the CaptureRequest.Builder that we use to take a picture.
             val captureBuilder = cameraDevice?.createCaptureRequest(
@@ -773,9 +773,9 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
                 override fun onCaptureCompleted(session: CameraCaptureSession,
                                                 request: CaptureRequest,
                                                 result: TotalCaptureResult) {
-                    activity.showToast(getString(R.string.message_picture_has_been_taken))
+                    activity!!.showToast(getString(R.string.message_picture_has_been_taken))
                     unlockFocus()
-                    activity.runOnUiThread {
+                    activity!!.runOnUiThread {
                         changeMode()
                         setupMenu()
                         drawing_view.requestLayout()
@@ -887,7 +887,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
     fun onSketchChosen(onSketchChosen: SketchEvents.OnSketchChosen) {
         setUpCameraOutputs(texture_view.width, texture_view.height)
 
-        val file = getTargetImageFile(context, onSketchChosen.sketch.id)
+        val file = getTargetImageFile(context(), onSketchChosen.sketch.id)
         GlideApp
                 .with(drawing_view)
                 .asBitmap()
@@ -909,9 +909,9 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
 
     @Subscribe
     fun onColorPickerDialogDismiss(ignore: ColorPickerEvents.ColorPickerOkButtonEvent) {
-        val fragmentTransaction = fragmentManager.beginTransaction()
+        val fragmentTransaction = fragmentManager?.beginTransaction()
         removeDialogIfExists(fragmentTransaction, COLOR_PICKER_DIALOG_TAG)
-        fragmentTransaction.commit()
+        fragmentTransaction?.commit()
     }
 
     @Subscribe

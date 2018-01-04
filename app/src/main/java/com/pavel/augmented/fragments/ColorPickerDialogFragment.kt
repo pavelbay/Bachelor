@@ -40,13 +40,13 @@ class ColorPickerDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mViewLayoutRes = arguments.getInt(VIEW_LAYOUT_RES_KEY)
-        mButtonResId = arguments.getInt(BUTTON_RES_ID_KEY)
-        mDefaultColor = arguments.getInt(DEFAULT_COLOR_KEY)
+        mViewLayoutRes = arguments!!.getInt(VIEW_LAYOUT_RES_KEY)
+        mButtonResId = arguments!!.getInt(BUTTON_RES_ID_KEY)
+        mDefaultColor = arguments!!.getInt(DEFAULT_COLOR_KEY)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater?.inflate(mViewLayoutRes, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(mViewLayoutRes, container, false)
         val okButton = view?.findViewById<Button>(mButtonResId)
         okButton?.setOnClickListener { _ -> EventBus.getDefault().post(ColorPickerEvents.ColorPickerOkButtonEvent()) }
 

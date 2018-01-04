@@ -17,9 +17,9 @@ buildscript {
 }
 
 ext {
-    supportLibVersion = '26.1.0'
+    supportLibVersion = '27.0.2'
     archRoomVersion = '1.0.0'
-    playServicesVersion = '11.6.2'
+    playServicesVersion = '11.8.0'
 }
 
 allprojects {
