@@ -5,7 +5,7 @@ import android.arch.persistence.room.RoomDatabase
 import com.pavel.augmented.database.dao.SketchDao
 import com.pavel.augmented.model.Sketch
 
-@Database(entities = arrayOf(Sketch::class), version = 1)
+@Database(entities = [(Sketch::class)], version = 1)
 abstract class SketchAppDatabase  : RoomDatabase() {
     abstract fun sketchDao(): SketchDao
 }
