@@ -87,6 +87,7 @@ class BitmapFileStore(val context: Context) : FileStore<Bitmap> {
     companion object {
         const val DIR_NAME = "images"
         const val TARGET_DIR_NAME = "target"
+        const val CURRENT_BITMAP_DIR_NAME = "currentBitmap"
         private val TAG = BitmapFileStore::class.java.simpleName
     }
 }

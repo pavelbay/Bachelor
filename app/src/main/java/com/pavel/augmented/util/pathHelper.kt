@@ -18,3 +18,7 @@ fun getModifiedFolder(context: Context) = File(context.getExternalFilesDir(null)
 fun getModified(context: Context) = File(getModifiedFolder(context), "target.jpeg")
 
 fun getOrigin(context: Context) = File(getModifiedFolder(context), "origin.jpeg")
+
+fun getCurrentBitmapFolder(context: Context) = File(context.getExternalFilesDir(null), BitmapFileStore.CURRENT_BITMAP_DIR_NAME)
+
+fun getCurrentBitmap(context: Context) = File(getCurrentBitmapFolder(context), "current.jpeg")
