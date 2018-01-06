@@ -165,6 +165,7 @@ class DrawingView @JvmOverloads constructor(
     }
 
     override fun onSaveInstanceState(): Parcelable {
+        // TODO: fix TransactionTooLargeException
         val bundle = super.onSaveInstanceState()
         val savedState = SavedState(bundle)
         savedState.mBitmap = this.bitmap
