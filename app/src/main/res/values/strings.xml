@@ -16,10 +16,10 @@
     <string name="menu_refresh">Aktualisieren</string>
     <string name="menu_galerie_delete">Löschen ausgewählte</string>
     <string name="menu_galerie_exit_edit_mode">Auswählen beenden</string>
-    <string name="menu_galerie_upload_sketch">Sketch hochladen</string>
+    <string name="menu_galerie_upload_sketch">Laden ausgewählte hoch</string>
 
     <string name="menu_item_galerie">Galerie</string>
-    <string name="menu_item_canvas">Canvas</string>
+    <string name="menu_item_canvas">Neue Skizze</string>
     <string name="menu_item__map">Karte</string>
     <string-array name="main_view_pager_items">
         <item>@string/menu_item_galerie</item>
