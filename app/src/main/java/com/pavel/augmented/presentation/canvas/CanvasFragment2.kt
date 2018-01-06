@@ -785,7 +785,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
 
             captureSession?.apply {
                 stopRepeating()
-                abortCaptures()
+//                abortCaptures()
                 capture(captureBuilder?.build(), captureCallback, null)
             }
         } catch (e: CameraAccessException) {
