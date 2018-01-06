@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
+import android.opengl.Matrix
 import cn.easyar.Matrix44F
 import cn.easyar.Vec2F
 import com.pavel.augmented.events.BitmapLoaded
@@ -43,12 +44,13 @@ class BoxRenderer {
     private val vertexShaderCode = "attribute vec4 aPosition;" +
             "uniform mat4 trans;" +
             "uniform mat4 proj;" +
+            "uniform mat4 rotation;" +
             "attribute vec2 aTexPosition;" +
             "varying vec2 vTexPosition;" +
             "varying vec4 vcolor;" +
 
             "void main() {" +
-            "  gl_Position = proj*trans*aPosition;" +
+            "  gl_Position = proj*trans*rotation*aPosition;" +
             "  vTexPosition = aTexPosition;" +
             "}"
 
@@ -247,12 +249,17 @@ class BoxRenderer {
         val texturePositionHandle = GLES20.glGetAttribLocation(program, "aTexPosition")
         val trans = GLES20.glGetUniformLocation(program, "trans")
         val proj = GLES20.glGetUniformLocation(program, "proj")
+        val rot = GLES20.glGetUniformLocation(program, "rotation")
 
         GLES20.glVertexAttribPointer(texturePositionHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer)
         GLES20.glEnableVertexAttribArray(texturePositionHandle)
 
+        val rotationMatrix = floatArrayOf(0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+        Matrix.setRotateM(rotationMatrix, 0, 180F, 0F, 1F, 0F)
+
         GLES20.glUniformMatrix4fv(trans, 1, false, cameraview.data, 0)
         GLES20.glUniformMatrix4fv(proj, 1, false, projectionMatrix.data, 0)
+        GLES20.glUniformMatrix4fv(rot, 1, false, rotationMatrix, 0)
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture)
