@@ -13,7 +13,7 @@ class GraffitiAR(private val targetPath: String) {
     var modified: Bitmap? = null
 
     // TODO: Change it
-    private var box_renderer: BoxRenderer? = null
+    private var sketchRenderer: SketchRenderer? = null
     private var viewport_changed = false
     private var view_size = Vec2I(0, 0)
     private var rotation = 0
@@ -47,7 +47,7 @@ class GraffitiAR(private val targetPath: String) {
     }
 
     fun onTargetChanged(jsonTarget: String?) {
-        box_renderer!!.loadTexture(modified)
+        sketchRenderer!!.loadTexture(modified)
     }
 
     fun initialize(): Boolean {
@@ -78,7 +78,7 @@ class GraffitiAR(private val targetPath: String) {
             tracker.dispose()
         }
         trackers.clear()
-        box_renderer = null
+        sketchRenderer = null
         if (videobg_renderer != null) {
             videobg_renderer!!.dispose()
             videobg_renderer = null
@@ -121,8 +121,8 @@ class GraffitiAR(private val targetPath: String) {
         videobg_renderer = Renderer()
 
         // TODO: change it
-        box_renderer = BoxRenderer()
-        box_renderer!!.init()
+        sketchRenderer = SketchRenderer()
+        sketchRenderer!!.init()
     }
 
     fun resizeGL(width: Int, height: Int) {
@@ -182,7 +182,7 @@ class GraffitiAR(private val targetPath: String) {
                 if (status == TargetStatus.Tracked) {
                     val target = targetInstance.target()
                     val imagetarget = target as? ImageTarget ?: continue
-                    box_renderer?.render2(camera!!.projectionGL(0.2f, 500f), targetInstance.poseGL(), imagetarget.size())
+                    sketchRenderer?.render2(camera!!.projectionGL(0.2f, 500f), targetInstance.poseGL(), imagetarget.size())
                 }
             }
         } finally {

@@ -21,7 +21,7 @@ import java.nio.FloatBuffer
 //
 //================================================================================================================================
 
-class BoxRenderer {
+class SketchRenderer {
     private var program_box: Int = 0
     private var pos_coord_box: Int = 0
     private var pos_color_box: Int = 0
