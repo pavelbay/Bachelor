@@ -143,19 +143,26 @@ class DrawingView @JvmOverloads constructor(
         mPath.reset()
     }
 
+    /**
+     * @param event Objekt, das benutzt wird, um eine Bewegung zu melden.
+     */
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
         val y = event.y
 
         when (event.action) {
+            // Der Nutzer hat gerade die View berührt => wir starten das Tracking von der Bewegung
             MotionEvent.ACTION_DOWN -> {
                 touchStart(x, y)
                 invalidate()
             }
+            // Der Nutzer bewegt den Finger => wir setzen das Tracking fort
             MotionEvent.ACTION_MOVE -> {
                 touchMove(x, y)
                 invalidate()
             }
+
+            // Der Nutzer hat seinen Finger von der View entfernt => wir stoppen das Tracking
             MotionEvent.ACTION_UP -> {
                 touchUp()
                 invalidate()

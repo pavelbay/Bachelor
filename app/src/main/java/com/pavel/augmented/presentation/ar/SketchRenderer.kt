@@ -235,8 +235,6 @@ class SketchRenderer {
     }
 
     fun render2(projectionMatrix: Matrix44F, cameraview: Matrix44F, size: Vec2F) {
-        val (size0, size1) = size.data
-
         GLES20.glEnable(GLES20.GL_BLEND)
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
 
@@ -268,7 +266,6 @@ class SketchRenderer {
         GLES20.glVertexAttribPointer(positionHandle, 2, GLES20.GL_FLOAT, false, 0, verticesBuffer)
         GLES20.glEnableVertexAttribArray(positionHandle)
 
-//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
     }
 
@@ -279,17 +276,10 @@ class SketchRenderer {
             if (textureHandle[0] != 0) {
                 val options = BitmapFactory.Options()
                 options.inScaled = false   // No pre-scaling
-
-                // Bind to the texture in OpenGL
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0])
-
-                // Set filtering
-
-                // Load the bitmap into the bound texture.
                 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
-                // Recycle the bitmap, since its data has been loaded into OpenGL.
                 EventBus.getDefault().post(BitmapLoaded())
 //                bitmap.recycle()
             }
