@@ -49,10 +49,17 @@ class SketchRepository(private val context: Context,
     private fun performSave(sketch: Sketch, bitmap: Bitmap?, insertToDb: Boolean) {
         if (insertToDb) {
             Observable
-                    .fromCallable { sketchDao.insertSketch(sketch) }
-                    .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
-                    .subscribe { Log.d(TAG, "Sketch: $sketch saved to db") }
+                    .fromCallable {
+                        // Hier wird bestimmt, was gemacht werden soll
+                        sketchDao.insertSketch(sketch)
+                    }
+                    .subscribeOn(schedulerProvider.io()) // Hier gibt man an,
+                    // auf welchem Thread das gemacht werden soll. io - InputOutput
+                    .observeOn(schedulerProvider.ui()) // Auf welchem Thread subscriber aufgerufen wird
+                    .subscribe {
+                        // Wenn die Operation abgeschlossen ist, wird Subscriber aufgerufen
+                        Log.d(TAG, "Sketch: $sketch saved to db")
+                    }
         }
 
 //        fun delete() = fileStore.deleteType(existedSketch?.name)

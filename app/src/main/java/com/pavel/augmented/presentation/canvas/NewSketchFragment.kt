@@ -44,7 +44,7 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
 @Suppress("unused")
-class CanvasFragment2 : Fragment(), CanvasContract.View {
+class NewSketchFragment : Fragment(), CanvasContract.View {
 
     private val contextName = AppModule.CTX_CANVAS_FRAGMENT
 
@@ -114,19 +114,19 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
 
         override fun onOpened(cameraDevice: CameraDevice) {
             cameraOpenCloseLock.release()
-            this@CanvasFragment2.cameraDevice = cameraDevice
+            this@NewSketchFragment.cameraDevice = cameraDevice
             createCameraPreviewSession()
         }
 
         override fun onDisconnected(cameraDevice: CameraDevice) {
             cameraOpenCloseLock.release()
             cameraDevice.close()
-            this@CanvasFragment2.cameraDevice = null
+            this@NewSketchFragment.cameraDevice = null
         }
 
         override fun onError(cameraDevice: CameraDevice, error: Int) {
             onDisconnected(cameraDevice)
-            this@CanvasFragment2.activity?.finish()
+            this@NewSketchFragment.activity?.finish()
         }
 
     }
@@ -134,8 +134,8 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
     inner class ViewTarget(drawingView: DrawingView) : com.bumptech.glide.request.target.ViewTarget<DrawingView, Bitmap>(drawingView) {
         override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
             resource?.let {
-                this@CanvasFragment2.drawing_view.updateBitmap(resource)
-                this@CanvasFragment2.drawing_view.requestLayout()
+                this@NewSketchFragment.drawing_view.updateBitmap(resource)
+                this@NewSketchFragment.drawing_view.requestLayout()
             }
         }
     }
@@ -164,13 +164,13 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
     private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
         //        backgroundHandler?.post(ImageSaver(it.acquireNextImage(), file)
         presenter.existedSketch = null
-        tempBitmapSaved = false
         val image = it.acquireLatestImage()
         val buffer = image.planes[0].buffer
         val bytes = ByteArray(buffer.remaining())
         buffer.get(bytes)
         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
         presenter.saveTempBitmap(bitmap, drawing_view.mWidth, drawing_view.mHeight)
+        tempBitmapSaved = true
         drawing_view.updateBitmap(bitmap)
     }
 
@@ -327,6 +327,7 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
         closeCamera()
         stopBackgroundThread()
         releaseContext(contextName)
+        presenter.saveTempBitmap(drawing_view.bitmap, drawing_view.mWidth, drawing_view.mHeight)
         super.onPause()
     }
 
@@ -562,10 +563,12 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
         val manager = activity!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             // Wait for camera to open - 2.5 seconds is sufficient
-            if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
-                throw RuntimeException("Time out waiting to lock camera opening.")
-            }
-            manager.openCamera(cameraId, stateCallback, backgroundHandler)
+            Handler().postDelayed( {
+                if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+                    throw RuntimeException("Time out waiting to lock camera opening.")
+                }
+                manager.openCamera(cameraId, stateCallback, backgroundHandler)
+            }, 1000)
         } catch (e: CameraAccessException) {
             Log.e(TAG, e.toString())
         } catch (e: InterruptedException) {
@@ -836,6 +839,15 @@ class CanvasFragment2 : Fragment(), CanvasContract.View {
         } else {
             closeCamera()
             stopBackgroundThread()
+            if (tempBitmapSaved) {
+                val file = getTmpImageFile(context())
+                GlideApp
+                        .with(drawing_view)
+                        .asBitmap()
+                        .load(file)
+                        .signature(ObjectKey(file.lastModified()))
+                        .into(ViewTarget(drawing_view))
+            }
         }
     }
 

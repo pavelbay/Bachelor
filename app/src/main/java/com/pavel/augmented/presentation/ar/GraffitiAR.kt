@@ -182,7 +182,7 @@ class GraffitiAR(private val targetPath: String) {
                 if (status == TargetStatus.Tracked) {
                     val target = targetInstance.target()
                     val imagetarget = target as? ImageTarget ?: continue
-                    sketchRenderer?.render2(camera!!.projectionGL(0.2f, 500f), targetInstance.poseGL(), imagetarget.size())
+                    sketchRenderer?.render(camera!!.projectionGL(0.2f, 500f), targetInstance.poseGL(), imagetarget.size())
                 }
             }
         } finally {

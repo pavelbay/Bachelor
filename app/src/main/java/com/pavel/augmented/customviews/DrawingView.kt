@@ -175,7 +175,7 @@ class DrawingView @JvmOverloads constructor(
         // TODO: fix TransactionTooLargeException
         val bundle = super.onSaveInstanceState()
         val savedState = SavedState(bundle)
-        savedState.mBitmap = this.bitmap
+//        savedState.mBitmap = this.bitmap
         savedState.ratioWidth = this.ratioWidth
         savedState.ratioHeight = this.ratioHeight
         savedState.isPictureAvailable = this.pictureAvailable
@@ -185,7 +185,7 @@ class DrawingView @JvmOverloads constructor(
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is SavedState) {
             super.onRestoreInstanceState(state.superState)
-            this.bitmap = state.mBitmap
+//            this.bitmap = state.mBitmap
             this.ratioWidth = state.ratioWidth
             this.ratioHeight = state.ratioHeight
             this.pictureAvailable = state.isPictureAvailable
