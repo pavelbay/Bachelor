@@ -564,6 +564,7 @@ class NewSketchFragment : Fragment(), CanvasContract.View {
         try {
             // Wait for camera to open - 2.5 seconds is sufficient
             Handler().postDelayed( {
+                // TODO: investigate exception getParameters empty.
                 if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                     throw RuntimeException("Time out waiting to lock camera opening.")
                 }
