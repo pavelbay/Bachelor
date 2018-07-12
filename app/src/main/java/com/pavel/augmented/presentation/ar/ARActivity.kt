@@ -15,6 +15,7 @@ import android.widget.Toast
 import cn.easyar.Engine
 import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.signature.ObjectKey
+import com.pavel.augmented.MY_KEY
 import com.pavel.augmented.R
 import com.pavel.augmented.customviews.GLView
 import com.pavel.augmented.di.AppModule
@@ -30,7 +31,7 @@ import org.koin.android.ext.android.inject
 import org.koin.standalone.releaseContext
 
 class ARActivity : AppCompatActivity(), ARContract.View {
-    private val key = "JQHIN00Qmj3hEvW2C2AW1yWM2zHJBhFFZrfFASmMvUasnclxi11EbPBevQZhGVinPnrKKJynRKfQpR0n7brbcPN8IiV3KhB7ZI6n4yY1COunxg4jT2JiZS6pKf3pqniT7n1RaHN0nQYCMvS8c5POCvwdMZw6WZkoI88KWqIMzzJHNDKdgYGsJ8CFk4Ve6r9jNrFzBBaJ"
+    private val key = MY_KEY
 
     private val contextName = AppModule.CTX_AR_ACTIVITY
 
